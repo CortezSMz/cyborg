@@ -11,9 +11,9 @@ ENV NODE_ENV= \
     NODE_ENV= \
     GRAPHQL_ENDPOINT= \
     HASURA_GRAPHQL_ADMIN_SECRET= \
-WORKDIR /usr/Cyborg
-COPY src/bot/package.json /usr/Cyborg/src/bot/
-COPY package.json /usr/Cyborg/
+WORKDIR ~/Cyborg
+COPY src/bot/package.json ~/Cyborg/src/bot/
+COPY package.json ~/Cyborg/
 RUN apk add --update \
 && apk add --no-cache ca-certificates \
 && apk add --no-cache --virtual .build-deps git curl build-base python g++ make \
