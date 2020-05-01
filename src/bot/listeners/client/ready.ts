@@ -28,7 +28,7 @@ export default class ReadyListener extends Listener {
 			if (!guild.me?.permissions.has(Permissions.FLAGS.MANAGE_WEBHOOKS)) continue;
 			const webhook = (await guild.fetchWebhooks()).get(logs);
 			if (!webhook) continue;
-			this.client.webhooks.set(webhook.id, webhook);
+			this.client.configWebhooks.set(webhook.id, webhook);
 		}
 	}
 }

@@ -38,7 +38,7 @@ export default class SetConfigGuildLogCommand extends Command {
 			})
 			.then((wh) => {
 				this.client.settings.set(guild, SETTINGS.GUILD_LOG, wh.id);
-				this.client.webhooks.set(wh.id, wh);
+				this.client.configWebhooks.set(wh.id, wh);
 				return message.util?.reply(MESSAGES.COMMANDS.CONFIG.SET.GUILD_LOG.REPLY);
 			})
 			.catch((err) => this.client.logger.error(err, { topic: TOPICS.UNHANDLED_REJECTION }));

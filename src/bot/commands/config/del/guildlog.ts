@@ -22,7 +22,7 @@ export default class DeleteConfigGuildLogCommand extends Command {
 		const guildLogs = this.client.settings.get(guild, SETTINGS.GUILD_LOG);
 		if (guildLogs) {
 			this.client.settings.delete(guild, SETTINGS.GUILD_LOG);
-			this.client.webhooks.delete(guildLogs);
+			this.client.configWebhooks.delete(guildLogs);
 			try {
 				(await guild.fetchWebhooks()).get(guildLogs)?.delete();
 			} catch (err) {

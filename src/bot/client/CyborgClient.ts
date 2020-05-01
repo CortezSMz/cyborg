@@ -20,7 +20,7 @@ declare module 'discord-akairo' {
 		settings: HasuraProvider;
 		commandHandler: CommandHandler;
 		config: CyborgOptions;
-		webhooks: Collection<string, Webhook>;
+		configWebhooks: Collection<string, Webhook>;
 		remindmeScheduler: RemindmeScheduler;
 		prometheus: {
 			messagesCounter: Counter<string>;
@@ -118,7 +118,7 @@ export default class CyborgClient extends AkairoClient {
 			{
 				messageCacheMaxSize: 1000,
 				disableMentions: 'everyone',
-			}
+			},
 		);
 
 		this.root = config.root;
@@ -166,11 +166,11 @@ export default class CyborgClient extends AkairoClient {
 		this.config = config;
 
 		process.on('unhandledRejection', (err: any) => {
-			this.logger.error(err, { topic: TOPICS.UNHANDLED_REJECTION }), console.log(err);
+			this.logger.error(err, { topic: TOPICS.UNHANDLED_REJECTION });
 		});
 
 		if (process.env.LOGS) {
-			this.webhooks = new Collection();
+			this.configWebhooks = new Collection();
 		}
 	}
 

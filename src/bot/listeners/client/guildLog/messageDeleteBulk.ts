@@ -17,7 +17,7 @@ export default class MessageDeleteBulkGuildLogListener extends Listener {
 		if (messages.first()?.author.bot) return;
 		const guildLogs = this.client.settings.get(messages.first()?.guild!, SETTINGS.GUILD_LOG);
 		if (guildLogs) {
-			const webhook = this.client.webhooks.get(guildLogs);
+			const webhook = this.client.configWebhooks.get(guildLogs);
 			if (!webhook) return;
 			const output = messages.reduce((out, msg) => {
 				const attachment = msg.attachments.first();

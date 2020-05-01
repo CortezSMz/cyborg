@@ -4,5 +4,8 @@
 	"description": "",
 	"author": "Corteez#3113",
 	"license": "UNLICENSED",
-	"private": true
+	"private": true,
+	"renovate": {
+			"extends": ["teal"]
+	}
 }

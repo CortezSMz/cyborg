@@ -17,7 +17,7 @@ export default class VoiceStateUpdateGuildLogListener extends Listener {
 		}
 		const guildLogs = this.client.settings.get(newState.guild, SETTINGS.GUILD_LOG);
 		if (guildLogs) {
-			const webhook = this.client.webhooks.get(guildLogs);
+			const webhook = this.client.configWebhooks.get(guildLogs);
 			if (!webhook) return;
 			if (!newState.member) return;
 			const embed = new MessageEmbed()

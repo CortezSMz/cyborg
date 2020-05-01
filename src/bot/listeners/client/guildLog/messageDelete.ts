@@ -17,7 +17,7 @@ export default class MessageDeleteGuildLogListener extends Listener {
 		if (!message.content) return;
 		const guildLogs = this.client.settings.get(message.guild, SETTINGS.GUILD_LOG);
 		if (guildLogs) {
-			const webhook = this.client.webhooks.get(guildLogs);
+			const webhook = this.client.configWebhooks.get(guildLogs);
 			if (!webhook) return;
 			const attachment = message.attachments.first();
 			const embed = new MessageEmbed()
