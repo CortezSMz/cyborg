@@ -12,6 +12,7 @@ export default class GuildMemberRemoveMemberLogListener extends Listener {
 	}
 
 	public async exec(member: GuildMember) {
+		if (member.partial) return;
 		const memberlog = this.client.settings.get(member.guild, SETTINGS.MEMBER_LOG);
 		if (memberlog) {
 			const embed = new MessageEmbed()

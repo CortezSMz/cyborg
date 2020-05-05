@@ -14,6 +14,7 @@ export default class MessageDeleteBulkGuildLogListener extends Listener {
 	}
 
 	public async exec(messages: Collection<string, Message>) {
+		if (messages.first()?.partial) return;
 		if (messages.first()?.author.bot) return;
 		const guildLogs = this.client.settings.get(messages.first()?.guild!, SETTINGS.GUILD_LOG);
 		if (guildLogs) {
@@ -23,9 +24,9 @@ export default class MessageDeleteBulkGuildLogListener extends Listener {
 				const attachment = msg.attachments.first();
 				out += `[${moment.utc(msg.createdTimestamp).format('YYYY/MM/DD hh:mm:ss')}] ${msg.author.tag} (${
 					msg.author.id
-				}): ${msg.cleanContent ? msg.cleanContent.replace(/\n/g, '\r\n') : ''}${
+					}): ${msg.cleanContent ? msg.cleanContent.replace(/\n/g, '\r\n') : ''}${
 					attachment ? `\r\n${attachment.url}` : ''
-				}\r\n`;
+					}\r\n`;
 				return out;
 			}, '');
 			const embed = new MessageEmbed()

@@ -12,7 +12,7 @@ export default class UserInfoCommand extends Command {
 			description: {
 				content: MESSAGES.COMMANDS.INFO.USER.DESCRIPTION,
 				usage: '[member]',
-				examples: ['Corteez', '@Corteez', '81440962496172032'],
+				examples: ['Corteez', '@Corteez', '200502727170588673'],
 			},
 			category: 'info',
 			channel: 'guild',

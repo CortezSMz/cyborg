@@ -229,6 +229,17 @@ export const GRAPHQL = {
 			}
 		`,
 
+		REMINDMES_CLEAR_ID: gql`
+			mutation($id: Int!, $author: String!) {
+				deleteRemindmes${PRODUCTION ? '' : 'Staging'}(where: {
+					id: { _eq: $id },
+					author: { _eq: $author }
+				}) {
+					affected_rows
+				}
+			}
+		`,
+
 		REMINDMES_AUTHOR: gql`
 			query($author: String!) {
 				remindmes${PRODUCTION ? '' : 'Staging'}(
@@ -362,6 +373,25 @@ export const GRAPHQL = {
 				}
 			}
 		`,
+
+		INSERT_REACTION_ROLES: gql`
+			mutation($channel: String!, $guild: String!, $message: String!, $roles: jsonb!) {
+				insertReactionroles${PRODUCTION ? '' : 'Staging'}(objects: {
+					channel: $channel,
+					guild: $guild,
+					message: $message,
+					roles: $roles
+				}) {
+					returning {
+						id
+						channel
+						guild
+						message
+					}
+				}
+			}
+		`,
+
 
 		DELETE_MEMBER_ROLE_STATE: gql`
 			mutation($guild: String!, $member: String!) {

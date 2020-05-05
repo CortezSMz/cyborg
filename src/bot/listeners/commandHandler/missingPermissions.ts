@@ -58,24 +58,18 @@ export default class CommandErrorListener extends Listener {
 		switch (type) {
 			case 'client':
 				this.client.logger.info(
-					`Client is missing ${PERMISSIONS[missing]} for the command ${command.id} on ${
-						message.guild ? `${message.guild.name} (${message.guild.id})` : 'DM'
-					}`,
-					{ topic: TOPICS.DISCORD_AKAIRO, event: EVENTS.COMMAND_ERROR },
+					`Client is missing ${PERMISSIONS[missing]} for the command ${command.id} on ${message.guild ? `${message.guild.name} (${message.guild.id})` : 'DM'}`,
+					{ topic: TOPICS.DISCORD_AKAIRO, event: EVENTS.COMMAND_ERROR }
 				);
 				return message.util?.send(
 					stripIndents`Humpf. I can't help you if you don't let me.
-                                    I need **${PERMISSIONS[missing]}** to run **${
-						prefix ? prefix : process.env.COMMAND_PREFIX
-					}${command.id.replace(/-/g, ' ')}**`,
+									I need **${PERMISSIONS[missing]}** to run **${prefix ? prefix : process.env.COMMAND_PREFIX}${command.id.replace(/-/g, ' ')}**`
 				);
 
 			case 'user':
 				return message.util?.send(
-					stripIndents`I won't let you do that. Please, just don't cry ${message.author}.
-                                    You need **${PERMISSIONS[missing]}** to use **${
-						prefix ? prefix : process.env.COMMAND_PREFIX
-					}${command.id.replace(/-/g, ' ')}**.`,
+					stripIndents`I won't let you do that. ${message.author}.
+									You need **${PERMISSIONS[missing]}** to use **${prefix ? prefix : process.env.COMMAND_PREFIX}${command.id.replace(/-/g, ' ')}**.`
 				);
 		}
 	}

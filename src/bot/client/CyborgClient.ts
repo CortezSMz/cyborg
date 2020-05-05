@@ -1,4 +1,4 @@
-import { AkairoClient, CommandHandler, Flag, InhibitorHandler, ListenerHandler } from 'discord-akairo';
+import { AkairoClient, CommandHandler, Flag, InhibitorHandler, ListenerHandler, AkairoOptions } from 'discord-akairo';
 import { Collection, Message, Util, Webhook } from 'discord.js';
 import { createServer, Server } from 'http';
 import fetch from 'node-fetch';
@@ -9,10 +9,12 @@ import { Logger } from 'winston';
 import RemindmeScheduler from '../structures/RemindmeScheduler';
 import Queue from '../structures/Queue';
 import HasuraProvider from '../structures/SettingsProvider';
+import ReactionRoleHandler from '../structures/ReactionRoleHandler';
 import { MESSAGES, PRODUCTION, PROMETHEUS, SETTINGS } from '../util/constants';
 import { GRAPHQL, graphQLClient } from '../util/graphQL';
 import { Tags, TagsInsertInput } from '../util/graphQLTypes';
 import { EVENTS, logger, TOPICS } from '../util/logger';
+import ms from '../util/timeParser';
 
 declare module 'discord-akairo' {
 	interface AkairoClient {
@@ -21,6 +23,7 @@ declare module 'discord-akairo' {
 		commandHandler: CommandHandler;
 		config: CyborgOptions;
 		configWebhooks: Collection<string, Webhook>;
+		reactionRoleHandler: ReactionRoleHandler;
 		remindmeScheduler: RemindmeScheduler;
 		prometheus: {
 			messagesCounter: Counter<string>;
@@ -80,6 +83,8 @@ export default class CyborgClient extends AkairoClient {
 
 	public config: CyborgOptions;
 
+	public reactionRoleHandler = new ReactionRoleHandler(this);
+
 	public remindmeScheduler = new RemindmeScheduler(this);
 
 	public prometheus = {
@@ -118,6 +123,8 @@ export default class CyborgClient extends AkairoClient {
 			{
 				messageCacheMaxSize: 1000,
 				disableMentions: 'everyone',
+				partials: ['MESSAGE', 'REACTION'],
+				ws: { intents: ['GUILDS', 'GUILD_MESSAGES', 'GUILD_MESSAGE_REACTIONS'] },
 			},
 		);
 
@@ -125,6 +132,13 @@ export default class CyborgClient extends AkairoClient {
 
 		this.on('message', () => {
 			this.prometheus.messagesCounter.inc();
+		});
+
+		this.commandHandler.resolver.addType('duration', (_, str): number | null => {
+			if (!str) return null;
+			const time = ms(str);
+			if (time && time >= 1000 && time <= 224763304449000 && !isNaN(time)) return time;
+			return null;
 		});
 
 		this.commandHandler.resolver.addType('tag', async (message, phrase) => {

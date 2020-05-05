@@ -50,11 +50,8 @@ export default class HelpCommand extends Command {
 
 		if (command.aliases.length > 1) embed.addField('ﾅ Aliases', `\`${command.aliases.join('` `')}\``, true);
 		if (command.description.examples?.length)
-			embed.addField(
-				'ﾅ Examples',
-				`\`${prefix}${command.aliases[0]} ${command.description.examples.join(
-					`\`\n\`${prefix}${command.aliases[0]} `,
-				)}\``,
+			embed.addField('ﾅ Examples',
+				`\`${prefix}${command.aliases[0]} ${command.description.examples.join(`\`\n\`${prefix}${command.aliases[0]} `)}\``,
 				true,
 			);
 

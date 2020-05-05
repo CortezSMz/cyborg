@@ -13,6 +13,7 @@ export default class MessageUpdateGuildLogListener extends Listener {
 	}
 
 	public async exec(oldMessage: Message, newMessage: Message) {
+		if (oldMessage.partial || newMessage.partial) return;
 		if (oldMessage.author.bot || newMessage.author.bot) return;
 		if (!newMessage.guild) return;
 		if (Util.escapeMarkdown(oldMessage.content) === Util.escapeMarkdown(newMessage.content)) return;

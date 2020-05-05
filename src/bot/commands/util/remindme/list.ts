@@ -1,9 +1,9 @@
 import * as moment from 'moment';
 import { Command } from 'discord-akairo';
 import { Message, Permissions } from 'discord.js';
-import { COLORS } from '../../util/constants';
-import { graphQLClient, GRAPHQL } from '../../util/graphQL';
-import { RemindmesInsertInput, Remindmes } from '../../util/graphQLTypes';
+import { COLORS, MESSAGES } from '../../../util/constants';
+import { graphQLClient, GRAPHQL } from '../../../util/graphQL';
+import { RemindmesInsertInput, Remindmes } from '../../../util/graphQLTypes';
 import { MessageEmbed } from 'discord.js';
 
 export default class RemindmeCommand extends Command {
@@ -12,8 +12,6 @@ export default class RemindmeCommand extends Command {
 			category: 'util',
 			clientPermissions: [Permissions.FLAGS.EMBED_LINKS],
 			ratelimit: 2,
-			channel: 'guild',
-			args: [],
 		});
 	}
 
@@ -28,15 +26,18 @@ export default class RemindmeCommand extends Command {
 		let remindmes: Remindmes[];
 		remindmes = data.remindmes;
 
-		if (remindmes.length <= 0) return message.util?.send("You don't have any running reminders.");
+		if (remindmes.length <= 0) return message.util?.send(MESSAGES.COMMANDS.UTIL.REMINDME.LIST.NOT_FOUND);
 
 		const embed = new MessageEmbed()
 			.setColor(COLORS.EMBED)
-			.setTitle(`${message.author.tag} reminders`)
+			.setAuthor(`${message.author.tag} ${MESSAGES.COMMANDS.UTIL.REMINDME.LIST.TITLE} `, message.author.displayAvatarURL())
 			.setFooter(
 				remindmes.length < 10
-					? `Total of ${remindmes.length} reminder${remindmes.length == 1 ? '' : 's'}`
-					: `Showing latest 10 of ${remindmes.length} reminders`
+					? MESSAGES.COMMANDS.UTIL.REMINDME.LIST.FOOTER_1
+						.replace('$(qtd)', `${remindmes.length}`)
+						.replace('$(s)', remindmes.length == 1 ? '' : 's')
+					: MESSAGES.COMMANDS.UTIL.REMINDME.LIST.FOOTER_2
+						.replace('$(qtd)', `${remindmes.length}`),
 			);
 
 		for (let i = 0; i < (remindmes.length < 10 ? remindmes.length : 10); i++) {

@@ -22,17 +22,11 @@ export enum COLORS {
 	SOFTBAN = 16745216,
 	KICK = 16745216,
 	MUTE = 16763904,
-	EMBED = 11453937, // 16776960,
+	EMBED = 11453937,
 	EMOJI = 16776960,
 	REACTION = 16776960,
 	TAG = 16776960,
 	WARN = 16776960,
-
-	SOMECOLOR1 = 16300211,
-	SOMECOLOR2 = 11203490,
-	SOMECOLOR3 = 11453937,
-	SOMECOLOR4 = 11642864,
-
 	MEMBER_JOIN = 8450847,
 	MEMBER_LEFT = 16745216,
 }
@@ -217,10 +211,8 @@ export const MESSAGES = {
 					EMBED: {
 						DESCRIPTION: 'Sets the restriction role for embeds of the guild.',
 						PROMPT: {
-							START: (author: User | null) =>
-								`${author}, what role should act as the embed restricted role?`,
-							RETRY: (author: User | null) =>
-								`${author}, please mention a proper role to be the embed restricted role.`,
+							START: (author: User | null) => `${author}, what role should act as the embed restricted role?`,
+							RETRY: (author: User | null) => `${author}, please mention a proper role to be the embed restricted role.`,
 						},
 						REPLY: (role: string) => `set restricted role for embeds to **${role}**`,
 					},
@@ -228,10 +220,8 @@ export const MESSAGES = {
 					EMOJI: {
 						DESCRIPTION: 'Sets the restriction role for emojis of the guild.',
 						PROMPT: {
-							START: (author: User | null) =>
-								`${author}, what role should act as the emoji restricted role?`,
-							RETRY: (author: User | null) =>
-								`${author}, please mention a proper role to be the emoji restricted role.`,
+							START: (author: User | null) => `${author}, what role should act as the emoji restricted role?`,
+							RETRY: (author: User | null) => `${author}, please mention a proper role to be the emoji restricted role.`,
 						},
 						REPLY: (role: string) => `set restricted role for emojis to **${role}**`,
 					},
@@ -239,10 +229,8 @@ export const MESSAGES = {
 					REACTION: {
 						DESCRIPTION: 'Sets the restriction role for reactions of the guild.',
 						PROMPT: {
-							START: (author: User | null) =>
-								`${author}, what role should act as the reaction restricted role?`,
-							RETRY: (author: User | null) =>
-								`${author}, please mention a proper role to be the reaction restricted role.`,
+							START: (author: User | null) => `${author}, what role should act as the reaction restricted role?`,
+							RETRY: (author: User | null) => `${author}, please mention a proper role to be the reaction restricted role.`,
 						},
 						REPLY: (role: string) => `set restricted role for reactions to **${role}**`,
 					},
@@ -251,8 +239,7 @@ export const MESSAGES = {
 						DESCRIPTION: 'Sets the restriction role for tags of the guild.',
 						PROMPT: {
 							START: (author: User | null) => `${author}, what role should act as the tag restricted role?`,
-							RETRY: (author: User | null) =>
-								`${author}, please mention a proper role to be the tag restricted role.`,
+							RETRY: (author: User | null) => `${author}, please mention a proper role to be the tag restricted role.`,
 						},
 						REPLY: (role: string) => `set restricted role for tags to **${role}**`,
 					},
@@ -370,8 +357,7 @@ export const MESSAGES = {
 						RETRY: (author: User | null) => `${author}, please enter a case number.`,
 					},
 					NO_CASE_NUMBER: 'at least provide me with a correct number.',
-					NO_CASE:
-						"I looked where I could, but I couldn't find a case with that Id, maybe look for something that actually exists next time!",
+					NO_CASE: "I looked where I could, but I couldn't find a case with that Id, maybe look for something that actually exists next time!",
 					DELETE: 'You sure you want me to delete this case?',
 					DELETING: (id: number) => `Deleting **${id}**...`,
 					TIMEOUT: 'timed out. Cancelled delete.',
@@ -386,8 +372,7 @@ export const MESSAGES = {
 						RETRY: (author: User | null) => `${author}, please enter a case number.`,
 					},
 					NO_CASE_NUMBER: 'at least provide me with a correct number.',
-					NO_CASE:
-						"I looked where I could, but I couldn't find a case with that Id, maybe look for something that actually exists next time!",
+					NO_CASE: "I looked where I could, but I couldn't find a case with that Id, maybe look for something that actually exists next time!",
 				},
 			},
 
@@ -462,8 +447,7 @@ export const MESSAGES = {
 					RETRY: (author: User | null) => `${author}, please use a proper time format.`,
 				},
 				NO_CASE_NUMBER: 'at least provide me with a correct number.',
-				NO_CASE:
-					"I looked where I could, but I couldn't find a case with that Id, maybe look for something that actually exists next time!",
+				NO_CASE: "I looked where I could, but I couldn't find a case with that Id, maybe look for something that actually exists next time!",
 				WRONG_MOD: "you'd be wrong in thinking I would let you fiddle with other peoples achievements!",
 				NO_MESSAGE: "looks like the message doesn't exist anymore!",
 				REPLY: (id: number) => `Successfully updated duration for case **#${id}**`,
@@ -512,14 +496,11 @@ export const MESSAGES = {
 					RETRY: (author: User | null) => `${author}, please enter a case number.`,
 				},
 				NO_CASE_NUMBER: 'at least provide me with a correct number.',
-				NO_CASE:
-					"I looked where I could, but I couldn't find a case with that Id, maybe look for something that actually exists next time!",
+				NO_CASE: "I looked where I could, but I couldn't find a case with that Id, maybe look for something that actually exists next time!",
 				WRONG_MOD: "you'd be wrong in thinking I would let you fiddle with other peoples achievements!",
 				NO_MESSAGE: "looks like the message doesn't exist anymore!",
 				REPLY: (ids: number[]) =>
-					`Successfully set reason for ${
-						ids.length === 1 ? `case **#${ids[0]}**` : `cases **#${ids[0]}-#${ids[ids.length - 1]}**`
-					}`,
+					`Successfully set reason for ${ids.length === 1 ? `case **#${ids[0]}**` : `cases **#${ids[0]}-#${ids[ids.length - 1]}**`}`,
 			},
 
 			SOFTBAN: {
@@ -593,8 +574,7 @@ export const MESSAGES = {
 					RETRY: (author: User | null, val: string) => `${author}, a tag with the name **${val}** already exists.`,
 				},
 				TOO_LONG: 'you must still have water behind your ears to not realize that messages have a limit of 2000 characters!',
-				REPLY: (first: string, second: string, add: boolean) =>
-					`alias ${second.substring(0, 1900)} ${add ? 'added to' : 'deleted from'} tag ${first}.`,
+				REPLY: (first: string, second: string, add: boolean) => `alias ${second.substring(0, 1900)} ${add ? 'added to' : 'deleted from'} tag ${first}.`,
 			},
 
 			DELETE: {
@@ -692,13 +672,11 @@ export const MESSAGES = {
 			CYBERNUKE: {
 				DESCRIPTION: 'Bans all members that have joined recently, with new accounts.',
 				PROMPT: {
-					START: (author: User | null) =>
-						`${author}, how old (in minutes) should a member be for the cybernuke to ignore them (server join date)?`,
+					START: (author: User | null) => `${author}, how old (in minutes) should a member be for the cybernuke to ignore them (server join date)?`,
 					RETRY: (author: User | null) => `${author}, the minimum is \`0.1\` and the maximum \`120\` minutes.`,
 				},
 				PROMPT_2: {
-					START: (author: User | null) =>
-						`${author}, how old (in minutes) should a member's account be for the cybernuke to ignore them (account age)?`,
+					START: (author: User | null) => `${author}, how old (in minutes) should a member's account be for the cybernuke to ignore them (account age)?`,
 					RETRY: (author: User | null) => `${author}, the minimum is \`0.1\` minutes.`,
 				},
 			},
@@ -736,8 +714,7 @@ export const MESSAGES = {
 
 			PREFIX: {
 				DESCRIPTION: 'Displays or changes the prefix of the guild.',
-				REPLY: (prefix: string | string[] | Promise<string | string[]>) =>
-					`The current prefix for this guild is: \`${prefix}\``,
+				REPLY: (prefix: string | string[] | Promise<string | string[]>) => `The current prefix for this guild is: \`${prefix}\``,
 				REPLY_2: (prefix: string) => `the prefix has been reset to \`${prefix}\``,
 				REPLY_3: (prefix: string) => `the prefix has been set to \`${prefix}\``,
 			},
@@ -762,20 +739,55 @@ export const MESSAGES = {
 				╚═══════╩═════════╩═════════╝
 				\`\`\`\
 				**remindme list**
-				Shows the 10 latest currently running reminders.
+				Shows 10 latest currently running reminders.
+				**remindme del <ID>**
+				Delete a single reminder by ID.
 				**remindme clear**
 				Clears all reminders you have set.
 				`,
-				PROMPT_TIME: {
-					START: (author: User | null) => `${author}, when do you want me to remind you?`,
-					RETRY: (author: User | null, prefix: string | string[] | Promise<string | string[]>) => stripIndents`
-					${author}, when do you want me do remind you?
+				ADD: {
+					TOO_LONG: 'you must still have water behind your ears to not realize that messages have a limit of 2000 characters!',
+					PROMPT_TIME: {
+						START: (author: User | null) => `${author}, when do you want me to remind you?`,
+						RETRY: (author: User | null) => stripIndents`
+						${author}, when do you want me do remind you?
+						
+						Check \`$(prefix)help remindme\` for more information on valid time formats.`,
+					},
+					PROMPT_TEXT: {
+						START: (author: User | null) => `${author}, what should I remind you of?`,
+					},
+				},
+				LIST: {
+					NOT_FOUND: "You don't have any running reminders.",
+					TITLE: 'reminders',
+					FOOTER_1: `Total of $(qtd) reminder$(s)`,
+					FOOTER_2: `Showing latest 10 of $(qtd) reminders`,
+
+				},
+				CLEAR: {
+					NOT_FOUND: `You don't have anything to clear.`,
+					AWAIT_MESSAGE: stripIndents`
+					Are you sure you want to clear $(qtd) reminder$(s)?
+
+					Type **y**es to confirm.`,
+					TIMEOUT: `You took too long to respond. I guess you don't want to clear your reminders.`,
+					REPLY: `Successfully cleared $(qtd) reminder$(s).`,
+				},
+				DEL: {
+					PROMPT: {
+						START: (author: User | null) => `${author}, whats the ID of the reminder you want to delete?`,
+						RETRY: (author: User | null) => stripIndents`
+						${author}, whats the ID of the reminder you want to delete?
+						
+						Check \`$(prefix)remindme list\` if you're not sure of the ID.`,
+					},
+					ERROR: stripIndents`
+					Could not find that reminder, are you sure you typed the correct ID?
 					
-					Check \`${prefix}help remindme\` for more information on valid time formats.`,
-				},
-				PROMPT_TEXT: {
-					START: (author: User | null) => `${author}, what should I remind you of?`,
-				},
+					Check \`$(prefix)remindme list\` if you're not sure of the ID.`,
+					REPLY: 'Successfully deleted reminder `$(key)`.'
+				}
 			},
 
 			STATS: {

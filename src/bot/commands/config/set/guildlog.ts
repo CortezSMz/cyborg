@@ -31,11 +31,10 @@ export default class SetConfigGuildLogCommand extends Command {
 	public exec(message: Message, { channel }: { channel: TextChannel }) {
 		const guild = message.guild!;
 
-		channel
-			.createWebhook(`${this.client.user?.username} logs [${guild.id}]`, {
-				avatar: this.client.user?.displayAvatarURL(),
-				reason: 'Cyborg: Webhook for logs.',
-			})
+		channel.createWebhook(`${this.client.user?.username} logs [${guild.id}]`, {
+			avatar: this.client.user?.displayAvatarURL(),
+			reason: 'Cyborg: Webhook for logs.',
+		})
 			.then((wh) => {
 				this.client.settings.set(guild, SETTINGS.GUILD_LOG, wh.id);
 				this.client.configWebhooks.set(wh.id, wh);

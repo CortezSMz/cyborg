@@ -9,7 +9,7 @@ export default class BlacklistCommand extends Command {
 			description: {
 				content: MESSAGES.COMMANDS.UTIL.BLACKLIST.DESCRIPTION,
 				usage: '<user>',
-				examples: ['Corteez', '@Corteez', '81440962496172032'],
+				examples: ['Corteez', '@Corteez', '200502727170588673'],
 			},
 			category: ' owner',
 			ownerOnly: true,

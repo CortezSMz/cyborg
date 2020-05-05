@@ -29,13 +29,8 @@ export default class CheckConfigCommand extends Command {
 			new MessageEmbed()
 				.addField('ﾅ Role State', roleState ? `\`✅\`` : '`❌`')
 				.addField('ﾅ Guild Log', guildlogChannel ? `${guild.channels.cache.get(guildlogChannel)} \`✅\`` : '`❌`')
-				.addField(
-					'ﾅ Member Log',
-					memberlog.ID
-						? `${guild.channels.cache.get(memberlog.ID)} ${memberlog.MENTION ? '(w/ mention)' : ''} \`✅\``
-						: '`❌`',
-				)
-				.setThumbnail(guild.iconURL() ?? ''),
+				.addField('ﾅ Member Log', memberlog.ID ? `${guild.channels.cache.get(memberlog.ID)} ${memberlog.MENTION ? '(w/ mention)' : ''} \`✅\`` : '`❌`')
+				.setThumbnail(guild.iconURL() ?? '')
 		);
 	}
 }

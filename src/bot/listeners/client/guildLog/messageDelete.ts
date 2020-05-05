@@ -12,6 +12,7 @@ export default class MessageDeleteGuildLogListener extends Listener {
 	}
 
 	public async exec(message: Message) {
+		if (message.partial) return;
 		if (message.author.bot) return;
 		if (!message.guild) return;
 		if (!message.content) return;

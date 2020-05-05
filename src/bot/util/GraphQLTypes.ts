@@ -710,6 +710,8 @@ export type MutationRoot = {
   deleteCases?: Maybe<CasesMutationResponse>;
   /** delete data from the table: "lockdowns" */
   deleteLockdowns?: Maybe<LockdownsMutationResponse>;
+  /** delete data from the table: "reactionroles" */
+  deleteReactionroles?: Maybe<ReactionrolesMutationResponse>;
   /** delete data from the table: "remindmes" */
   deleteRemindmes?: Maybe<RemindmesMutationResponse>;
   /** delete data from the table: "role_states" */
@@ -722,6 +724,8 @@ export type MutationRoot = {
   insertCases?: Maybe<CasesMutationResponse>;
   /** insert data into the table: "lockdowns" */
   insertLockdowns?: Maybe<LockdownsMutationResponse>;
+  /** insert data into the table: "reactionroles" */
+  insertReactionroles?: Maybe<ReactionrolesMutationResponse>;
   /** insert data into the table: "remindmes" */
   insertRemindmes?: Maybe<RemindmesMutationResponse>;
   /** insert data into the table: "role_states" */
@@ -734,6 +738,8 @@ export type MutationRoot = {
   updateCases?: Maybe<CasesMutationResponse>;
   /** update data of the table: "lockdowns" */
   updateLockdowns?: Maybe<LockdownsMutationResponse>;
+  /** update data of the table: "reactionroles" */
+  updateReactionroles?: Maybe<ReactionrolesMutationResponse>;
   /** update data of the table: "remindmes" */
   updateRemindmes?: Maybe<RemindmesMutationResponse>;
   /** update data of the table: "role_states" */
@@ -754,6 +760,12 @@ export type MutationRootDeleteCasesArgs = {
 /** mutation root */
 export type MutationRootDeleteLockdownsArgs = {
   where: LockdownsBoolExp;
+};
+
+
+/** mutation root */
+export type MutationRootDeleteReactionrolesArgs = {
+  where: ReactionrolesBoolExp;
 };
 
 
@@ -792,6 +804,13 @@ export type MutationRootInsertCasesArgs = {
 export type MutationRootInsertLockdownsArgs = {
   objects: Array<LockdownsInsertInput>;
   on_conflict?: Maybe<LockdownsOnConflict>;
+};
+
+
+/** mutation root */
+export type MutationRootInsertReactionrolesArgs = {
+  objects: Array<ReactionrolesInsertInput>;
+  on_conflict?: Maybe<ReactionrolesOnConflict>;
 };
 
 
@@ -835,6 +854,19 @@ export type MutationRootUpdateCasesArgs = {
 export type MutationRootUpdateLockdownsArgs = {
   _set?: Maybe<LockdownsSetInput>;
   where: LockdownsBoolExp;
+};
+
+
+/** mutation root */
+export type MutationRootUpdateReactionrolesArgs = {
+  _append?: Maybe<ReactionrolesAppendInput>;
+  _delete_at_path?: Maybe<ReactionrolesDeleteAtPathInput>;
+  _delete_elem?: Maybe<ReactionrolesDeleteElemInput>;
+  _delete_key?: Maybe<ReactionrolesDeleteKeyInput>;
+  _inc?: Maybe<ReactionrolesIncInput>;
+  _prepend?: Maybe<ReactionrolesPrependInput>;
+  _set?: Maybe<ReactionrolesSetInput>;
+  where: ReactionrolesBoolExp;
 };
 
 
@@ -903,6 +935,12 @@ export type QueryRoot = {
   lockdownsAggregate: LockdownsAggregate;
   /** fetch data from the table: "lockdowns" using primary key columns */
   lockdownsByPk?: Maybe<Lockdowns>;
+  /** fetch data from the table: "reactionroles" */
+  reactionroles: Array<Reactionroles>;
+  /** fetch aggregated fields from the table: "reactionroles" */
+  reactionrolesAggregate: ReactionrolesAggregate;
+  /** fetch data from the table: "reactionroles" using primary key columns */
+  reactionrolesByPk?: Maybe<Reactionroles>;
   /** fetch data from the table: "remindmes" */
   remindmes: Array<Remindmes>;
   /** fetch aggregated fields from the table: "remindmes" */
@@ -979,6 +1017,32 @@ export type QueryRootLockdownsAggregateArgs = {
 /** query root */
 export type QueryRootLockdownsByPkArgs = {
   id: Scalars['uuid'];
+};
+
+
+/** query root */
+export type QueryRootReactionrolesArgs = {
+  distinct_on?: Maybe<Array<ReactionrolesSelectColumn>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<ReactionrolesOrderBy>>;
+  where?: Maybe<ReactionrolesBoolExp>;
+};
+
+
+/** query root */
+export type QueryRootReactionrolesAggregateArgs = {
+  distinct_on?: Maybe<Array<ReactionrolesSelectColumn>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<ReactionrolesOrderBy>>;
+  where?: Maybe<ReactionrolesBoolExp>;
+};
+
+
+/** query root */
+export type QueryRootReactionrolesByPkArgs = {
+  id: Scalars['Int'];
 };
 
 
@@ -1085,6 +1149,320 @@ export type QueryRootTagsByPkArgs = {
   id: Scalars['uuid'];
 };
 
+/** columns and relationships of "reactionroles" */
+export type Reactionroles = {
+   __typename?: 'reactionroles';
+  channel: Scalars['String'];
+  guild: Scalars['String'];
+  id: Scalars['Int'];
+  message: Scalars['String'];
+  roles: Scalars['jsonb'];
+};
+
+
+/** columns and relationships of "reactionroles" */
+export type ReactionrolesRolesArgs = {
+  path?: Maybe<Scalars['String']>;
+};
+
+/** aggregated selection of "reactionroles" */
+export type ReactionrolesAggregate = {
+   __typename?: 'reactionroles_aggregate';
+  aggregate?: Maybe<ReactionrolesAggregateFields>;
+  nodes: Array<Reactionroles>;
+};
+
+/** aggregate fields of "reactionroles" */
+export type ReactionrolesAggregateFields = {
+   __typename?: 'reactionroles_aggregate_fields';
+  avg?: Maybe<ReactionrolesAvgFields>;
+  count?: Maybe<Scalars['Int']>;
+  max?: Maybe<ReactionrolesMaxFields>;
+  min?: Maybe<ReactionrolesMinFields>;
+  stddev?: Maybe<ReactionrolesStddevFields>;
+  stddev_pop?: Maybe<ReactionrolesStddevPopFields>;
+  stddev_samp?: Maybe<ReactionrolesStddevSampFields>;
+  sum?: Maybe<ReactionrolesSumFields>;
+  var_pop?: Maybe<ReactionrolesVarPopFields>;
+  var_samp?: Maybe<ReactionrolesVarSampFields>;
+  variance?: Maybe<ReactionrolesVarianceFields>;
+};
+
+
+/** aggregate fields of "reactionroles" */
+export type ReactionrolesAggregateFieldsCountArgs = {
+  columns?: Maybe<Array<ReactionrolesSelectColumn>>;
+  distinct?: Maybe<Scalars['Boolean']>;
+};
+
+/** order by aggregate values of table "reactionroles" */
+export type ReactionrolesAggregateOrderBy = {
+  avg?: Maybe<ReactionrolesAvgOrderBy>;
+  count?: Maybe<OrderBy>;
+  max?: Maybe<ReactionrolesMaxOrderBy>;
+  min?: Maybe<ReactionrolesMinOrderBy>;
+  stddev?: Maybe<ReactionrolesStddevOrderBy>;
+  stddev_pop?: Maybe<ReactionrolesStddevPopOrderBy>;
+  stddev_samp?: Maybe<ReactionrolesStddevSampOrderBy>;
+  sum?: Maybe<ReactionrolesSumOrderBy>;
+  var_pop?: Maybe<ReactionrolesVarPopOrderBy>;
+  var_samp?: Maybe<ReactionrolesVarSampOrderBy>;
+  variance?: Maybe<ReactionrolesVarianceOrderBy>;
+};
+
+/** append existing jsonb value of filtered columns with new jsonb value */
+export type ReactionrolesAppendInput = {
+  roles?: Maybe<Scalars['jsonb']>;
+};
+
+/** input type for inserting array relation for remote table "reactionroles" */
+export type ReactionrolesArrRelInsertInput = {
+  data: Array<ReactionrolesInsertInput>;
+  on_conflict?: Maybe<ReactionrolesOnConflict>;
+};
+
+/** aggregate avg on columns */
+export type ReactionrolesAvgFields = {
+   __typename?: 'reactionroles_avg_fields';
+  id?: Maybe<Scalars['Float']>;
+};
+
+/** order by avg() on columns of table "reactionroles" */
+export type ReactionrolesAvgOrderBy = {
+  id?: Maybe<OrderBy>;
+};
+
+/** Boolean expression to filter rows from the table "reactionroles". All fields are combined with a logical 'AND'. */
+export type ReactionrolesBoolExp = {
+  _and?: Maybe<Array<Maybe<ReactionrolesBoolExp>>>;
+  _not?: Maybe<ReactionrolesBoolExp>;
+  _or?: Maybe<Array<Maybe<ReactionrolesBoolExp>>>;
+  channel?: Maybe<StringComparisonExp>;
+  guild?: Maybe<StringComparisonExp>;
+  id?: Maybe<IntComparisonExp>;
+  message?: Maybe<StringComparisonExp>;
+  roles?: Maybe<JsonbComparisonExp>;
+};
+
+/** unique or primary key constraints on table "reactionroles" */
+export enum ReactionrolesConstraint {
+  /** unique or primary key constraint */
+  ReactionrolesPkey = 'reactionroles_pkey'
+}
+
+/** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
+export type ReactionrolesDeleteAtPathInput = {
+  roles?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+/** delete the array element with specified index (negative integers count from the end). throws an error if top level container is not an array */
+export type ReactionrolesDeleteElemInput = {
+  roles?: Maybe<Scalars['Int']>;
+};
+
+/** delete key/value pair or string element. key/value pairs are matched based on their key value */
+export type ReactionrolesDeleteKeyInput = {
+  roles?: Maybe<Scalars['String']>;
+};
+
+/** input type for incrementing integer columne in table "reactionroles" */
+export type ReactionrolesIncInput = {
+  id?: Maybe<Scalars['Int']>;
+};
+
+/** input type for inserting data into table "reactionroles" */
+export type ReactionrolesInsertInput = {
+  channel?: Maybe<Scalars['String']>;
+  guild?: Maybe<Scalars['String']>;
+  id?: Maybe<Scalars['Int']>;
+  message?: Maybe<Scalars['String']>;
+  roles?: Maybe<Scalars['jsonb']>;
+};
+
+/** aggregate max on columns */
+export type ReactionrolesMaxFields = {
+   __typename?: 'reactionroles_max_fields';
+  channel?: Maybe<Scalars['String']>;
+  guild?: Maybe<Scalars['String']>;
+  id?: Maybe<Scalars['Int']>;
+  message?: Maybe<Scalars['String']>;
+};
+
+/** order by max() on columns of table "reactionroles" */
+export type ReactionrolesMaxOrderBy = {
+  channel?: Maybe<OrderBy>;
+  guild?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  message?: Maybe<OrderBy>;
+};
+
+/** aggregate min on columns */
+export type ReactionrolesMinFields = {
+   __typename?: 'reactionroles_min_fields';
+  channel?: Maybe<Scalars['String']>;
+  guild?: Maybe<Scalars['String']>;
+  id?: Maybe<Scalars['Int']>;
+  message?: Maybe<Scalars['String']>;
+};
+
+/** order by min() on columns of table "reactionroles" */
+export type ReactionrolesMinOrderBy = {
+  channel?: Maybe<OrderBy>;
+  guild?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  message?: Maybe<OrderBy>;
+};
+
+/** response of any mutation on the table "reactionroles" */
+export type ReactionrolesMutationResponse = {
+   __typename?: 'reactionroles_mutation_response';
+  /** number of affected rows by the mutation */
+  affected_rows: Scalars['Int'];
+  /** data of the affected rows by the mutation */
+  returning: Array<Reactionroles>;
+};
+
+/** input type for inserting object relation for remote table "reactionroles" */
+export type ReactionrolesObjRelInsertInput = {
+  data: ReactionrolesInsertInput;
+  on_conflict?: Maybe<ReactionrolesOnConflict>;
+};
+
+/** on conflict condition type for table "reactionroles" */
+export type ReactionrolesOnConflict = {
+  constraint: ReactionrolesConstraint;
+  update_columns: Array<ReactionrolesUpdateColumn>;
+  where?: Maybe<ReactionrolesBoolExp>;
+};
+
+/** ordering options when selecting data from "reactionroles" */
+export type ReactionrolesOrderBy = {
+  channel?: Maybe<OrderBy>;
+  guild?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
+  message?: Maybe<OrderBy>;
+  roles?: Maybe<OrderBy>;
+};
+
+/** prepend existing jsonb value of filtered columns with new jsonb value */
+export type ReactionrolesPrependInput = {
+  roles?: Maybe<Scalars['jsonb']>;
+};
+
+/** select columns of table "reactionroles" */
+export enum ReactionrolesSelectColumn {
+  /** column name */
+  Channel = 'channel',
+  /** column name */
+  Guild = 'guild',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  Message = 'message',
+  /** column name */
+  Roles = 'roles'
+}
+
+/** input type for updating data in table "reactionroles" */
+export type ReactionrolesSetInput = {
+  channel?: Maybe<Scalars['String']>;
+  guild?: Maybe<Scalars['String']>;
+  id?: Maybe<Scalars['Int']>;
+  message?: Maybe<Scalars['String']>;
+  roles?: Maybe<Scalars['jsonb']>;
+};
+
+/** aggregate stddev on columns */
+export type ReactionrolesStddevFields = {
+   __typename?: 'reactionroles_stddev_fields';
+  id?: Maybe<Scalars['Float']>;
+};
+
+/** order by stddev() on columns of table "reactionroles" */
+export type ReactionrolesStddevOrderBy = {
+  id?: Maybe<OrderBy>;
+};
+
+/** aggregate stddev_pop on columns */
+export type ReactionrolesStddevPopFields = {
+   __typename?: 'reactionroles_stddev_pop_fields';
+  id?: Maybe<Scalars['Float']>;
+};
+
+/** order by stddev_pop() on columns of table "reactionroles" */
+export type ReactionrolesStddevPopOrderBy = {
+  id?: Maybe<OrderBy>;
+};
+
+/** aggregate stddev_samp on columns */
+export type ReactionrolesStddevSampFields = {
+   __typename?: 'reactionroles_stddev_samp_fields';
+  id?: Maybe<Scalars['Float']>;
+};
+
+/** order by stddev_samp() on columns of table "reactionroles" */
+export type ReactionrolesStddevSampOrderBy = {
+  id?: Maybe<OrderBy>;
+};
+
+/** aggregate sum on columns */
+export type ReactionrolesSumFields = {
+   __typename?: 'reactionroles_sum_fields';
+  id?: Maybe<Scalars['Int']>;
+};
+
+/** order by sum() on columns of table "reactionroles" */
+export type ReactionrolesSumOrderBy = {
+  id?: Maybe<OrderBy>;
+};
+
+/** update columns of table "reactionroles" */
+export enum ReactionrolesUpdateColumn {
+  /** column name */
+  Channel = 'channel',
+  /** column name */
+  Guild = 'guild',
+  /** column name */
+  Id = 'id',
+  /** column name */
+  Message = 'message',
+  /** column name */
+  Roles = 'roles'
+}
+
+/** aggregate var_pop on columns */
+export type ReactionrolesVarPopFields = {
+   __typename?: 'reactionroles_var_pop_fields';
+  id?: Maybe<Scalars['Float']>;
+};
+
+/** order by var_pop() on columns of table "reactionroles" */
+export type ReactionrolesVarPopOrderBy = {
+  id?: Maybe<OrderBy>;
+};
+
+/** aggregate var_samp on columns */
+export type ReactionrolesVarSampFields = {
+   __typename?: 'reactionroles_var_samp_fields';
+  id?: Maybe<Scalars['Float']>;
+};
+
+/** order by var_samp() on columns of table "reactionroles" */
+export type ReactionrolesVarSampOrderBy = {
+  id?: Maybe<OrderBy>;
+};
+
+/** aggregate variance on columns */
+export type ReactionrolesVarianceFields = {
+   __typename?: 'reactionroles_variance_fields';
+  id?: Maybe<Scalars['Float']>;
+};
+
+/** order by variance() on columns of table "reactionroles" */
+export type ReactionrolesVarianceOrderBy = {
+  id?: Maybe<OrderBy>;
+};
+
 /** columns and relationships of "remindmes" */
 export type Remindmes = {
    __typename?: 'remindmes';
@@ -1178,9 +1556,9 @@ export type RemindmesBoolExp = {
 /** unique or primary key constraints on table "remindmes" */
 export enum RemindmesConstraint {
   /** unique or primary key constraint */
-  RemindmessIdKey = 'remindmess_id_key',
+  RemindmesIdKey = 'remindmes_id_key',
   /** unique or primary key constraint */
-  RemindmessPkey = 'remindmess_pkey'
+  RemindmesPkey = 'remindmes_pkey'
 }
 
 /** input type for incrementing integer columne in table "remindmes" */
@@ -1759,6 +2137,12 @@ export type SubscriptionRoot = {
   lockdownsAggregate: LockdownsAggregate;
   /** fetch data from the table: "lockdowns" using primary key columns */
   lockdownsByPk?: Maybe<Lockdowns>;
+  /** fetch data from the table: "reactionroles" */
+  reactionroles: Array<Reactionroles>;
+  /** fetch aggregated fields from the table: "reactionroles" */
+  reactionrolesAggregate: ReactionrolesAggregate;
+  /** fetch data from the table: "reactionroles" using primary key columns */
+  reactionrolesByPk?: Maybe<Reactionroles>;
   /** fetch data from the table: "remindmes" */
   remindmes: Array<Remindmes>;
   /** fetch aggregated fields from the table: "remindmes" */
@@ -1835,6 +2219,32 @@ export type SubscriptionRootLockdownsAggregateArgs = {
 /** subscription root */
 export type SubscriptionRootLockdownsByPkArgs = {
   id: Scalars['uuid'];
+};
+
+
+/** subscription root */
+export type SubscriptionRootReactionrolesArgs = {
+  distinct_on?: Maybe<Array<ReactionrolesSelectColumn>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<ReactionrolesOrderBy>>;
+  where?: Maybe<ReactionrolesBoolExp>;
+};
+
+
+/** subscription root */
+export type SubscriptionRootReactionrolesAggregateArgs = {
+  distinct_on?: Maybe<Array<ReactionrolesSelectColumn>>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  order_by?: Maybe<Array<ReactionrolesOrderBy>>;
+  where?: Maybe<ReactionrolesBoolExp>;
+};
+
+
+/** subscription root */
+export type SubscriptionRootReactionrolesByPkArgs = {
+  id: Scalars['Int'];
 };
 
 
