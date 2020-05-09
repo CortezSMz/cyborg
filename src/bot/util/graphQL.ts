@@ -383,7 +383,6 @@ export const GRAPHQL = {
 					roles: $roles
 				}) {
 					returning {
-						id
 						channel
 						guild
 						message

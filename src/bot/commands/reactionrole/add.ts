@@ -1,6 +1,8 @@
 import { Command } from 'discord-akairo';
-import { Role, Message } from 'discord.js';
+import { Role, Message, MessageEmbed } from 'discord.js';
 import { stripIndents } from 'common-tags';
+import { Argument } from 'discord-akairo';
+import * as emojis from 'node-emoji';
 
 export default class ReactionRoleCreateCommand extends Command {
     constructor() {
@@ -18,29 +20,56 @@ export default class ReactionRoleCreateCommand extends Command {
     }
 
     public *args() {
-        const role: Role[] = yield {
-            id: 'role',
-            type: 'role',
+        const roleReactionMessage = yield {
+            type: 'message',
+            prompt: {
+                start: 'what message?',
+                retry: 'couldnt find that one cuz u dumb, try again'
+            }
+        };
+        const roleReaction = yield {
+            type: Argument.product('role', (_, phrase) => {
+                let possibleEmojis = phrase.split(' ');
+                for (const emj of possibleEmojis) {
+                    if (emojis.hasEmoji(emj)) {
+                        return emojis.find(emj);
+                    }
+                }
+                return null;
+            }),
             prompt: {
                 start: stripIndents`
-                What roles would you like to let users get?
+                What roles would you like to let users get in this message?
 
-                Type them in separate messages following this example:
+                Type the combination in separate messages following this example:
 
-                @Cyborg 🤖
+                @Role 🤖
 
                 Type \`done\` when you finish.
                 `,
-                retry: stripIndents`how did you fucked that up`,
+                retry: stripIndents`
+                Type the combination in separate messages following this example:
+
+                @Role 🤖
+
+                Type \`done\` when you finish.
+                `,
                 infinite: true,
                 stopWord: 'done',
                 limit: 25
             }
         };
-        return { role };
+        return { roleReactionMessage, roleReaction };
     }
 
-    public async exec(message: Message, { role }: { role: Role[] }) {
-        message.channel.send(role.map(r => r.name).join('\n'))
+    public async exec(message: Message, { roleReactionMessage, roleReaction }: { roleReactionMessage: Message, roleReaction: any[] }) {
+        const embed = new MessageEmbed(roleReactionMessage.embeds[0])
+            .setDescription(roleReaction.map(rr => `${rr[1].emoji} ᛬᛬ ${rr[0]}`).join('\n'))
+
+        roleReactionMessage.edit(embed).then(async msg => {
+            for (const rr of roleReaction) {
+                await msg.react(rr[1].emoji);
+            };
+        });
     }
 }

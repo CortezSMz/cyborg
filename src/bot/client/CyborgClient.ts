@@ -124,7 +124,7 @@ export default class CyborgClient extends AkairoClient {
 				messageCacheMaxSize: 1000,
 				disableMentions: 'everyone',
 				partials: ['MESSAGE', 'REACTION'],
-				ws: { intents: ['GUILDS', 'GUILD_MESSAGES', 'GUILD_MESSAGE_REACTIONS'] },
+				// ws: { intents: ['GUILDS', 'GUILD_MESSAGES', 'GUILD_MESSAGE_REACTIONS'] },
 			},
 		);
 

@@ -1,39 +1,37 @@
 import CyborgClient from '../client/CyborgClient';
-import { Reactionroles, ReactionrolesInsertInput } from '../util/GraphQLTypes'
+import { Reactionroles, ReactionrolesInsertInput } from '../util/graphQLTypes'
 import { GRAPHQL, graphQLClient } from '../util/graphQL';
 import { PRODUCTION } from '../util/constants';
-import { TextChannel, MessageEmbed } from 'discord.js';
+import { TextChannel, MessageEmbed, Message } from 'discord.js';
+import { threadId } from 'worker_threads';
 
 export default class ReactionRoleHandler {
     public constructor(private readonly client: CyborgClient) { }
 
-    public async create({ channel, guild, message }: Omit<Reactionroles, 'id' | 'roles'>) {
+    public async create(reactionRole: Omit<Reactionroles, 'id' | 'roles'>, message: Message) {
         const { data } = await graphQLClient.mutate<any, ReactionrolesInsertInput>({
             mutation: GRAPHQL.MUTATION.INSERT_REACTION_ROLES,
             variables: {
-                channel,
-                guild,
-                message,
+                guild: reactionRole.guild,
+                channel: reactionRole.channel,
+                message: reactionRole.message,
                 roles: {}
             },
         });
-        console.log(data.insertReactionroles.returning[0])
+        if (PRODUCTION) reactionRole = data.insertReactionroles.returning[0];
+        else reactionRole = data.insetReactionrolesStaging.returning[0];
 
-        const chan = this.client.channels.cache.get(data.insertReactionroles.returning[0].channel) as TextChannel;
-        const msg = chan.messages.cache.get(data.insertReactionroles.returning[0].message);
+        const chan = this.client.channels.cache.get(reactionRole.channel) as TextChannel;
+        const msg = await chan.messages.fetch(reactionRole.message);
 
-        const embed = new MessageEmbed()
-            .setDescription(msg!.embeds[0].description!.replace('<ID>', data.insertReactionroles.returning[0].id))
-            .setFooter(`Reaction role ID: ${data.insertReactionroles.returning[0].id}`)
-        await msg!.edit({ embed })
+        const embed = new MessageEmbed(msg.embeds[0])
 
+        await msg.edit({ embed })
 
-        if (PRODUCTION) return data.insertReactionroles.returning[0] as Reactionroles;
-        return data.insertReactionrolesStaging.returning[0] as Reactionroles;
-
+        this.client.commandHandler.handleDirectCommand(message, msg.id, this.client.commandHandler.modules.get('reactionrole-add')!)
     }
 
-    public addRole() {
+    public includeRole() {
 
     }
 

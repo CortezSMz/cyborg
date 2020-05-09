@@ -40,13 +40,14 @@ export default class StatsCommand extends Command {
 				• Channels: ${this.client.channels.cache.size}
 				${
 					cpm
-						? `• Messages seen: ${mtl.data.result[0].value[1]} \`~${parseInt(mpm.data.result[0].value[1])}/m\`\n
-						  • Commands seen: ${ctl.data.result[0].value[1]} \`~${parseInt(cpm.data.result[0].value[1])}/m\``
+						? stripIndents`
+							• Messages seen: ${mtl.data.result[0].value[1]} \`~${parseInt(mpm.data.result[0].value[1])}/m\`
+							• Commands seen: ${ctl.data.result[0].value[1]} \`~${parseInt(cpm.data.result[0].value[1])}/m\``
 						: ''
-				}`,
+					}`,
 				true,
 			)
-			.addField('ﾅ Version', require('E:/cyborg/package.json').version, true)
+			.addField('ﾅ Version', '0.1.0', true)
 			.addField('ﾅ Library', '[discord.js](https://discord.js.org)[ブakairo](https://github.com/1Computer1/discord-akairo)', true)
 			.setFooter(`© 2020 ${this.client.users.cache.get(this.client.config.owner ?? '')?.tag}`);
 

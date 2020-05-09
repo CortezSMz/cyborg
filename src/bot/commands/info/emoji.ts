@@ -62,9 +62,9 @@ export default class EmojiInfoCommand extends Command {
 				• Name: \`${emoji.key}\`
 				• Raw: \`${emoji.emoji}\`
 				• Unicode: \`${punycode.ucs2
-					.decode(emoji.emoji)
-					.map((e: any) => `\\u${e.toString(16).toUpperCase().padStart(4, '0')}`)
-					.join('')}\`
+						.decode(emoji.emoji)
+						.map((e: any) => `\\u${e.toString(16).toUpperCase().padStart(4, '0')}`)
+						.join('')}\`
 				`,
 			);
 		}

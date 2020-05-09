@@ -111,6 +111,24 @@ export const MESSAGES = {
 	},
 
 	COMMANDS: {
+		REACTIONROLE: {
+			CREATE: {
+				DESCRIPTION: 'Create a **roles by reactions** message on the channel.',
+				PROMPT: {
+					START_TITLE: (author: User | null) => stripIndents`
+					${author}, what would you like the title of the embed to be?
+
+					Tip: could be a small phrase describing the roles on this embed.
+					e.g. \`COLOR ROLES\``,
+					RETRY_TITLE: (author: User | null) => stripIndents`
+					${author}, what would you like the title of the embed to be?
+
+					Tip: could be a small phrase describing the roles on this embed.
+					e.g. \`COLOR ROLES\``,
+				}
+			}
+
+		},
 		OWNER: {
 			RELOAD: {
 				PROMPT: {
