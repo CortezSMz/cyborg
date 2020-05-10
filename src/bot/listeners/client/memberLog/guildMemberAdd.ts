@@ -13,6 +13,7 @@ export default class GuildMemberAddMemberLogListener extends Listener {
 
 	public async exec(member: GuildMember) {
 		if (member.partial) return;
+		if (member.guild.id === '706581070514094100') return;
 		const memberlog = this.client.settings.get(member.guild, SETTINGS.MEMBER_LOG);
 		if (memberlog) {
 			const embed = new MessageEmbed()

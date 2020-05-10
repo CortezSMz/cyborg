@@ -261,6 +261,18 @@ export const GRAPHQL = {
 				}
 				`,
 
+		REACTIONROLES: gql`
+			query($guild: String!, $channel: String!, $message: String!) {
+				reactionroles${PRODUCTION ? '' : 'Staging'}(where: {
+					guild: { _eq: $guild },
+					channel: { _eq: $channel },
+					message: { _eq: $message },
+				}) {
+					roles
+				}
+			}
+		`,
+
 		ROLE_STATES: gql`
 			query($guild: String!, $member: String!) {
 				roleStates${PRODUCTION ? '' : 'Staging'}(where: {
@@ -374,7 +386,7 @@ export const GRAPHQL = {
 			}
 		`,
 
-		INSERT_REACTION_ROLES: gql`
+		CREATE_REACTION_ROLES: gql`
 			mutation($channel: String!, $guild: String!, $message: String!, $roles: jsonb!) {
 				insertReactionroles${PRODUCTION ? '' : 'Staging'}(objects: {
 					channel: $channel,
@@ -390,7 +402,6 @@ export const GRAPHQL = {
 				}
 			}
 		`,
-
 
 		DELETE_MEMBER_ROLE_STATE: gql`
 			mutation($guild: String!, $member: String!) {

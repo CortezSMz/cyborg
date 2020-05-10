@@ -1,8 +1,13 @@
 import { Command } from 'discord-akairo';
-import { Role, Message, MessageEmbed } from 'discord.js';
-import { stripIndents } from 'common-tags';
+import { Message, MessageEmbed, Role, Emoji, GuildEmoji, ReactionEmoji } from 'discord.js';
 import { Argument } from 'discord-akairo';
 import * as emojis from 'node-emoji';
+import { TOPICS, EVENTS } from '../../util/logger';
+import { stripIndents } from 'common-tags';
+import { PrefixSupplier } from 'discord-akairo';
+
+const EMOJI_REGEX = /<(?:a)?:(?:\w{2,32}):(\d{17,19})>?/;
+// ᛬᛬
 
 export default class ReactionRoleCreateCommand extends Command {
     constructor() {
@@ -23,53 +28,74 @@ export default class ReactionRoleCreateCommand extends Command {
         const roleReactionMessage = yield {
             type: 'message',
             prompt: {
-                start: 'what message?',
+                start: (msg: Message) => stripIndents`
+                Which message should I use?
+                
+                You can use an existing message or use \`${(this.handler.prefix as PrefixSupplier)(msg)}reactionrole create\` to setup a new one.`,
                 retry: 'couldnt find that one cuz u dumb, try again'
             }
         };
-        const roleReaction = yield {
-            type: Argument.product('role', (_, phrase) => {
-                let possibleEmojis = phrase.split(' ');
-                for (const emj of possibleEmojis) {
-                    if (emojis.hasEmoji(emj)) {
-                        return emojis.find(emj);
-                    }
-                }
-                return null;
-            }),
+
+        const role = yield {
+            type: 'role',
             prompt: {
-                start: stripIndents`
-                What roles would you like to let users get in this message?
+                start: (msg: Message) => stripIndents`
+                Which role would you like to add?
 
-                Type the combination in separate messages following this example:
-
-                @Role 🤖
-
-                Type \`done\` when you finish.
+                You can add new roles any time by doing \`${(this.handler.prefix as PrefixSupplier)(msg)}reactionrole add\`
                 `,
-                retry: stripIndents`
-                Type the combination in separate messages following this example:
+                retry: (msg: Message) => stripIndents`
+                Which role would you like to add?
 
-                @Role 🤖
-
-                Type \`done\` when you finish.
+                You can type the role's name, ID or tag it.
                 `,
-                infinite: true,
-                stopWord: 'done',
-                limit: 25
             }
         };
-        return { roleReactionMessage, roleReaction };
+
+        const emoji = yield {
+            type: Argument.union('emoji', async (message, content) => {
+                let possibleEmojis = content.split(' ');
+                for (let emj of possibleEmojis) {
+                    if (emojis.hasEmoji(emj)) {
+                        return emojis.find(emj);
+                    } else {
+                        if (EMOJI_REGEX.test(emj)) [, emj] = EMOJI_REGEX.exec(emj)!;
+                        const guild = message.guild!;
+                        if (!isNaN((emj as unknown) as number)) return guild.emojis.cache.get(emj);
+                        return guild.emojis.cache.find((e) => e.name === emj)
+                    }
+                }
+            }),
+            prompt: {
+                start: 'Which emoji for that role?',
+                retry: 'Which emoji for that role?',
+            },
+        };
+
+        return { roleReactionMessage, role, emoji };
     }
 
-    public async exec(message: Message, { roleReactionMessage, roleReaction }: { roleReactionMessage: Message, roleReaction: any[] }) {
-        const embed = new MessageEmbed(roleReactionMessage.embeds[0])
-            .setDescription(roleReaction.map(rr => `${rr[1].emoji} ᛬᛬ ${rr[0]}`).join('\n'))
+    public async exec(msg: Message, { roleReactionMessage, role, emoji }: { roleReactionMessage: Message, role: Role, emoji: GuildEmoji | ReactionEmoji | any }) {
+        console.log(roleReactionMessage.id)
+        console.log(role.name)
+        console.log(emoji)
 
-        roleReactionMessage.edit(embed).then(async msg => {
-            for (const rr of roleReaction) {
-                await msg.react(rr[1].emoji);
-            };
-        });
+        try {
+            const embed = new MessageEmbed(roleReactionMessage.embeds[0])
+                .setDescription(roleReactionMessage.embeds[0].description + '\n' + `${emoji instanceof Emoji ? emoji : emoji.emoji} ᛬᛬ ${role}`)
+
+            if (roleReactionMessage.author.id === this.client.user?.id) {
+                await roleReactionMessage.edit(embed);
+            }
+
+            await roleReactionMessage.react(emoji.name ? emoji.name : emoji.emoji);
+
+            /* this.client.reactionRoleHandler.includeRole({
+                message: roleReactionMessage.id,
+                roles: []
+            }) */
+        } catch (err) {
+            this.client.logger.error(err.message, { topic: TOPICS.DISCORD, event: EVENTS.ERROR })
+        }
     }
 }

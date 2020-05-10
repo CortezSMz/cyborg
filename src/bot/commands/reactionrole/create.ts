@@ -29,6 +29,7 @@ export default class ReactionRoleCreateCommand extends Command {
     }
 
     public async exec(message: Message, { title }: { title: string }) {
+        return;
         await message.delete({ timeout: 500, reason: 'Tidy reaction role channel.' });
 
         const embed = new MessageEmbed()
