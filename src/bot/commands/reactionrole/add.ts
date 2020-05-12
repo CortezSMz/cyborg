@@ -1,15 +1,15 @@
 import { Command } from 'discord-akairo';
-import { Message, MessageEmbed, Role, Emoji, GuildEmoji, ReactionEmoji } from 'discord.js';
+import { Message, Role, Emoji } from 'discord.js';
 import { Argument } from 'discord-akairo';
 import * as emojis from 'node-emoji';
-import { TOPICS, EVENTS } from '../../util/logger';
 import { stripIndents } from 'common-tags';
 import { PrefixSupplier } from 'discord-akairo';
+import { graphQLClient, GRAPHQL } from '../../util/graphQL';
+import { ReactionrolesInsertInput, Reactionroles } from '../../util/graphQLTypes';
 
 const EMOJI_REGEX = /<(?:a)?:(?:\w{2,32}):(\d{17,19})>?/;
-// ᛬᛬
 
-export default class ReactionRoleCreateCommand extends Command {
+export default class ReactionRoleAddCommand extends Command {
     constructor() {
         super('reactionrole-add', {
             description: {
@@ -31,23 +31,26 @@ export default class ReactionRoleCreateCommand extends Command {
                 start: (msg: Message) => stripIndents`
                 Which message should I use?
                 
-                You can use an existing message or use \`${(this.handler.prefix as PrefixSupplier)(msg)}reactionrole create\` to setup a new one.`,
-                retry: 'couldnt find that one cuz u dumb, try again'
+                You can use an existing message or type \`${(this.handler.prefix as PrefixSupplier)(msg)}reactionrole create\` to setup a new one.`,
+                retry: stripIndents`
+                Are you sure this is the correct ID? That message doesn't seem to exist.
+                
+                Steps to get a message ID: \`User Settings\` > \`Appearance\` enable \`Developer Mode\` > then right click the message and \`Copy ID\``
             }
         };
 
         const role = yield {
             type: 'role',
             prompt: {
-                start: (msg: Message) => stripIndents`
-                Which role would you like to add?
+                start: stripIndents`
+                Which role would you like to add to this message?
 
-                You can add new roles any time by doing \`${(this.handler.prefix as PrefixSupplier)(msg)}reactionrole add\`
+                You can type the role's name, ID or mention it.
                 `,
-                retry: (msg: Message) => stripIndents`
-                Which role would you like to add?
+                retry: stripIndents`
+                Which role would you like to add to this message?
 
-                You can type the role's name, ID or tag it.
+                You can type the role's name, ID or mention it.
                 `,
             }
         };
@@ -67,35 +70,48 @@ export default class ReactionRoleCreateCommand extends Command {
                 }
             }),
             prompt: {
-                start: 'Which emoji for that role?',
-                retry: 'Which emoji for that role?',
+                start: 'And which emoji for that role?',
             },
         };
 
         return { roleReactionMessage, role, emoji };
     }
 
-    public async exec(msg: Message, { roleReactionMessage, role, emoji }: { roleReactionMessage: Message, role: Role, emoji: GuildEmoji | ReactionEmoji | any }) {
-        console.log(roleReactionMessage.id)
-        console.log(role.name)
-        console.log(emoji)
+    public async exec(msg: Message, { roleReactionMessage, role, emoji }: { roleReactionMessage: Message, role: Role, emoji: Emoji | any }) {
+        let roles: {} = JSON.parse(`{"${emoji.emoji ? emoji.emoji : emoji.name}": "${role.id}"}`);
 
-        try {
-            const embed = new MessageEmbed(roleReactionMessage.embeds[0])
-                .setDescription(roleReactionMessage.embeds[0].description + '\n' + `${emoji instanceof Emoji ? emoji : emoji.emoji} ᛬᛬ ${role}`)
-
-            if (roleReactionMessage.author.id === this.client.user?.id) {
-                await roleReactionMessage.edit(embed);
-            }
-
-            await roleReactionMessage.react(emoji.name ? emoji.name : emoji.emoji);
-
-            /* this.client.reactionRoleHandler.includeRole({
+        const { data } = await graphQLClient.mutate<any, ReactionrolesInsertInput>({
+            mutation: GRAPHQL.QUERY.REACTIONROLES,
+            variables: {
+                guild: roleReactionMessage.guild!.id,
+                channel: roleReactionMessage.channel.id,
                 message: roleReactionMessage.id,
-                roles: []
-            }) */
-        } catch (err) {
-            this.client.logger.error(err.message, { topic: TOPICS.DISCORD, event: EVENTS.ERROR })
+            },
+        });
+
+        let reactionRoles: Reactionroles[];
+        reactionRoles = data.reactionroles
+
+        if (!reactionRoles.length) {
+            await graphQLClient.mutate<any, ReactionrolesInsertInput>({
+                mutation: GRAPHQL.MUTATION.INSERT_REACTION_ROLES,
+                variables: {
+                    guild: roleReactionMessage.guild!.id,
+                    channel: roleReactionMessage.channel.id,
+                    message: roleReactionMessage.id,
+                    roles,
+                },
+            });
+        } else {
+            roles = { ...reactionRoles[0].roles, ...roles };
+            await graphQLClient.mutate<any, ReactionrolesInsertInput>({
+                mutation: GRAPHQL.MUTATION.UPDATE_REACTION_ROLES,
+                variables: {
+                    id: reactionRoles[0].id,
+                    roles,
+                },
+            });
         }
+        this.client.commandHandler.handleDirectCommand(msg, roleReactionMessage.id, this.client.commandHandler.modules.get('reactionrole-fix')!)
     }
 }

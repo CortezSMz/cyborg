@@ -37,8 +37,7 @@ export default class messageReactionAddReactionRole extends Listener {
 		});
 
 		let reactionRoles;
-		if (PRODUCTION) reactionRoles = data.reactionroles
-		else reactionRoles = data.reactionrolesStaging
+		reactionRoles = data.reactionroles
 
 		if (!reactionRoles.length) return;
 		if (!reactionRoles[0].roles[reaction.emoji.name]) return;

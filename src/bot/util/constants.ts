@@ -119,7 +119,7 @@ export const MESSAGES = {
 					${author}, what would you like the title of the embed to be?
 
 					Tip: could be a small phrase describing the roles on this embed.
-					e.g. \`COLOR ROLES\``,
+					e.g. \`COLORFUL ROLES\``,
 					RETRY_TITLE: (author: User | null) => stripIndents`
 					${author}, what would you like the title of the embed to be?
 

@@ -28,6 +28,7 @@ export default class ReactionRoleCommand extends Command {
             type: [
                 ['reactionrole-create', 'create'],
                 ['reactionrole-add', 'add'],
+                ['reactionrole-fix', 'fix'],
                 ['reactionrole-remove', 'remove', 'rmv', 'rm'],
             ],
             otherwise: (msg: Message) => {

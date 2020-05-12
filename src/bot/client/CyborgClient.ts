@@ -9,7 +9,6 @@ import { Logger } from 'winston';
 import RemindmeScheduler from '../structures/RemindmeScheduler';
 import Queue from '../structures/Queue';
 import HasuraProvider from '../structures/SettingsProvider';
-import ReactionRoleHandler from '../structures/ReactionRoleHandler';
 import { MESSAGES, PRODUCTION, PROMETHEUS, SETTINGS } from '../util/constants';
 import { GRAPHQL, graphQLClient } from '../util/graphQL';
 import { Tags, TagsInsertInput } from '../util/graphQLTypes';
@@ -23,7 +22,6 @@ declare module 'discord-akairo' {
 		commandHandler: CommandHandler;
 		config: CyborgOptions;
 		configWebhooks: Collection<string, Webhook>;
-		reactionRoleHandler: ReactionRoleHandler;
 		remindmeScheduler: RemindmeScheduler;
 		prometheus: {
 			messagesCounter: Counter<string>;
@@ -82,8 +80,6 @@ export default class CyborgClient extends AkairoClient {
 	public listenerHandler = new ListenerHandler(this, { directory: join(__dirname, '..', 'listeners') });
 
 	public config: CyborgOptions;
-
-	public reactionRoleHandler = new ReactionRoleHandler(this);
 
 	public remindmeScheduler = new RemindmeScheduler(this);
 

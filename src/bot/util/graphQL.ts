@@ -268,6 +268,10 @@ export const GRAPHQL = {
 					channel: { _eq: $channel },
 					message: { _eq: $message },
 				}) {
+					id
+					guild
+					channel
+					message
 					roles
 				}
 			}
@@ -386,7 +390,7 @@ export const GRAPHQL = {
 			}
 		`,
 
-		CREATE_REACTION_ROLES: gql`
+		INSERT_REACTION_ROLES: gql`
 			mutation($channel: String!, $guild: String!, $message: String!, $roles: jsonb!) {
 				insertReactionroles${PRODUCTION ? '' : 'Staging'}(objects: {
 					channel: $channel,
@@ -398,6 +402,23 @@ export const GRAPHQL = {
 						channel
 						guild
 						message
+						roles
+					}
+				}
+			}
+		`,
+
+		UPDATE_REACTION_ROLES: gql`
+			mutation($id: Int!, $roles: jsonb!) {
+				updateReactionroles${PRODUCTION ? '' : 'Staging'}(where: {
+					id: { _eq: $id }
+				}, _set: { roles: $roles }) {
+					returning {
+						id
+						guild
+						channel
+						message
+						roles
 					}
 				}
 			}

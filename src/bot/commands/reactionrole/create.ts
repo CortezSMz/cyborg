@@ -1,8 +1,10 @@
 import { Command } from 'discord-akairo';
-import { Role, Message, MessageEmbed } from 'discord.js';
+import { Message, MessageEmbed } from 'discord.js';
 import { stripIndents } from 'common-tags';
 import { PrefixSupplier } from 'discord-akairo';
 import { MESSAGES } from '../../util/constants';
+import { graphQLClient, GRAPHQL } from '../../util/graphQL';
+import { ReactionrolesInsertInput } from '../../util/graphQLTypes';
 
 export default class ReactionRoleCreateCommand extends Command {
     constructor() {
@@ -29,20 +31,25 @@ export default class ReactionRoleCreateCommand extends Command {
     }
 
     public async exec(message: Message, { title }: { title: string }) {
-        return;
-        await message.delete({ timeout: 500, reason: 'Tidy reaction role channel.' });
-
         const embed = new MessageEmbed()
             .setTitle(title)
-            .setDescription('\u200b')
-        const msg = await message.channel.send(embed)
+            .setColor(11453937)
+        let msg: Message = await message.channel.send(embed);
+        await msg.edit(embed.setDescription(stripIndents`
+        ${message.guild!.emojis.cache.find(e => e.name == 'loading')} You can add new roles to this message at any time by typing
+        \`${(this.handler.prefix as PrefixSupplier)(message)}reactionrole add ${msg.id}\`
+        `))
 
-        this.client.reactionRoleHandler.create({
-            guild: msg.guild!.id,
-            channel: msg.channel.id,
-            message: msg.id
-        },
-            message
-        );
+        const { data } = await graphQLClient.mutate<any, ReactionrolesInsertInput>({
+            mutation: GRAPHQL.MUTATION.INSERT_REACTION_ROLES,
+            variables: {
+                guild: message.guild!.id,
+                channel: message.channel.id,
+                message: message.id,
+                roles: {}
+            },
+        });
+
+        this.client.commandHandler.handleDirectCommand(message, msg.id, this.client.commandHandler.modules.get('reactionrole-add')!)
     }
 }
