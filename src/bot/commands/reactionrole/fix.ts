@@ -56,12 +56,24 @@ export default class ReactionRoleFixCommand extends Command {
         reactionRoles = reactionRoles[0] as any;
 
         await roleReactionMessage.reactions.removeAll();
-        for (const e of Object.keys((reactionRoles as unknown as Reactionroles).roles)) {
-            if (emojis.hasEmoji(e)) await roleReactionMessage.react(e);
-            else await roleReactionMessage.react(this.client.emojis.cache.find(ej => ej.name == e) as GuildEmoji);
-        }
+
+        Object.entries((reactionRoles as unknown as Reactionroles).roles)
+            // @ts-ignore
+            .sort((a, b) => msg.guild!.roles.cache.get(b[1]).position - msg.guild!.roles.cache.get(a[1]).position)
+            .map(async arr => {
+                let emj = emojis.hasEmoji(arr[0]) ? arr[0] : this.client.emojis.cache.find(e => e.name == arr[0]);
+                await roleReactionMessage.react(emj as any);
+            });
         const embed = new MessageEmbed(roleReactionMessage.embeds[0])
-            .setDescription(Object.entries((reactionRoles as unknown as Reactionroles).roles).map(arr => `${this.client.emojis.cache.find(e => e.name == arr[0]) ? this.client.emojis.cache.find(e => e.name == arr[0]) : arr[0]} :: ${msg.guild!.roles.cache.get(arr[1] as string)}`));
+            .setDescription(
+                Object.entries((reactionRoles as unknown as Reactionroles).roles)
+                    // @ts-ignore
+                    .sort((a, b) => msg.guild!.roles.cache.get(b[1]).position - msg.guild!.roles.cache.get(a[1]).position)
+                    .map(arr => {
+                        let emj = emojis.hasEmoji(arr[0]) ? arr[0] : this.client.emojis.cache.find(e => e.name == arr[0]);
+                        return `${emj} :: ${msg.guild!.roles.cache.get(arr[1] as string)}`;
+                    })
+            );
 
         if (roleReactionMessage.author.id === this.client.user?.id && roleReactionMessage.embeds.length) {
             roleReactionMessage.edit(embed);
