@@ -63,9 +63,8 @@ export default class ReactionRoleAddCommand extends Command {
                         return emojis.find(emj);
                     } else {
                         if (EMOJI_REGEX.test(emj)) [, emj] = EMOJI_REGEX.exec(emj)!;
-                        const guild = message.guild!;
-                        if (!isNaN((emj as unknown) as number)) return guild.emojis.cache.get(emj);
-                        return guild.emojis.cache.find((e) => e.name === emj)
+                        if (!isNaN((emj as unknown) as number)) return this.client.emojis.cache.get(emj);
+                        return this.client.emojis.cache.find((e) => e.name === emj)
                     }
                 }
             }),
