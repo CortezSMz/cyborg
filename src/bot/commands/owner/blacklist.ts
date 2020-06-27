@@ -1,17 +1,17 @@
 import { Command } from 'discord-akairo';
 import { Message, User } from 'discord.js';
-import { MESSAGES, SETTINGS } from '../../util/constants';
+import { LOCALE, SETTINGS } from '../../util/constants';
 
 export default class BlacklistCommand extends Command {
 	public constructor() {
 		super('blacklist', {
 			aliases: ['blacklist', 'unblacklist'],
 			description: {
-				content: MESSAGES.COMMANDS.UTIL.BLACKLIST.DESCRIPTION,
-				usage: '<user>',
-				examples: ['Corteez', '@Corteez', '200502727170588673'],
+				content: (message: Message) => LOCALE(message.guild!).COMMANDS.OWNER.BLACKLIST.DESCRIPTION,
+				usage: () => '<user>',
+				examples: () => ['Corteez', '@Corteez', '200502727170588673'],
 			},
-			category: ' owner',
+			category: 'owner',
 			ownerOnly: true,
 			ratelimit: 2,
 			args: [
@@ -20,7 +20,7 @@ export default class BlacklistCommand extends Command {
 					match: 'content',
 					type: 'user',
 					prompt: {
-						start: (message: Message) => MESSAGES.COMMANDS.UTIL.BLACKLIST.PROMPT.START(message.author),
+						start: (message: Message) => LOCALE(message.guild!).COMMANDS.OWNER.BLACKLIST.PROMPT.START(message.author),
 					},
 				},
 			],
@@ -35,12 +35,12 @@ export default class BlacklistCommand extends Command {
 			if (blacklist.length === 0) this.client.settings.delete('global', SETTINGS.BLACKLIST);
 			else this.client.settings.set('global', SETTINGS.BLACKLIST, blacklist);
 
-			return message.util?.send(MESSAGES.COMMANDS.UTIL.BLACKLIST.REPLY(user.tag));
+			return message.util?.send(LOCALE(message.guild!).COMMANDS.OWNER.BLACKLIST.REPLY(user.tag));
 		}
 
 		blacklist.push(user.id);
 		this.client.settings.set('global', SETTINGS.BLACKLIST, blacklist);
 
-		return message.util?.send(MESSAGES.COMMANDS.UTIL.BLACKLIST.REPLY_2(user.tag));
+		return message.util?.send(LOCALE(message.guild!).COMMANDS.OWNER.BLACKLIST.REPLY_2(user.tag));
 	}
 }

@@ -2,8 +2,8 @@ import { Listener } from 'discord-akairo';
 import { MessageReaction, User } from 'discord.js';
 import { TOPICS, EVENTS } from '../../../util/logger';
 import { graphQLClient, GRAPHQL } from '../../../util/graphQL';
-import { ReactionrolesInsertInput } from '../../../util/graphQLTypes';
-import { PRODUCTION } from '../../../util/constants';
+import { ReactionRolesInsertInput } from '../../../util/graphQLTypes';
+import { PRODUCTION, CYBORG } from '../../../util/constants';
 
 export default class messageReactionRemoveReactionRole extends Listener {
     public constructor() {
@@ -25,9 +25,7 @@ export default class messageReactionRemoveReactionRole extends Listener {
             }
         };
 
-        console.log(`${user.tag} removed ${reaction.emoji.name} from ${reaction.message.channel.type == 'dm' ? 'DM' : `${reaction.message.channel}`}`);
-
-        const { data } = await graphQLClient.mutate<any, ReactionrolesInsertInput>({
+        const { data } = await graphQLClient.mutate<any, ReactionRolesInsertInput>({
             mutation: GRAPHQL.QUERY.REACTIONROLES,
             variables: {
                 guild: reaction.message.guild?.id,
@@ -37,8 +35,8 @@ export default class messageReactionRemoveReactionRole extends Listener {
         });
 
         let reactionRoles;
-        if (PRODUCTION) reactionRoles = data.reactionroles
-        else reactionRoles = data.reactionrolesStaging
+        if (PRODUCTION) reactionRoles = data.reactionRoles
+        else reactionRoles = data.reactionRolesStaging
 
         if (!reactionRoles.length) return;
         if (!reactionRoles[0].roles[reaction.emoji.name]) return;
@@ -50,9 +48,9 @@ export default class messageReactionRemoveReactionRole extends Listener {
             if (!role || !member) return;
             if (!member.roles.cache.has(role.id)) return;
             await member.roles.remove(role);
+            this.client.logger.info(CYBORG.EVENTS.REACTIONROLE.RMV, { topic: TOPICS.DISCORD, event: 'REACTIONROLE' });
         } catch (err) {
             this.client.logger.error(err.message, { topic: TOPICS.DISCORD, event: EVENTS.ERROR })
         }
-
     }
 }

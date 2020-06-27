@@ -6,10 +6,11 @@ export default class PurgeCommand extends Command {
         super('purge', {
             aliases: ['purge', 'prune'],
             description: {
-                content: 'Purge messages from the channel.',
-                usage: '<number>',
+                content: () => 'Purge messages from the channel.',
+                usage: () => '<number>',
+                examples: () => null,
             },
-            category: ' owner',
+            category: 'owner',
             ownerOnly: true,
             channel: 'guild',
             args: [

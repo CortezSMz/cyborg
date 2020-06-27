@@ -1,7 +1,7 @@
 import * as moment from 'moment';
 import { Command } from 'discord-akairo';
 import { Message, Permissions } from 'discord.js';
-import { COLORS, MESSAGES } from '../../../util/constants';
+import { COLORS, LOCALE, SETTINGS } from '../../../util/constants';
 import { graphQLClient, GRAPHQL } from '../../../util/graphQL';
 import { RemindmesInsertInput, Remindmes } from '../../../util/graphQLTypes';
 import { MessageEmbed } from 'discord.js';
@@ -26,17 +26,17 @@ export default class RemindmeCommand extends Command {
 		let remindmes: Remindmes[];
 		remindmes = data.remindmes;
 
-		if (remindmes.length <= 0) return message.util?.send(MESSAGES.COMMANDS.UTIL.REMINDME.LIST.NOT_FOUND);
+		if (remindmes.length <= 0) return message.util?.send(LOCALE(message.guild!).COMMANDS.UTIL.REMINDME.LIST.NOT_FOUND);
 
 		const embed = new MessageEmbed()
 			.setColor(COLORS.EMBED)
-			.setAuthor(`${message.author.tag} ${MESSAGES.COMMANDS.UTIL.REMINDME.LIST.TITLE} `, message.author.displayAvatarURL())
+			.setAuthor(`${message.author.tag} ${LOCALE(message.guild!).COMMANDS.UTIL.REMINDME.LIST.TITLE} `, message.author.displayAvatarURL())
 			.setFooter(
 				remindmes.length < 10
-					? MESSAGES.COMMANDS.UTIL.REMINDME.LIST.FOOTER_1
+					? LOCALE(message.guild!).COMMANDS.UTIL.REMINDME.LIST.FOOTER_1
 						.replace('$(qtd)', `${remindmes.length}`)
 						.replace('$(s)', remindmes.length == 1 ? '' : 's')
-					: MESSAGES.COMMANDS.UTIL.REMINDME.LIST.FOOTER_2
+					: LOCALE(message.guild!).COMMANDS.UTIL.REMINDME.LIST.FOOTER_2
 						.replace('$(qtd)', `${remindmes.length}`),
 			);
 

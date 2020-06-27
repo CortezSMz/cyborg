@@ -1,6 +1,6 @@
 import { Command } from 'discord-akairo';
 import { Message, MessageEmbed, Permissions, Util } from 'discord.js';
-import { MESSAGES, PRODUCTION } from '../../util/constants';
+import { LOCALE, PRODUCTION, SETTINGS } from '../../util/constants';
 import { GRAPHQL, graphQLClient } from '../../util/graphQL';
 import { Tags, TagsInsertInput } from '../../util/graphQLTypes';
 
@@ -9,8 +9,8 @@ export default class SearchTagCommand extends Command {
 		super('tag-search', {
 			category: 'tag',
 			description: {
-				content: MESSAGES.COMMANDS.TAGS.SEARCH.DESCRIPTION,
-				usage: '<tag>',
+				content: (message: Message) => LOCALE(message.guild!).COMMANDS.TAGS.SEARCH.DESCRIPTION,
+				usage: () => '<tag>',
 			},
 			channel: 'guild',
 			clientPermissions: [Permissions.FLAGS.EMBED_LINKS],
@@ -21,7 +21,7 @@ export default class SearchTagCommand extends Command {
 					match: 'content',
 					type: 'lowercase',
 					prompt: {
-						start: (message: Message) => MESSAGES.COMMANDS.TAGS.SEARCH.PROMPT.START(message.author),
+						start: (message: Message) => LOCALE(message.guild!).COMMANDS.TAGS.SEARCH.PROMPT.START(message.author),
 					},
 				},
 			],
@@ -40,13 +40,13 @@ export default class SearchTagCommand extends Command {
 		if (PRODUCTION) tags = data.tags;
 		else tags = data.tagsStaging;
 		tags = tags.filter((t) => t.name.includes(name) || t.aliases.some((a: string | string[]) => a.includes(name)));
-		if (!tags.length) return message.util?.reply(MESSAGES.COMMANDS.TAGS.SEARCH.NO_RESULT(name));
+		if (!tags.length) return message.util?.reply(LOCALE(message.guild!).COMMANDS.TAGS.SEARCH.NO_RESULT(name));
 		const search = tags
 			.map((tag) => `\`${tag.name}\``)
 			.sort()
 			.join(', ');
 		if (search.length >= 1950) {
-			return message.util?.reply(MESSAGES.COMMANDS.TAGS.SEARCH.TOO_BIG);
+			return message.util?.reply(LOCALE(message.guild!).COMMANDS.TAGS.SEARCH.TOO_BIG);
 		}
 		const embed = new MessageEmbed()
 			.setColor(0x30a9ed)

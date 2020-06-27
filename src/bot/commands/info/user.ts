@@ -3,16 +3,16 @@ import { Command } from 'discord-akairo';
 import { GuildMember, Message, MessageEmbed, Permissions } from 'discord.js';
 import * as moment from 'moment';
 import 'moment-duration-format';
-import { MESSAGES } from '../../util/constants';
+import { LOCALE, COLORS } from '../../util/constants';
 
 export default class UserInfoCommand extends Command {
 	public constructor() {
 		super('user', {
 			aliases: ['user', 'member', 'user-info'],
 			description: {
-				content: MESSAGES.COMMANDS.INFO.USER.DESCRIPTION,
-				usage: '[member]',
-				examples: ['Corteez', '@Corteez', '200502727170588673'],
+				content: (message: Message) => LOCALE(message.guild!).COMMANDS.INFO.USER.DESCRIPTION,
+				usage: () => '[member]',
+				examples: () => ['Corteez', '@Corteez', '200502727170588673'],
 			},
 			category: 'info',
 			channel: 'guild',
@@ -32,7 +32,7 @@ export default class UserInfoCommand extends Command {
 	public async exec(message: Message, { member }: { member: GuildMember }) {
 		const { user } = member;
 		const embed = new MessageEmbed()
-			.setColor(3447003)
+			.setColor(COLORS.EMBED)
 			.setDescription(`Info about **${user.tag}** (ID: ${member.id})`)
 			.addField(
 				'ﾅ Member Details',

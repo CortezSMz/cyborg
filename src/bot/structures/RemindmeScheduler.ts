@@ -26,6 +26,7 @@ export default class RemindmeScheduler {
 		} else {
 			chan = this.client.channels.cache.get(remindme.channel) as TextChannel;
 		}
+
 		const msg = await chan.messages.fetch(remindme.message);
 		this.client.logger.info(stripIndents`
 			Remindme started on ${remindme.guild == '@me'
@@ -71,15 +72,16 @@ export default class RemindmeScheduler {
 
 		let chan;
 		if (remindme.guild == '@dm') {
-			chan = await this.client.users.fetch(remindme.channel) as unknown as DMChannel;
+			chan = await this.client.users.fetch(remindme.channel) as unknown as DMChannel | null;
 		} else {
-			chan = this.client.channels.cache.get(remindme.channel) as TextChannel;
+			chan = this.client.channels.cache.get(remindme.channel) as TextChannel | null;
 		}
 		this.client.logger.info(stripIndents`
 			Remindme ended on ${remindme.guild == '@me'
-				? 'DM\'s' : this.client.guilds.cache.get(remindme.guild)}${chan.type == 'dm'
-					? '' : ` channel ${(chan as TextChannel).name}`}`,
+				? 'DM\'s' : this.client.guilds.cache.get(remindme.guild)}${chan?.type == 'dm'
+					? '' : ` channel ${(chan as TextChannel)?.name}`}`,
 			{ topic: TOPICS.DISCORD_AKAIRO, event: EVENTS.REMINDME, });
+
 		await graphQLClient.mutate<any, RemindmesInsertInput>({
 			mutation: GRAPHQL.MUTATION.CANCEL_REMINDMES,
 			variables: {
@@ -101,7 +103,7 @@ export default class RemindmeScheduler {
 				`\u200b`,
 				`[Bring me up, Cy!](https://discordapp.com/channels/${remind.guild}/${remind.channel}/${remind.message})`
 			);
-		await chan.send(`Hey, ${u}! ${timeStr} ago you asked me to remind you of:`, { embed });
+		await chan?.send(`Hey, ${u}! ${timeStr} ago you asked me to remind you of:`, { embed });
 
 		const schedule = this.queued.get(remind.id);
 		if (schedule) this.client.clearTimeout(schedule);

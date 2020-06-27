@@ -1,5 +1,5 @@
 import { Listener } from 'discord-akairo';
-import { MESSAGES } from '../../util/constants';
+import { CYBORG } from '../../util/constants';
 import { TOPICS } from '../../util/logger';
 
 export default class ShardReconnectListener extends Listener {
@@ -12,11 +12,13 @@ export default class ShardReconnectListener extends Listener {
 	}
 
 	public exec(id: number) {
-		this.client.logger.info(MESSAGES.EVENTS.SHARD_RECONNECT.LOG, {
+		this.client.logger.info(CYBORG.EVENTS.SHARD_RECONNECT.LOG, {
 			topic: TOPICS.DISCORD,
 			event: `SHARD ${id} RECONNECTING`,
 		});
 		this.client.promServer.close();
 		this.client.logger.info(`Metrics server closed.`, { topic: TOPICS.METRICS, event: `SHARD ${id} RECONNECTING` });
+		this.client.twitchListener.close();
+		this.client.logger.info(`Twitch listener server closed.`, { topic: TOPICS.TWITCH, event: `SHARD ${id} RECONNECTING` });
 	}
 }

@@ -24,7 +24,7 @@
     "apollo-link-http": "^1.5.17",
     "common-tags": "^1.8.0",
     "diff": "^4.0.2",
-    "discord-akairo": "github:discord-akairo/discord-akairo",
+    "discord-akairo": "git+https://github.com/CortezSMz/discord-akairo.git",
     "discord.js": "github:discordjs/discord.js",
     "dotenv": "^8.2.0",
     "graphql": "^15.0.0",
@@ -44,9 +44,9 @@
     "winston-daily-rotate-file": "^4.4.2"
   },
   "devDependencies": {
-    "@graphql-codegen/add": "^1.13.3",
-    "@graphql-codegen/cli": "^1.13.3",
-    "@graphql-codegen/typescript": "^1.13.3",
+    "@graphql-codegen/add": "^1.15.0",
+    "@graphql-codegen/cli": "^1.15.0",
+    "@graphql-codegen/typescript": "^1.15.0",
     "@sentry/cli": "^1.52.1",
     "@types/common-tags": "^1.8.0",
     "@types/js-yaml": "^3.12.3",

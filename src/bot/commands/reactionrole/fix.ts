@@ -1,22 +1,22 @@
 import { Command } from 'discord-akairo';
-import { Message, MessageEmbed, GuildEmoji } from 'discord.js';
+import { Message, Permissions, MessageEmbed } from 'discord.js';
 import * as emojis from 'node-emoji';
 import { stripIndents } from 'common-tags';
 import { PrefixSupplier } from 'discord-akairo';
 import { graphQLClient, GRAPHQL } from '../../util/graphQL';
-import { ReactionrolesInsertInput, Reactionroles } from '../../util/graphQLTypes';
+import { ReactionRolesInsertInput, ReactionRoles } from '../../util/graphQLTypes';
 
 export default class ReactionRoleFixCommand extends Command {
     constructor() {
         super('reactionrole-fix', {
             description: {
-                content: 'Fix order for roles and reactions.',
-                usage: 'fix <ID>'
+                content: () => 'Fix order for roles and reactions.',
+                usage: () => 'fix <ID>'
             },
             channel: 'guild',
-            category: 'reaction role',
-            clientPermissions: ['MANAGE_ROLES', 'EMBED_LINKS'],
-            userPermissions: ['MANAGE_GUILD'],
+            category: 'reactionrole',
+            clientPermissions: [Permissions.FLAGS.MANAGE_ROLES, Permissions.FLAGS.EMBED_LINKS],
+            userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
             ratelimit: 2,
         });
     }
@@ -40,7 +40,7 @@ export default class ReactionRoleFixCommand extends Command {
     }
 
     public async exec(msg: Message, { roleReactionMessage }: { roleReactionMessage: Message }) {
-        const { data } = await graphQLClient.mutate<any, ReactionrolesInsertInput>({
+        const { data } = await graphQLClient.mutate<any, ReactionRolesInsertInput>({
             mutation: GRAPHQL.QUERY.REACTIONROLES,
             variables: {
                 guild: roleReactionMessage.guild!.id,
@@ -49,15 +49,15 @@ export default class ReactionRoleFixCommand extends Command {
             },
         });
 
-        let reactionRoles: Reactionroles[];
-        reactionRoles = data.reactionroles
+        let reactionRoles: ReactionRoles[];
+        reactionRoles = data.reactionRoles
 
         if (!reactionRoles.length) return msg.util?.reply(`this does not seem to be a Reaction Role Message.\nUse \`${this.handler.prefix}reactionrole create\` to create a new one.`)
         reactionRoles = reactionRoles[0] as any;
 
-        await roleReactionMessage.reactions.removeAll();
+        //        await roleReactionMessage.reactions.removeAll();
 
-        Object.entries((reactionRoles as unknown as Reactionroles).roles)
+        Object.entries((reactionRoles as unknown as ReactionRoles).roles)
             // @ts-ignore
             .sort((a, b) => msg.guild!.roles.cache.get(b[1]).position - msg.guild!.roles.cache.get(a[1]).position)
             .map(async arr => {
@@ -66,7 +66,7 @@ export default class ReactionRoleFixCommand extends Command {
             });
         const embed = new MessageEmbed(roleReactionMessage.embeds[0])
             .setDescription(
-                Object.entries((reactionRoles as unknown as Reactionroles).roles)
+                Object.entries((reactionRoles as unknown as ReactionRoles).roles)
                     // @ts-ignore
                     .sort((a, b) => msg.guild!.roles.cache.get(b[1]).position - msg.guild!.roles.cache.get(a[1]).position)
                     .map(arr => {

@@ -1,6 +1,6 @@
 import { Command } from 'discord-akairo';
 import { GuildMember, Message, MessageEmbed, Permissions } from 'discord.js';
-import { MESSAGES, PRODUCTION } from '../../util/constants';
+import { LOCALE, PRODUCTION, SETTINGS } from '../../util/constants';
 import { GRAPHQL, graphQLClient } from '../../util/graphQL';
 import { Tags, TagsInsertInput } from '../../util/graphQLTypes';
 
@@ -10,7 +10,9 @@ export default class TagListCommand extends Command {
 			aliases: ['tags'],
 			category: 'tag',
 			description: {
-				content: MESSAGES.COMMANDS.TAGS.LIST.DESCRIPTION,
+				content: (message: Message) => LOCALE(message.guild!).COMMANDS.TAGS.LIST.DESCRIPTION,
+				usage: () => null,
+				examples: () => null,
 			},
 			channel: 'guild',
 			clientPermissions: [Permissions.FLAGS.EMBED_LINKS],
@@ -38,8 +40,8 @@ export default class TagListCommand extends Command {
 			if (PRODUCTION) tags = data.tags;
 			else tags = data.tagsStaging;
 			if (!tags.length) {
-				if (member.id === message.author.id) return message.util?.reply(MESSAGES.COMMANDS.TAGS.LIST.NO_TAGS());
-				return message.util?.reply(MESSAGES.COMMANDS.TAGS.LIST.NO_TAGS(member.displayName));
+				if (member.id === message.author.id) return message.util?.reply(LOCALE(message.guild!).COMMANDS.TAGS.LIST.NO_TAGS());
+				return message.util?.reply(LOCALE(message.guild!).COMMANDS.TAGS.LIST.NO_TAGS(member.displayName));
 			}
 			const embed = new MessageEmbed()
 				.setColor(0x30a9ed)
@@ -62,7 +64,7 @@ export default class TagListCommand extends Command {
 		let tags: Tags[];
 		if (PRODUCTION) tags = data.tags;
 		else tags = data.tagsStaging;
-		if (!tags.length) return message.util?.send(MESSAGES.COMMANDS.TAGS.LIST.GUILD_NO_TAGS(guild.name));
+		if (!tags.length) return message.util?.send(LOCALE(message.guild!).COMMANDS.TAGS.LIST.GUILD_NO_TAGS(guild.name));
 		const hoistedTags = tags
 			.filter((tag) => tag.hoisted)
 			.map((tag) => `\`${tag.name}\``)

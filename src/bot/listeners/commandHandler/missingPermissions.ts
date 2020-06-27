@@ -1,7 +1,7 @@
 import { Listener, Command } from 'discord-akairo';
 import { stripIndents } from 'common-tags';
 import { Message } from 'discord.js';
-import { SETTINGS } from '../../util/constants';
+import { SETTINGS, LOCALE } from '../../util/constants';
 import { TOPICS, EVENTS } from '../../util/logger';
 
 interface Permissions {
@@ -53,7 +53,7 @@ export default class CommandErrorListener extends Listener {
 
 	public exec(message: Message, command: Command, type: string, missing: any) {
 		missing = missing[0] || missing;
-		const prefix = this.client.settings.get(message.guild!, SETTINGS.PREFIX);
+		const prefix = this.client.settings.get(message.guild!, SETTINGS.PREFIX, process.env.COMMAND_PREFIX);
 
 		switch (type) {
 			case 'client':
@@ -62,14 +62,18 @@ export default class CommandErrorListener extends Listener {
 					{ topic: TOPICS.DISCORD_AKAIRO, event: EVENTS.COMMAND_ERROR }
 				);
 				return message.util?.send(
-					stripIndents`Humpf. I can't help you if you don't let me.
-									I need **${PERMISSIONS[missing]}** to run **${prefix ? prefix : process.env.COMMAND_PREFIX}${command.id.replace(/-/g, ' ')}**`
+					LOCALE(message.guild!).LISTENERS.COMMAND_HANDLER.MISSING_PERMISSIONS.CLIENT
+						.replace('$(perm)', PERMISSIONS[missing])
+						.replace('$(prefix)', prefix)
+						.replace('$(cmd)', command.id.replace(/-/g, ' '))
 				);
 
 			case 'user':
 				return message.util?.send(
-					stripIndents`I won't let you do that. ${message.author}.
-									You need **${PERMISSIONS[missing]}** to use **${prefix ? prefix : process.env.COMMAND_PREFIX}${command.id.replace(/-/g, ' ')}**.`
+					LOCALE(message.guild!).LISTENERS.COMMAND_HANDLER.MISSING_PERMISSIONS.USER(message.author)
+						.replace('$(perm)', PERMISSIONS[missing])
+						.replace('$(prefix)', prefix)
+						.replace('$(cmd)', command.id.replace(/-/g, ' '))
 				);
 		}
 	}

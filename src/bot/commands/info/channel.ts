@@ -1,18 +1,16 @@
-import { stripIndents } from 'common-tags';
 import { Command } from 'discord-akairo';
 import { Message, MessageEmbed, Permissions, TextChannel } from 'discord.js';
-import * as moment from 'moment';
 import 'moment-duration-format';
-import { MESSAGES } from '../../util/constants';
+import { LOCALE, COLORS } from '../../util/constants';
 
 export default class ChannelInfoCommand extends Command {
 	public constructor() {
 		super('channel', {
 			aliases: ['channel', 'channel-info'],
 			description: {
-				content: MESSAGES.COMMANDS.INFO.CHANNEL.DESCRIPTION,
-				usage: '[channel]',
-				examples: ['#general', 'general', '222197033908436994'],
+				content: (message: Message) => LOCALE(message.guild!).COMMANDS.INFO.CHANNEL.DESCRIPTION.CONTENT,
+				usage: (message: Message) => LOCALE(message.guild!).COMMANDS.INFO.CHANNEL.DESCRIPTION.USAGE,
+				examples: (message: Message) => LOCALE(message.guild!).COMMANDS.INFO.CHANNEL.DESCRIPTION.EXAMPLES,
 			},
 			category: 'info',
 			channel: 'guild',
@@ -31,16 +29,11 @@ export default class ChannelInfoCommand extends Command {
 
 	public async exec(message: Message, { channel }: { channel: TextChannel }) {
 		const embed = new MessageEmbed()
-			.setColor(3447003)
-			.setDescription(`Info about **${channel.name}** (ID: ${channel.id})`)
+			.setColor(COLORS.EMBED)
+			.setDescription(LOCALE(message.guild!).COMMANDS.INFO.CHANNEL.EMBED.DESCRIPTION(channel))
 			.addField(
-				'ﾅ Info',
-				stripIndents`
-				• Type: ${channel.type}
-				• Topic ${channel.topic || 'None'}
-				• NSFW: ${Boolean(channel.nsfw)}
-				• Creation Date: ${moment.utc(channel.createdAt).format('YYYY/MM/DD hh:mm:ss')}
-			`,
+				'ﾅ ' + LOCALE(message.guild!).COMMANDS.INFO.CHANNEL.EMBED.FIELD_INFO.NAME,
+				LOCALE(message.guild!).COMMANDS.INFO.CHANNEL.EMBED.FIELD_INFO.VALUE(channel)
 			)
 			.setThumbnail(message.guild!.iconURL() ?? '');
 

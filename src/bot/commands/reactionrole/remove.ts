@@ -1,11 +1,11 @@
 import { Command } from 'discord-akairo';
-import { Message, Role, Emoji } from 'discord.js';
+import { Message, Permissions, Emoji } from 'discord.js';
 import { Argument } from 'discord-akairo';
 import * as emojis from 'node-emoji';
 import { stripIndents } from 'common-tags';
 import { PrefixSupplier } from 'discord-akairo';
 import { graphQLClient, GRAPHQL } from '../../util/graphQL';
-import { ReactionrolesInsertInput, Reactionroles } from '../../util/graphQLTypes';
+import { ReactionRolesInsertInput, ReactionRoles } from '../../util/graphQLTypes';
 
 const EMOJI_REGEX = /<(?:a)?:(?:\w{2,32}):(\d{17,19})>?/;
 
@@ -13,13 +13,13 @@ export default class ReactionRoleRemoveCommand extends Command {
     constructor() {
         super('reactionrole-remove', {
             description: {
-                content: 'Removes roles for an existing reaction-role message.',
-                usage: 'rmv <ID> <Emoji>'
+                content: () => 'Removes roles for an existing reaction-role message.',
+                usage: () => 'rmv <ID> <Emoji>'
             },
             channel: 'guild',
-            category: 'reaction role',
-            clientPermissions: ['MANAGE_ROLES', 'EMBED_LINKS'],
-            userPermissions: ['MANAGE_GUILD'],
+            category: 'reactionrole',
+            clientPermissions: [Permissions.FLAGS.MANAGE_ROLES, Permissions.FLAGS.EMBED_LINKS],
+            userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
             ratelimit: 2,
         });
     }
@@ -40,7 +40,7 @@ export default class ReactionRoleRemoveCommand extends Command {
         };
 
         const emoji = yield {
-            type: Argument.union('emoji', async (message, content) => {
+            type: Argument.union('emoji', async (_, content) => {
                 let possibleEmojis = content.split(' ');
                 for (let emj of possibleEmojis) {
                     if (emojis.hasEmoji(emj)) {
@@ -61,7 +61,7 @@ export default class ReactionRoleRemoveCommand extends Command {
     }
 
     public async exec(msg: Message, { roleReactionMessage, emoji }: { roleReactionMessage: Message, emoji: Emoji | any }) {
-        const { data } = await graphQLClient.mutate<any, ReactionrolesInsertInput>({
+        const { data } = await graphQLClient.mutate<any, ReactionRolesInsertInput>({
             mutation: GRAPHQL.QUERY.REACTIONROLES,
             variables: {
                 guild: roleReactionMessage.guild!.id,
@@ -70,16 +70,16 @@ export default class ReactionRoleRemoveCommand extends Command {
             },
         });
 
-        let reactionRoles: Reactionroles[];
-        reactionRoles = data.reactionroles
+        let reactionRoles: ReactionRoles[];
+        reactionRoles = data.reactionRoles
 
         if (!reactionRoles.length) {
             return msg.util?.reply(`this does not seem to be a Reaction Role Message.\nUse \`${this.handler.prefix}reactionrole create\` to create a new one.`)
         } else {
             let roles = reactionRoles[0].roles;
-
             delete roles[emoji.emoji ? emoji.emoji : emoji.name];
-            const { data } = await graphQLClient.mutate<any, ReactionrolesInsertInput>({
+
+            await graphQLClient.mutate<any, ReactionRolesInsertInput>({
                 mutation: GRAPHQL.MUTATION.UPDATE_REACTION_ROLES,
                 variables: {
                     id: reactionRoles[0].id,

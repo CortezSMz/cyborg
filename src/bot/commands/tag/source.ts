@@ -1,6 +1,6 @@
 import { Command } from 'discord-akairo';
 import { Message } from 'discord.js';
-import { MESSAGES } from '../../util/constants';
+import { LOCALE, SETTINGS } from '../../util/constants';
 import { Tags } from '../../util/graphQLTypes';
 
 export default class TagSourceCommand extends Command {
@@ -8,8 +8,8 @@ export default class TagSourceCommand extends Command {
 		super('tag-source', {
 			category: 'tag',
 			description: {
-				content: MESSAGES.COMMANDS.TAGS.SOURCE.DESCRIPTION,
-				usage: '[--file/-f] <tag>',
+				content: (message: Message) => LOCALE(message.guild!).COMMANDS.TAGS.SOURCE.DESCRIPTION,
+				usage: () => '[--file/-f] <tag>',
 			},
 			channel: 'guild',
 			ratelimit: 2,
@@ -24,9 +24,8 @@ export default class TagSourceCommand extends Command {
 					match: 'rest',
 					type: 'tag',
 					prompt: {
-						start: (message: Message) => MESSAGES.COMMANDS.TAGS.SOURCE.PROMPT.START(message.author),
-						retry: (message: Message, { failure }: { failure: { value: string } }) =>
-							MESSAGES.COMMANDS.TAGS.SOURCE.PROMPT.RETRY(message.author, failure.value),
+						start: (message: Message) => LOCALE(message.guild!).COMMANDS.TAGS.SOURCE.PROMPT.START(message.author),
+						retry: (message: Message, { failure }: { failure: { value: string } }) => LOCALE(message.guild!).COMMANDS.TAGS.SOURCE.PROMPT.RETRY(message.author, failure.value),
 					},
 				},
 			],
@@ -38,11 +37,11 @@ export default class TagSourceCommand extends Command {
 			code: 'md',
 			files: file
 				? [
-						{
-							attachment: Buffer.from(tag.content.replace(/\n/g, '\r\n'), 'utf8'),
-							name: `${tag.name}_source.txt`,
-						},
-				  ]
+					{
+						attachment: Buffer.from(tag.content.replace(/\n/g, '\r\n'), 'utf8'),
+						name: `${tag.name}_source.txt`,
+					},
+				]
 				: undefined,
 		});
 	}

@@ -1,6 +1,6 @@
 import { Command } from 'discord-akairo';
 import { Message, Util } from 'discord.js';
-import { MESSAGES, PRODUCTION, SETTINGS } from '../../util/constants';
+import { LOCALE, PRODUCTION, SETTINGS } from '../../util/constants';
 import { GRAPHQL, graphQLClient } from '../../util/graphQL';
 import { Tags, TagsInsertInput } from '../../util/graphQLTypes';
 import { interpolateString } from '../../util/template';
@@ -10,8 +10,8 @@ export default class TagShowCommand extends Command {
 		super('tag-show', {
 			category: 'tag',
 			description: {
-				content: MESSAGES.COMMANDS.TAGS.SHOW.DESCRIPTION,
-				usage: '<tag>',
+				content: (message: Message) => LOCALE(message.guild!).COMMANDS.TAGS.SHOW.DESCRIPTION,
+				usage: () => '<tag>',
 			},
 			channel: 'guild',
 			ratelimit: 2,
@@ -21,7 +21,7 @@ export default class TagShowCommand extends Command {
 					match: 'content',
 					type: 'lowercase',
 					prompt: {
-						start: (message: Message) => MESSAGES.COMMANDS.TAGS.SHOW.PROMPT.START(message.author),
+						start: (message: Message) => LOCALE(message.guild!).COMMANDS.TAGS.SHOW.PROMPT.START(message.author),
 					},
 				},
 			],
@@ -31,10 +31,6 @@ export default class TagShowCommand extends Command {
 	public async exec(message: Message, { name }: { name: string }) {
 		if (!name) return;
 		const guild = message.guild!;
-		const restrictedRoles = this.client.settings.get(guild, SETTINGS.RESTRICT_ROLES);
-		if (restrictedRoles) {
-			if (message.member?.roles.cache.has(restrictedRoles.TAG)) return;
-		}
 		name = Util.cleanContent(name, message);
 		const { data } = await graphQLClient.query<any, TagsInsertInput>({
 			query: GRAPHQL.QUERY.TAGS_TYPE,

@@ -6,6 +6,7 @@ export enum TOPICS {
 	DISCORD = 'DISCORD',
 	DISCORD_AKAIRO = 'DISCORD_AKAIRO',
 	RPC = 'RPC',
+	TWITCH = 'TWITCH',
 	METRICS = 'METRICS',
 }
 
@@ -39,7 +40,7 @@ export const logger = createLogger({
 			const { timestamp, label, level, message, topic, event, ...rest } = info;
 			return `[${timestamp}][${label}][${level.toUpperCase()}][${topic}]${event ? `[${event}]` : ''}: ${message}${
 				Object.keys(rest).length ? `\n${JSON.stringify(rest, null, 2)}` : ''
-			}`;
+				}`;
 		}),
 	),
 	transports: [

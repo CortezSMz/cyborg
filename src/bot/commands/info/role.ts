@@ -3,7 +3,7 @@ import { Command } from 'discord-akairo';
 import { Message, MessageEmbed, Permissions, Role } from 'discord.js';
 import * as moment from 'moment';
 import 'moment-duration-format';
-import { MESSAGES } from '../../util/constants';
+import { LOCALE, COLORS } from '../../util/constants';
 
 interface PermissionsIndex {
 	[key: string]: string;
@@ -45,9 +45,9 @@ export default class RoleInfoCommand extends Command {
 		super('role', {
 			aliases: ['role', 'role-info'],
 			description: {
-				content: MESSAGES.COMMANDS.INFO.ROLE.DESCRIPTION,
-				usage: '[role]',
-				examples: ['Mod', '@Mod'],
+				content: (message: Message) => LOCALE(message.guild!).COMMANDS.INFO.ROLE.DESCRIPTION,
+				usage: () => '[role]',
+				examples: () => ['Mod', '@Mod'],
 			},
 			category: 'info',
 			channel: 'guild',
@@ -71,7 +71,7 @@ export default class RoleInfoCommand extends Command {
 		);
 
 		const embed = new MessageEmbed()
-			.setColor(3447003)
+			.setColor(COLORS.EMBED)
 			.setDescription(`Info about **${role.name}** (ID: ${role.id})`)
 			.addField(
 				'ﾅ Info',

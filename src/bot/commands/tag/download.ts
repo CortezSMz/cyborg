@@ -1,6 +1,6 @@
 import { Command } from 'discord-akairo';
 import { GuildMember, Message } from 'discord.js';
-import { MESSAGES, PRODUCTION } from '../../util/constants';
+import { LOCALE, PRODUCTION, SETTINGS } from '../../util/constants';
 import { GRAPHQL, graphQLClient } from '../../util/graphQL';
 import { Tags, TagsInsertInput } from '../../util/graphQLTypes';
 import { safeDump } from 'js-yaml';
@@ -10,8 +10,8 @@ export default class TagDownloadCommand extends Command {
 		super('tag-download', {
 			category: 'tag',
 			description: {
-				content: MESSAGES.COMMANDS.TAGS.DOWNLOAD.DESCRIPTION,
-				usage: '[member]',
+				content: (message: Message) => LOCALE(message.guild!).COMMANDS.TAGS.DOWNLOAD.DESCRIPTION,
+				usage: () => '[member]',
 			},
 			channel: 'guild',
 			ratelimit: 2,
@@ -40,7 +40,7 @@ export default class TagDownloadCommand extends Command {
 		if (PRODUCTION) tags = data.tags;
 		else tags = data.tagsStaging;
 		if (!tags.length) return;
-		return message.util?.send(MESSAGES.COMMANDS.TAGS.DOWNLOAD.REPLY, {
+		return message.util?.send(LOCALE(message.guild!).COMMANDS.TAGS.DOWNLOAD.REPLY, {
 			files: [
 				{
 					attachment: Buffer.from(safeDump(tags), 'utf8'),

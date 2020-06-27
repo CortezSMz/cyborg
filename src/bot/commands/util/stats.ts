@@ -3,14 +3,16 @@ import { Command } from 'discord-akairo';
 import { Message, MessageEmbed, Permissions } from 'discord.js';
 import * as moment from 'moment';
 import 'moment-duration-format';
-import { MESSAGES, COLORS } from '../../util/constants';
+import { LOCALE, COLORS, SETTINGS } from '../../util/constants';
 
 export default class StatsCommand extends Command {
 	public constructor() {
 		super('stats', {
 			aliases: ['stats'],
 			description: {
-				content: MESSAGES.COMMANDS.UTIL.STATS.DESCRIPTION,
+				content: (message: Message) => LOCALE(message.guild!).COMMANDS.UTIL.STATS.DESCRIPTION,
+				usage: () => null,
+				examples: () => null,
 			},
 			category: 'util',
 			clientPermissions: [Permissions.FLAGS.EMBED_LINKS],
@@ -19,10 +21,10 @@ export default class StatsCommand extends Command {
 	}
 
 	public async exec(message: Message) {
-		const mtl = await this.client.prometheus.fetchQuery('cyborg_messages_total');
-		const mpm = await this.client.prometheus.fetchQuery('rate(cyborg_messages_total[1m])*60');
-		const ctl = await this.client.prometheus.fetchQuery('cyborg_commands_total');
-		const cpm = await this.client.prometheus.fetchQuery('rate(cyborg_commands_total[1m])*60');
+		/* 		const mtl = this.client.prometheus.fetchQuery('cyborg_messages_total');
+				const mpm = this.client.prometheus.fetchQuery('rate(cyborg_messages_total[1m])*60');
+				const ctl = this.client.prometheus.fetchQuery('cyborg_commands_total');
+				const cpm = this.client.prometheus.fetchQuery('rate(cyborg_commands_total[1m])*60'); */
 		this.client.ws.ping;
 		const embed = new MessageEmbed()
 			.setColor(COLORS.EMBED)
@@ -38,13 +40,7 @@ export default class StatsCommand extends Command {
 				• Guilds: ${this.client.guilds.cache.size}
 				• Users: ${this.client.users.cache.size}
 				• Channels: ${this.client.channels.cache.size}
-				${
-					cpm
-						? stripIndents`
-							• Messages seen: ${mtl.data.result[0].value[1]} \`~${parseInt(mpm.data.result[0].value[1])}/m\`
-							• Commands seen: ${ctl.data.result[0].value[1]} \`~${parseInt(cpm.data.result[0].value[1])}/m\``
-						: ''
-					}`,
+				`,
 				true,
 			)
 			.addField('ﾅ Version', '0.1.0', true)
@@ -54,3 +50,13 @@ export default class StatsCommand extends Command {
 		return message.util?.send(embed);
 	}
 }
+
+/*
+${
+					cpm
+						? stripIndents`
+							• Messages seen: ${mtl.data.result[0].value[1]} \`~${parseInt(mpm.data.result[0].value[1])}/m\`
+							• Commands seen: ${ctl.data.result[0].value[1]} \`~${parseInt(cpm.data.result[0].value[1])}/m\``
+						: ''
+					}
+*/

@@ -1,14 +1,17 @@
 import { Command, PrefixSupplier } from 'discord-akairo';
 import { Message, MessageEmbed, Permissions } from 'discord.js';
-import { MESSAGES, COLORS } from '../../util/constants';
+import { LOCALE, COLORS } from '../../util/constants';
+import { graphQLClient, GRAPHQL } from '../../util/graphQL';
+import { TagsInsertInput, Tags } from '../../util/graphQLTypes';
 
 export default class HelpCommand extends Command {
 	public constructor() {
 		super('help', {
 			aliases: ['help'],
 			description: {
-				content: MESSAGES.COMMANDS.UTIL.HELP.DESCRIPTION,
-				usage: '[command]',
+				content: (message: Message) => LOCALE(message.guild!).COMMANDS.UTIL.HELP.DESCRIPTION.CONTENT,
+				usage: (message: Message) => LOCALE(message.guild!).COMMANDS.UTIL.HELP.DESCRIPTION.USAGE,
+				examples: () => null,
 			},
 			category: 'util',
 			clientPermissions: [Permissions.FLAGS.EMBED_LINKS],
@@ -27,17 +30,34 @@ export default class HelpCommand extends Command {
 		if (!command) {
 			const embed = new MessageEmbed()
 				.setColor(COLORS.EMBED)
-				.addField('ﾅ Commands', MESSAGES.COMMANDS.UTIL.HELP.REPLY(prefix));
+				.addField(`ﾅ ${LOCALE(message.guild!).COMMANDS.UTIL.HELP.EMBED.FIELD_COMMANDS} `, LOCALE(message.guild!).COMMANDS.UTIL.HELP.REPLY(prefix));
 
 			for (const category of this.handler.categories.sort().values()) {
 				if (category.id === 'owner' && message.author.id !== this.client.config.owner) continue;
 				embed.addField(
-					`ﾅ ${category.id.replace(/(\b\w)/gi, (lc) => lc.toUpperCase())}`,
+					`ﾅ ${LOCALE(message.guild!).COMMANDS.CATEGORIES[category.id.toUpperCase()]}`,
 					`${category
 						.filter((cmd) => cmd.aliases.length > 0)
 						.map((cmd) => `\`${cmd.aliases[0]}\``)
 						.join(' ')}`,
 				);
+				if (category.id === 'tag' && message.guild) {
+					const { data } = await graphQLClient.query<any, TagsInsertInput>({
+						query: GRAPHQL.QUERY.TAGS,
+						variables: {
+							guild: message.guild.id,
+						},
+					});
+					let tags: Tags[];
+					tags = data.tags;
+					let hoistedTags = tags.filter((tag) => tag.hoisted).map((tag) => `\`${tag.name}\``).sort().join(', ');
+					if (hoistedTags) {
+						embed.addField(
+							`ﾅ ${message.guild.name} ${LOCALE(message.guild!).COMMANDS.CATEGORIES[category.id.toUpperCase()]}`,
+							hoistedTags
+						);
+					}
+				}
 			}
 
 			return message.util?.send(embed);
@@ -45,13 +65,13 @@ export default class HelpCommand extends Command {
 
 		const embed = new MessageEmbed()
 			.setColor(COLORS.EMBED)
-			.setTitle(`\`${prefix}${command.aliases[0]} ${command.description.usage || ''}\``)
-			.addField('ﾅ Description', command.description.content || '\u200b');
+			.setTitle(`\`${prefix}${command.aliases[0]} ${command.description.usage(message) || ''}\``)
+			.addField(`ﾅ ${LOCALE(message.guild!).COMMANDS.UTIL.HELP.EMBED.FIELD_DESCRIPTION} `, command.description.content(message) || '\u200b');
 
-		if (command.aliases.length > 1) embed.addField('ﾅ Aliases', `\`${command.aliases.join('` `')}\``, true);
-		if (command.description.examples?.length)
-			embed.addField('ﾅ Examples',
-				`\`${prefix}${command.aliases[0]} ${command.description.examples.join(`\`\n\`${prefix}${command.aliases[0]} `)}\``,
+		if (command.aliases.length > 1) embed.addField(`ﾅ ${LOCALE(message.guild!).COMMANDS.UTIL.HELP.EMBED.FIELD_ALIASES} `, `\`${command.aliases.join('` `')}\``, true);
+		if (command.description.examples(message)?.length)
+			embed.addField(`ﾅ ${LOCALE(message.guild!).COMMANDS.UTIL.HELP.EMBED.FIELD_EXAMPLES} `,
+				`\`${prefix}${command.aliases[0]} ${command.description.examples(message).join(`\`\n\`${prefix}${command.aliases[0]} `)}\``,
 				true,
 			);
 

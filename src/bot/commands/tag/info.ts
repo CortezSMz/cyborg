@@ -2,7 +2,7 @@ import { Command } from 'discord-akairo';
 import { Message, MessageEmbed, Permissions } from 'discord.js';
 import * as moment from 'moment';
 import 'moment-duration-format';
-import { MESSAGES } from '../../util/constants';
+import { LOCALE, COLORS } from '../../util/constants';
 import { Tags } from '../../util/graphQLTypes';
 
 export default class TagInfoCommand extends Command {
@@ -10,8 +10,8 @@ export default class TagInfoCommand extends Command {
 		super('tag-info', {
 			category: 'tag',
 			description: {
-				content: MESSAGES.COMMANDS.TAGS.INFO.DESCRIPTION,
-				usage: '<tag>',
+				content: (message: Message) => LOCALE(message.guild!).COMMANDS.TAGS.INFO.DESCRIPTION,
+				usage: () => '<tag>',
 			},
 			channel: 'guild',
 			clientPermissions: [Permissions.FLAGS.EMBED_LINKS],
@@ -22,9 +22,8 @@ export default class TagInfoCommand extends Command {
 					match: 'content',
 					type: 'tag',
 					prompt: {
-						start: (message: Message) => MESSAGES.COMMANDS.TAGS.INFO.PROMPT.START(message.author),
-						retry: (message: Message, { failure }: { failure: { value: string } }) =>
-							MESSAGES.COMMANDS.TAGS.INFO.PROMPT.RETRY(message.author, failure.value),
+						start: (message: Message) => LOCALE(message.guild!).COMMANDS.TAGS.INFO.PROMPT.START(message.author),
+						retry: (message: Message, { failure }: { failure: { value: string } }) => LOCALE(message.guild!).COMMANDS.TAGS.INFO.PROMPT.RETRY(message.author, failure.value),
 					},
 				},
 			],
@@ -40,7 +39,7 @@ export default class TagInfoCommand extends Command {
 			lastModifiedBy = null;
 		}
 		const guild = this.client.guilds.cache.get(tag.guild);
-		const embed = new MessageEmbed().setColor(3447003).addField('ﾅ Name', tag.name);
+		const embed = new MessageEmbed().setColor(COLORS.EMBED).addField('ﾅ Name', tag.name);
 		if (tag.templated) {
 			embed.addField('ﾅ Templated', '❗This tag is templated and resolves mentions and templates.');
 		}
@@ -51,9 +50,9 @@ export default class TagInfoCommand extends Command {
 				'ﾅ Aliases',
 				tag.aliases.length
 					? tag.aliases
-							.map((t: any) => `\`${t}\``)
-							.sort()
-							.join(', ')
+						.map((t: any) => `\`${t}\``)
+						.sort()
+						.join(', ')
 					: 'No aliases.',
 			)
 			.addField('ﾅ Uses', tag.uses)

@@ -1,10 +1,8 @@
-import { stripIndents } from 'common-tags';
 import { Command } from 'discord-akairo';
 import { GuildEmoji, Message, MessageEmbed, Permissions } from 'discord.js';
-import * as moment from 'moment';
 import * as emojis from 'node-emoji';
 import * as punycode from 'punycode';
-import { MESSAGES } from '../../util/constants';
+import { LOCALE, COLORS } from '../../util/constants';
 
 const EMOJI_REGEX = /<(?:a)?:(?:\w{2,32}):(\d{17,19})>?/;
 
@@ -13,9 +11,9 @@ export default class EmojiInfoCommand extends Command {
 		super('emoji', {
 			aliases: ['emoji', 'emoji-info'],
 			description: {
-				content: MESSAGES.COMMANDS.INFO.EMOJI.DESCRIPTION,
-				usage: '<emoji>',
-				examples: ['🤔', 'thinking_face', '264701195573133315', '<:Thonk:264701195573133315>'],
+				content: (message: Message) => LOCALE(message.guild!).COMMANDS.INFO.EMOJI.DESCRIPTION.CONTENT,
+				usage: () => '<emoji>',
+				examples: () => ['🤔', 'thinking_face', '713815930983153675', '<:Thonk:713815930983153675>'],
 			},
 			category: 'info',
 			channel: 'guild',
@@ -32,8 +30,8 @@ export default class EmojiInfoCommand extends Command {
 						return guild.emojis.cache.find((e) => e.name === content) || emojis.find(content);
 					},
 					prompt: {
-						start: (message: Message) => MESSAGES.COMMANDS.INFO.EMOJI.PROMPT.START(message.author),
-						retry: (message: Message) => MESSAGES.COMMANDS.INFO.EMOJI.PROMPT.RETRY(message.author),
+						start: (message: Message) => LOCALE(message.guild!).COMMANDS.INFO.EMOJI.PROMPT.START(message.author),
+						retry: (message: Message) => LOCALE(message.guild!).COMMANDS.INFO.EMOJI.PROMPT.RETRY(message.author),
 					},
 				},
 			],
@@ -41,34 +39,27 @@ export default class EmojiInfoCommand extends Command {
 	}
 
 	public async exec(message: Message, { emoji }: { emoji: GuildEmoji | emojis.Emoji }) {
-		const embed = new MessageEmbed().setColor(3447003);
+		const embed = new MessageEmbed().setColor(COLORS.EMBED);
 
 		if (emoji instanceof GuildEmoji) {
-			embed.setDescription(`Info about ${emoji.name} (ID: ${emoji.id})`);
+			embed.setDescription(LOCALE(message.guild!).COMMANDS.INFO.EMOJI.EMBED.DESCRIPTION.GUILDEMOJI(emoji));
 			embed.setThumbnail(emoji.url ?? '');
 			embed.addField(
-				'ﾅ Info',
-				stripIndents`
-				• Identifier: \`<${emoji.identifier}>\`
-				• Creation Date: ${moment.utc(emoji.createdAt ?? 0).format('YYYY/MM/DD hh:mm:ss')}
-				• URL: ${emoji.url}
-				`,
+				'ﾅ ' + LOCALE(message.guild!).COMMANDS.INFO.EMOJI.EMBED.FIELD_INFO.NAME,
+				LOCALE(message.guild!).COMMANDS.INFO.EMOJI.EMBED.FIELD_INFO.VALUE.GUILDEMOJI(emoji),
 			);
 		} else {
-			embed.setDescription(`Info about ${emoji.emoji}`);
+			embed.setDescription(LOCALE(message.guild!).COMMANDS.INFO.EMOJI.EMBED.DESCRIPTION.EMOJI(emoji));
 			embed.addField(
-				'ﾅ Info',
-				stripIndents`
-				• Name: \`${emoji.key}\`
-				• Raw: \`${emoji.emoji}\`
-				• Unicode: \`${punycode.ucs2
-						.decode(emoji.emoji)
-						.map((e: any) => `\\u${e.toString(16).toUpperCase().padStart(4, '0')}`)
-						.join('')}\`
-				`,
+				'ﾅ ' + LOCALE(message.guild!).COMMANDS.INFO.EMOJI.EMBED.FIELD_INFO.NAME,
+				LOCALE(message.guild!).COMMANDS.INFO.EMOJI.EMBED.FIELD_INFO.VALUE.EMOJI(emoji)
+					.replace('$(unicode)',
+						`\`${punycode.ucs2
+							.decode(emoji.emoji)
+							.map((e: any) => `\\u${e.toString(16).toUpperCase().padStart(4, '0')}`)
+							.join('')}\``),
 			);
 		}
-
-		return message.util?.send(embed);
+		return message.util?.send(embed).then(msg => msg.react(emoji instanceof GuildEmoji ? emoji : emoji.emoji)).catch(() => { });
 	}
 }

@@ -1,15 +1,15 @@
-import { AkairoClient, CommandHandler, Flag, InhibitorHandler, ListenerHandler, AkairoOptions } from 'discord-akairo';
-import { Collection, Message, Util, Webhook } from 'discord.js';
+import { AkairoClient, CommandHandler, Flag, InhibitorHandler, ListenerHandler } from 'discord-akairo';
+import { Collection, Message, Util, Webhook, TextChannel } from 'discord.js';
 import { createServer, Server } from 'http';
 import fetch from 'node-fetch';
 import { join } from 'path';
 import { Counter, register, Registry } from 'prom-client';
 import { parse } from 'url';
 import { Logger } from 'winston';
+import TwitchScheduler from '../structures/TwitchScheduler'
 import RemindmeScheduler from '../structures/RemindmeScheduler';
-import Queue from '../structures/Queue';
 import HasuraProvider from '../structures/SettingsProvider';
-import { MESSAGES, PRODUCTION, PROMETHEUS, SETTINGS } from '../util/constants';
+import { LOCALE, PRODUCTION, PROMETHEUS, SETTINGS, CYBORG } from '../util/constants';
 import { GRAPHQL, graphQLClient } from '../util/graphQL';
 import { Tags, TagsInsertInput } from '../util/graphQLTypes';
 import { EVENTS, logger, TOPICS } from '../util/logger';
@@ -23,6 +23,8 @@ declare module 'discord-akairo' {
 		config: CyborgOptions;
 		configWebhooks: Collection<string, Webhook>;
 		remindmeScheduler: RemindmeScheduler;
+		twitchScheduler: TwitchScheduler;
+		twitchListener: Server;
 		prometheus: {
 			messagesCounter: Counter<string>;
 			commandCounter: Counter<string>;
@@ -30,12 +32,6 @@ declare module 'discord-akairo' {
 			register: Registry;
 		};
 		promServer: Server;
-	}
-}
-
-declare module 'discord.js' {
-	interface Guild {
-		caseQueue: Queue;
 	}
 }
 
@@ -63,11 +59,13 @@ export default class CyborgClient extends AkairoClient {
 		defaultCooldown: 3000,
 		argumentDefaults: {
 			prompt: {
-				modifyStart: (_, str) => MESSAGES.COMMAND_HANDLER.PROMPT.MODIFY_START(str),
-				modifyRetry: (_, str) => MESSAGES.COMMAND_HANDLER.PROMPT.MODIFY_RETRY(str),
-				timeout: MESSAGES.COMMAND_HANDLER.PROMPT.TIMEOUT,
-				ended: MESSAGES.COMMAND_HANDLER.PROMPT.ENDED,
-				cancel: MESSAGES.COMMAND_HANDLER.PROMPT.CANCEL,
+				modifyStart: (message: Message, str) => LOCALE(message.guild!).COMMAND_HANDLER.PROMPT.MODIFY_START(str),
+				modifyRetry: (message: Message, str) => LOCALE(message.guild!).COMMAND_HANDLER.PROMPT.MODIFY_RETRY(str),
+				cancelWord: (message: Message) => LOCALE(message.guild!).COMMAND_HANDLER.PROMPT.CANCEL_WORD,
+				stopWord: (message: Message) => LOCALE(message.guild!).COMMAND_HANDLER.PROMPT.STOP_WORD,
+				timeout: (message: Message) => LOCALE(message.guild!).COMMAND_HANDLER.PROMPT.TIMEOUT,
+				ended: (message: Message) => LOCALE(message.guild!).COMMAND_HANDLER.PROMPT.ENDED,
+				cancel: (message: Message) => LOCALE(message.guild!).COMMAND_HANDLER.PROMPT.CANCEL,
 				retries: 3,
 				time: 30000,
 			},
@@ -82,6 +80,12 @@ export default class CyborgClient extends AkairoClient {
 	public config: CyborgOptions;
 
 	public remindmeScheduler = new RemindmeScheduler(this);
+
+	public twitchScheduler = new TwitchScheduler(this);
+
+	public twitchListener = createServer((req, res) => {
+		console.log(req, res)
+	});
 
 	public prometheus = {
 		messagesCounter: new Counter({ name: PROMETHEUS.MESSAGE_COUNTER, help: PROMETHEUS.HELP.MESSAGE_COUNTER }),
@@ -118,7 +122,7 @@ export default class CyborgClient extends AkairoClient {
 			{ ownerID: config.owner },
 			{
 				messageCacheMaxSize: 1000,
-				disableMentions: 'everyone',
+				//disableMentions: 'everyone',
 				partials: ['MESSAGE', 'REACTION'],
 				// ws: { intents: ['GUILDS', 'GUILD_MESSAGES', 'GUILD_MESSAGE_REACTIONS'] },
 			},
@@ -126,8 +130,11 @@ export default class CyborgClient extends AkairoClient {
 
 		this.root = config.root;
 
-		this.on('message', () => {
+		this.on('message', async (msg) => {
 			this.prometheus.messagesCounter.inc();
+			if (msg.channel.id === '716204131727048725' && msg.webhookID === '717308309845180446') {
+				return (await this.channels.fetch('701928421898453034') as TextChannel).send(`${msg.content}`)
+			}
 		});
 
 		this.commandHandler.resolver.addType('duration', (_, str): number | null => {
@@ -154,6 +161,7 @@ export default class CyborgClient extends AkairoClient {
 
 			return tag || Flag.fail(phrase);
 		});
+
 		this.commandHandler.resolver.addType('existingTag', async (message, phrase) => {
 			if (!message.guild) return Flag.fail(phrase);
 			if (!phrase) return Flag.fail(phrase);
@@ -205,13 +213,13 @@ export default class CyborgClient extends AkairoClient {
 		});
 
 		this.commandHandler.loadAll();
-		this.logger.info(MESSAGES.COMMAND_HANDLER.LOADED, { topic: TOPICS.DISCORD_AKAIRO, event: EVENTS.INIT });
+		this.logger.info(CYBORG.COMMAND_HANDLER.LOADED, { topic: TOPICS.DISCORD_AKAIRO, event: EVENTS.INIT });
 		this.inhibitorHandler.loadAll();
-		this.logger.info(MESSAGES.INHIBITOR_HANDLER.LOADED, { topic: TOPICS.DISCORD_AKAIRO, event: EVENTS.INIT });
+		this.logger.info(CYBORG.INHIBITOR_HANDLER.LOADED, { topic: TOPICS.DISCORD_AKAIRO, event: EVENTS.INIT });
 		this.listenerHandler.loadAll();
-		this.logger.info(MESSAGES.LISTENER_HANDLER.LOADED, { topic: TOPICS.DISCORD_AKAIRO, event: EVENTS.INIT });
+		this.logger.info(CYBORG.LISTENER_HANDLER.LOADED, { topic: TOPICS.DISCORD_AKAIRO, event: EVENTS.INIT });
 		await this.settings.init();
-		this.logger.info(MESSAGES.SETTINGS.INIT, { topic: TOPICS.DISCORD_AKAIRO, event: EVENTS.INIT });
+		this.logger.info(CYBORG.SETTINGS.INIT, { topic: TOPICS.DISCORD_AKAIRO, event: EVENTS.INIT });
 	}
 
 	public async start() {

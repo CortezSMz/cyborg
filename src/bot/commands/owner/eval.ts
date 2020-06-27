@@ -2,7 +2,7 @@ import { stripIndents } from 'common-tags';
 import { Command } from 'discord-akairo';
 import { Message, Util } from 'discord.js';
 import * as util from 'util';
-import { MESSAGES } from '../../util/constants';
+import { LOCALE } from '../../util/constants';
 
 const NL = '!!NL!!';
 const NL_PATTERN = new RegExp(NL, 'g');
@@ -18,10 +18,11 @@ export default class EvalCommand extends Command {
 		super('eval', {
 			aliases: ['eval'],
 			description: {
-				content: MESSAGES.COMMANDS.UTIL.EVAL.DESCRIPTION,
-				usage: '<code>',
+				content: (message: Message) => LOCALE(message.guild!).COMMANDS.OWNER.EVAL.DESCRIPTION,
+				usage: () => '<code>',
+				examples: () => null,
 			},
-			category: ' owner',
+			category: 'owner',
 			ownerOnly: true,
 			ratelimit: 2,
 			args: [
@@ -30,7 +31,7 @@ export default class EvalCommand extends Command {
 					match: 'content',
 					type: 'string',
 					prompt: {
-						start: (message: Message) => MESSAGES.COMMANDS.UTIL.EVAL.PROMPT.START(message.author),
+						start: (message: Message) => LOCALE(message.guild!).COMMANDS.OWNER.EVAL.PROMPT.START(message.author),
 					},
 				},
 			],

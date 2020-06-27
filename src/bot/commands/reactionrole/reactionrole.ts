@@ -1,5 +1,5 @@
 import { Command } from 'discord-akairo';
-import { Message } from 'discord.js';
+import { Message, Permissions } from 'discord.js';
 import { Flag } from 'discord-akairo';
 
 export default class ReactionRoleCommand extends Command {
@@ -7,18 +7,18 @@ export default class ReactionRoleCommand extends Command {
         super('reactionrole', {
             aliases: ['reactionrole', 'rr'],
             description: {
-                content: 'Manages roles by reactions.',
-                usage: '<method> <...arguments>',
-                examples: [
+                content: (message: Message) => 'Manages roles by reactions.',
+                usage: (message: Message) => '<method> <...arguments>',
+                examples: () => [
                     'create',
                     'add',
                     'remove',
                 ]
             },
             channel: 'guild',
-            category: 'reaction role',
-            clientPermissions: ['MANAGE_ROLES', 'EMBED_LINKS'],
-            userPermissions: ['MANAGE_GUILD'],
+            category: 'reactionrole',
+            clientPermissions: [Permissions.FLAGS.MANAGE_ROLES, Permissions.FLAGS.EMBED_LINKS, Permissions.FLAGS.ADD_REACTIONS],
+            userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
             ratelimit: 2
         });
     }

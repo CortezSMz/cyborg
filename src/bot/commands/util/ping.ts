@@ -1,13 +1,15 @@
 import { Command } from 'discord-akairo';
 import { Message } from 'discord.js';
-import { MESSAGES } from '../../util/constants';
+import { LOCALE } from '../../util/constants';
 
 export default class PingCommand extends Command {
 	public constructor() {
 		super('ping', {
 			aliases: ['ping'],
 			description: {
-				content: MESSAGES.COMMANDS.UTIL.PING.DESCRIPTION,
+				content: (message: Message) => LOCALE(message.guild!).COMMANDS.UTIL.PING.DESCRIPTION,
+				usage: () => null,
+				examples: () => null,
 			},
 			category: 'util',
 			ratelimit: 2,
@@ -19,7 +21,7 @@ export default class PingCommand extends Command {
 		if (!msg) return null;
 
 		return message.util?.send(
-			MESSAGES.COMMANDS.UTIL.PING.RESPONSES[Math.floor(Math.random() * MESSAGES.COMMANDS.UTIL.PING.RESPONSES.length)]
+			LOCALE(message.guild!).COMMANDS.UTIL.PING.RESPONSES[Math.floor(Math.random() * LOCALE(message.guild!).COMMANDS.UTIL.PING.RESPONSES.length)]
 				.replace(
 					'$(ping)',
 					(

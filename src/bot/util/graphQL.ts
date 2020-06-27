@@ -191,6 +191,23 @@ export const GRAPHQL = {
 			}
 		`,
 
+		TWITCH_STREAMS: gql`
+			query {
+				twitchStreams${PRODUCTION ? '' : 'Staging'} {
+					id
+					streamer
+					streamerName
+					online
+					message
+					guild
+					channel
+					categories
+					duration
+					startedAt
+				}
+			}
+		`,
+
 		REMINDMES_DURATION: gql`
 		query {
 			remindmes${PRODUCTION ? '' : 'Staging'} {
@@ -263,7 +280,7 @@ export const GRAPHQL = {
 
 		REACTIONROLES: gql`
 			query($guild: String!, $channel: String!, $message: String!) {
-				reactionroles${PRODUCTION ? '' : 'Staging'}(where: {
+				reactionRoles${PRODUCTION ? '' : 'Staging'}(where: {
 					guild: { _eq: $guild },
 					channel: { _eq: $channel },
 					message: { _eq: $message },
@@ -392,7 +409,7 @@ export const GRAPHQL = {
 
 		INSERT_REACTION_ROLES: gql`
 			mutation($channel: String!, $guild: String!, $message: String!, $roles: jsonb!) {
-				insertReactionroles${PRODUCTION ? '' : 'Staging'}(objects: {
+				insertReactionRoles${PRODUCTION ? '' : 'Staging'}(objects: {
 					channel: $channel,
 					guild: $guild,
 					message: $message,
@@ -408,9 +425,44 @@ export const GRAPHQL = {
 			}
 		`,
 
+		UPDATE_TWITCH_STREAMS: gql`
+		mutation($id: Int!, $guild: String!, $channel: String!, $message: String, $streamer: String!, $streamerName: String!, $categories: jsonb!, $online: Boolean!, $duration: Int, $startedAt: timestamptz) {
+			updateTwitchStreams(where: {
+				id: {_eq: $id} },
+				_set: {
+					online: $online
+					streamerName: $streamerName
+					categories: $categories
+					message: $message
+					startedAt: $startedAt
+					duration: $duration
+				}) {
+					affected_rows
+				}
+		}
+	`,
+
+		INSERT_NEW_TWITCH_STREAMS: gql`
+			mutation($channel: String!, $guild: String!, $streamer: String!, $streamerName: String!) {
+				insertTwitchStreams${PRODUCTION ? '' : 'Staging'}(objects: {
+					channel: $channel,
+					guild: $guild,
+					streamer: $streamer,
+					streamerName: $streamerName
+				}) {
+					returning {
+						channel
+						guild
+						streamer
+						streamerName
+					}
+				}
+			}
+		`,
+
 		UPDATE_REACTION_ROLES: gql`
 			mutation($id: Int!, $roles: jsonb!) {
-				updateReactionroles${PRODUCTION ? '' : 'Staging'}(where: {
+				updateReactionRoles${PRODUCTION ? '' : 'Staging'}(where: {
 					id: { _eq: $id }
 				}, _set: { roles: $roles }) {
 					returning {

@@ -2,8 +2,8 @@ import { Listener } from 'discord-akairo';
 import { MessageReaction, User } from 'discord.js';
 import { TOPICS, EVENTS } from '../../../util/logger';
 import { graphQLClient, GRAPHQL } from '../../../util/graphQL';
-import { ReactionrolesInsertInput } from '../../../util/graphQLTypes';
-import { PRODUCTION } from '../../../util/constants';
+import { ReactionRolesInsertInput } from '../../../util/graphQLTypes';
+import { CYBORG } from '../../../util/constants';
 
 export default class messageReactionAddReactionRole extends Listener {
 	public constructor() {
@@ -25,19 +25,20 @@ export default class messageReactionAddReactionRole extends Listener {
 			}
 		};
 
-		console.log(`${user.tag} added ${reaction.emoji.name} on ${reaction.message.channel.type == 'dm' ? 'DM' : `${reaction.message.channel}`}`);
-
-		const { data } = await graphQLClient.mutate<any, ReactionrolesInsertInput>({
+		if (!reaction.message.guild) return;
+		const { data } = await graphQLClient.mutate<any, ReactionRolesInsertInput>({
 			mutation: GRAPHQL.QUERY.REACTIONROLES,
 			variables: {
-				guild: reaction.message.guild?.id,
+				guild: reaction.message.guild.id,
 				channel: reaction.message.channel.id,
 				message: reaction.message.id,
 			},
 		});
 
 		let reactionRoles;
-		reactionRoles = data.reactionroles
+		reactionRoles = data.reactionRoles
+
+		if (reaction.emoji.name === 'gnome' && user.id === '200502727170588673') this.client.commandHandler.handleDirectCommand(reaction.message, '', this.client.commandHandler.modules.get('fetchreactions')!);
 
 		if (!reactionRoles.length) return;
 		if (!reactionRoles[0].roles[reaction.emoji.name]) return;
@@ -49,6 +50,8 @@ export default class messageReactionAddReactionRole extends Listener {
 			if (!role || !member) return;
 			if (member.roles.cache.has(role.id)) return;
 			await member.roles.add(role);
+			if (member.roles.cache.has('721171992556077117')) await member.roles.remove('721171992556077117');
+			this.client.logger.info(CYBORG.EVENTS.REACTIONROLE.ADD, { topic: TOPICS.DISCORD, event: 'REACTIONROLE' });
 		} catch (err) {
 			this.client.logger.error(err.message, { topic: TOPICS.DISCORD, event: EVENTS.ERROR })
 		}

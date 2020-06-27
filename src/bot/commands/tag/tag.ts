@@ -1,15 +1,15 @@
 import { Command, Flag, PrefixSupplier } from 'discord-akairo';
 import { Message } from 'discord.js';
-import { MESSAGES } from '../../util/constants';
+import { LOCALE, SETTINGS } from '../../util/constants';
 
 export default class TagCommand extends Command {
 	public constructor() {
 		super('tag', {
 			aliases: ['tag'],
 			description: {
-				content: MESSAGES.COMMANDS.TAGS.DESCRIPTION,
-				usage: '<method> <...arguments>',
-				examples: [
+				content: (message: Message) => LOCALE(message.guild!).COMMANDS.TAGS.DESCRIPTION,
+				usage: () => '<method> <...arguments>',
+				examples: () => [
 					'show Test',
 					'add Test Test',
 					'add --hoist/--pin "Test 2" Test2',
