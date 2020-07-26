@@ -10,6 +10,8 @@ const NL_PATTERN = new RegExp(NL, 'g');
 export default class EvalCommand extends Command {
 	public hrStart: [number, number] | undefined;
 
+	public lastMessage: any;
+
 	public lastResult = null;
 
 	private readonly _sensitivePattern = null;
@@ -42,7 +44,7 @@ export default class EvalCommand extends Command {
 		/* eslint-disable */
 		const msg = message;
 		const { client, lastResult } = this;
-		const doReply = (val: string | Error) => {
+		const doReply = async (val: string | Error) => {
 			if (val instanceof Error) {
 				message.util?.send(`Callback error: \`${val}\``);
 			} else {

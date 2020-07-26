@@ -1,11 +1,13 @@
 import { Command } from 'discord-akairo';
-import { Message, Permissions, Role, Emoji } from 'discord.js';
+import { Message, Permissions, Role, Emoji, MessageEmbed } from 'discord.js';
 import { Argument } from 'discord-akairo';
 import * as emojis from 'node-emoji';
 import { stripIndents } from 'common-tags';
 import { PrefixSupplier } from 'discord-akairo';
 import { graphQLClient, GRAPHQL } from '../../util/graphQL';
 import { ReactionRolesInsertInput, ReactionRoles } from '../../util/graphQLTypes';
+import { COLORS } from '../../util/constants';
+import { Flag } from 'discord-akairo';
 
 const EMOJI_REGEX = /<(?:a)?:(?:\w{2,32}):(\d{17,19})>?/;
 
@@ -25,6 +27,9 @@ export default class ReactionRoleAddCommand extends Command {
     }
 
     public *args() {
+        const embed = new MessageEmbed()
+            .setColor(COLORS.EMBED)
+
         const roleReactionMessage = yield {
             type: 'message',
             prompt: {
@@ -36,22 +41,6 @@ export default class ReactionRoleAddCommand extends Command {
                 Are you sure this is the correct ID? That message doesn't seem to exist.
                 
                 Steps to get a message ID: \`User Settings\` > \`Appearance\` enable \`Developer Mode\` > then right click the message and \`Copy ID\``
-            }
-        };
-
-        const role = yield {
-            type: 'role',
-            prompt: {
-                start: stripIndents`
-                Which role would you like to add to this message?
-
-                You can type the role's name, ID or mention it.
-                `,
-                retry: stripIndents`
-                Which role would you like to add to this message?
-
-                You can type the role's name, ID or mention it.
-                `,
             }
         };
 
@@ -69,10 +58,51 @@ export default class ReactionRoleAddCommand extends Command {
                 }
             }),
             prompt: {
-                start: 'And which emoji for that role?',
-                retry: 'And which emoji for that role?'
+                start: 'Which emoji should users react with?',
+                retry: 'Which emoji should users react with?',
             },
         };
+
+        const role = yield {
+            type: (msg: Message, content: string | null) => {
+                if (!content) return null;
+                const role = this.client.util.resolveRole(content, msg.guild!.roles.cache);
+                if (!role) return null;
+                if (!role.editable) return Flag.fail(role);
+                return role;
+            },
+            prompt: {
+                start: stripIndents`And which role will users get when they react with ${emoji.emoji ? emoji.emoji : emoji}?
+
+                    You can type the role's name, ID or mention it.`,
+                retry: (msg: Message, { failure }: { failure: { value: Role } }) => {
+                    const failedRole = failure.value;
+                    const me = msg.guild!.member(this.client.user!)!;
+                    if (failedRole.managed) embed.setDescription(`${failedRole} is automatically managed by an integration. It cannot be manually assigned to members or deleted.`);
+                    if (me.roles.highest.comparePositionTo(failedRole) < 0) {
+                        embed.setDescription(
+                            msg.guild!.roles.cache
+                                .sort((a, b) => b.position - a.position)
+                                .map(role => {
+                                    console.log(role.name, failedRole.comparePositionTo(role), me.roles.highest.comparePositionTo(role))
+                                    if (role.id === failedRole.id) return `**${role} <-- your role**`
+                                    if (role.id === me.roles.highest.id) return `**${role} <-- my highest**`
+                                    if (me.roles.highest.comparePositionTo(role) < 2 && me.roles.highest.comparePositionTo(role) > -2
+                                        || failedRole.comparePositionTo(role) < 2 && failedRole.comparePositionTo(role) > -2) return `${role}`
+                                    if (failedRole.comparePositionTo(role) === -2
+                                        || failedRole.comparePositionTo(role) === 2
+                                        || me.roles.highest.comparePositionTo(role) === 2) return '[...]'
+                                    return '\u200b'
+                                }).filter(zws => zws !== '\u200b').join('\n')
+
+                        );
+                        return { content: 'The role you\'re trying to give is higher than mine. Move it or choose another.', embed: embed }
+                    }
+                    return { embed: embed }
+
+                }
+            }
+        }
 
         return { roleReactionMessage, role, emoji };
     }

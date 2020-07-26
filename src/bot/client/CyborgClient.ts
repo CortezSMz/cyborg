@@ -1,15 +1,11 @@
 import { AkairoClient, CommandHandler, Flag, InhibitorHandler, ListenerHandler } from 'discord-akairo';
-import { Collection, Message, Util, Webhook, TextChannel } from 'discord.js';
-import { createServer, Server } from 'http';
-import fetch from 'node-fetch';
+import { Message, Util, Collection } from 'discord.js';
 import { join } from 'path';
-import { Counter, register, Registry } from 'prom-client';
-import { parse } from 'url';
 import { Logger } from 'winston';
 import TwitchScheduler from '../structures/TwitchScheduler'
 import RemindmeScheduler from '../structures/RemindmeScheduler';
 import HasuraProvider from '../structures/SettingsProvider';
-import { LOCALE, PRODUCTION, PROMETHEUS, SETTINGS, CYBORG } from '../util/constants';
+import { LOCALE, PRODUCTION, SETTINGS, CYBORG } from '../util/constants';
 import { GRAPHQL, graphQLClient } from '../util/graphQL';
 import { Tags, TagsInsertInput } from '../util/graphQLTypes';
 import { EVENTS, logger, TOPICS } from '../util/logger';
@@ -21,17 +17,8 @@ declare module 'discord-akairo' {
 		settings: HasuraProvider;
 		commandHandler: CommandHandler;
 		config: CyborgOptions;
-		configWebhooks: Collection<string, Webhook>;
 		remindmeScheduler: RemindmeScheduler;
 		twitchScheduler: TwitchScheduler;
-		twitchListener: Server;
-		prometheus: {
-			messagesCounter: Counter<string>;
-			commandCounter: Counter<string>;
-			fetchQuery: Function;
-			register: Registry;
-		};
-		promServer: Server;
 	}
 }
 
@@ -59,7 +46,7 @@ export default class CyborgClient extends AkairoClient {
 		defaultCooldown: 3000,
 		argumentDefaults: {
 			prompt: {
-				modifyStart: (message: Message, str) => LOCALE(message.guild!).COMMAND_HANDLER.PROMPT.MODIFY_START(str),
+				modifyStart: (message: Message, str) => LOCALE(message.guild!).COMMAND_HANDLER.PROMPT.MODIFY_RETRY(str),
 				modifyRetry: (message: Message, str) => LOCALE(message.guild!).COMMAND_HANDLER.PROMPT.MODIFY_RETRY(str),
 				cancelWord: (message: Message) => LOCALE(message.guild!).COMMAND_HANDLER.PROMPT.CANCEL_WORD,
 				stopWord: (message: Message) => LOCALE(message.guild!).COMMAND_HANDLER.PROMPT.STOP_WORD,
@@ -82,25 +69,6 @@ export default class CyborgClient extends AkairoClient {
 	public remindmeScheduler = new RemindmeScheduler(this);
 
 	public twitchScheduler = new TwitchScheduler(this);
-
-	public twitchListener = createServer((req, res) => {
-		console.log(req, res)
-	});
-
-	public prometheus = {
-		messagesCounter: new Counter({ name: PROMETHEUS.MESSAGE_COUNTER, help: PROMETHEUS.HELP.MESSAGE_COUNTER }),
-		commandCounter: new Counter({ name: PROMETHEUS.COMMAND_COUNTER, help: PROMETHEUS.HELP.COMMAND_COUNTER }),
-		fetchQuery: this._fetchQuery,
-		register,
-	};
-
-	public promServer = createServer((req, res) => {
-		if (parse(req.url ?? '').pathname === '/metrics') {
-			res.writeHead(200, { 'Content-Type': this.prometheus.register.contentType });
-			res.write(this.prometheus.register.metrics());
-		}
-		res.end();
-	});
 
 	// @ts-ignore
 	public setTimeout_(fn, delay) {
@@ -129,13 +97,6 @@ export default class CyborgClient extends AkairoClient {
 		);
 
 		this.root = config.root;
-
-		this.on('message', async (msg) => {
-			this.prometheus.messagesCounter.inc();
-			if (msg.channel.id === '716204131727048725' && msg.webhookID === '717308309845180446') {
-				return (await this.channels.fetch('701928421898453034') as TextChannel).send(`${msg.content}`)
-			}
-		});
 
 		this.commandHandler.resolver.addType('duration', (_, str): number | null => {
 			if (!str) return null;
@@ -186,21 +147,6 @@ export default class CyborgClient extends AkairoClient {
 		process.on('unhandledRejection', (err: any) => {
 			this.logger.error(err, { topic: TOPICS.UNHANDLED_REJECTION });
 		});
-
-		if (process.env.LOGS) {
-			this.configWebhooks = new Collection();
-		}
-	}
-
-	private async _fetchQuery(q: string) {
-		try {
-			let d = await fetch(`http://localhost:9090/api/v1/query?query=${q}`);
-			if (!d) return null;
-			d = await d.json();
-			return d;
-		} catch (err) {
-			return null;
-		}
 	}
 
 	private async _init() {

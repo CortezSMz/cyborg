@@ -1,5 +1,5 @@
 import { stripIndents } from 'common-tags';
-import { User, TextChannel, GuildEmoji } from 'discord.js';
+import { User, TextChannel, GuildEmoji, Message } from 'discord.js';
 import { Messages } from '../constants';
 import moment = require('moment');
 
@@ -32,12 +32,130 @@ const MESSAGES: Messages = {
 
     COMMANDS: {
         CATEGORIES: {
+            CONFIG: 'Config',
             INFO: 'Info',
             OWNER: 'Owner',
             REACTIONROLE: 'Reaction Roles',
             TAG: 'Tags',
             UTIL: 'Util',
-            TWITCH: 'Twitch'
+            TWITCH: 'Twitch',
+        },
+
+        EMBED: {
+            DESCRIPTION: {
+                CONTENT: 'Tool to create embeds.',
+            },
+            EDIT: {
+                DESCRIPTION: {
+                    CONTENT: 'Edits and embed',
+                }
+            },
+            SEND: {
+                DESCRIPTION: {
+                    CONTENT: 'To send and embed'
+                },
+                PROMPT: {
+                    START: 'What embed do you want to send?',
+                    RETRY: 'What embed do you want to send?'
+                }
+            }
+        },
+
+        CONFIG: {
+            DESCRIPTION: {
+                CONTENT: stripIndents`Avaible methods:
+                    • set \`<key> <...arguments>\`
+                    • del \`<key>\`
+                    • clear
+                    • toggle \`<key>\`
+                Available keys:
+                    • memberlog \`<#channel>\`
+                Toggle keys:
+                    • rolestate
+                Required: \`<>\` | Optional: \`[]\`
+            `,
+                USAGE: '<method> <...arguments>'
+            },
+            TOGGLE: {
+                DESCRIPTION: {
+                    CONTENT: 'Toggles a value in the config.',
+                    USAGE: '<method> <...arguments>'
+                },
+                REPLY: (prefix: string | string[] | Promise<string | string[]>) => stripIndents`
+                When you beg me so much I just can't not help you~
+                Check \`${prefix}help config\` for more information.
+            `,
+                ROLE_STATE: {
+                    DESCRIPTION: {
+                        CONTENT: 'Toggle role state on the server.',
+                    },
+                    REPLY_DEACTIVATED: 'successfully removed all the records!',
+                    REPLY_ACTIVATED: 'successfully inserted all records!',
+                }
+            },
+
+            SET: {
+                DESCRIPTION: {
+                    CONTENT: 'Deletes the restriction roles of the guild.',
+                    USAGE: '<method> <...arguments>'
+                },
+                REPLY: (prefix: string | string[] | Promise<string | string[]>) => stripIndents`
+                When you beg me so much I just can't not help you~
+                Check \`${prefix}help config\` for more information.
+            `,
+                MEMBER_LOG: {
+                    DESCRIPTION: {
+                        CONTENT: 'Sets member log on the server.',
+                        USAGE: '<channel>',
+                        EXAMPLES: ['#memberlog', 'member-log', '731705121464909824']
+                    },
+                    REPLY: (channel: string) => `set member log channel to **${channel}**`,
+                },
+                AUTO_ROLE: {
+                    DESCRIPTION: {
+                        CONTENT: 'Sets automatic roles on the server.',
+                        USAGE: '<role>',
+                        EXAMPLES: ['@role', '706400473669697546']
+                    },
+                    REPLY: (channel: string) => `new members will get the **${channel}** role`,
+                },
+            },
+
+            DELETE: {
+                DESCRIPTION: {
+                    CONTENT: 'Deletes a value to the config.',
+                    USAGE: '<method> <...arguments>'
+                },
+                REPLY: (prefix: string | string[] | Promise<string | string[]>) => stripIndents`
+                When you beg me so much I just can't not help you~
+                Check \`${prefix}help config\` for more information.
+            `,
+                MEMBER_LOG: {
+                    DESCRIPTION: {
+                        CONTENT: 'Deletes member log on the server.',
+                    },
+                    REPLY: 'deleted member log channel.',
+                },
+                AUTO_ROLE: {
+                    DESCRIPTION: {
+                        CONTENT: 'Deletes automatics role on the server.',
+                    },
+                    REPLY: 'deleted automatic role.',
+                },
+            },
+
+            CLEAR: {
+                DESCRIPTION: {
+                    CONTENT: 'Clears the guild config.',
+                },
+                REPLY: 'cleared the guild config.',
+            },
+
+            CHECK: {
+                DESCRIPTION: {
+                    CONTENT: 'Checks the guild config.',
+                }
+            }
         },
 
         REACTIONROLE: {
@@ -305,17 +423,39 @@ const MESSAGES: Messages = {
         },
 
         UTIL: {
+            RUNE: {
+                DESCRIPTION: {
+                    CONTENT: 'Transcribe text to Futhark Runes',
+                    USAGE: '<text to transcribe>',
+                    EXAMPLES: [
+                        'Cosmzs',
+                        'Nice and beautiful text',
+                        'space:single Nice and beautiful text',
+                        'dot:cross Nice and beautiful text',
+                        'dot:double space:cross Nice and beautiful text',
+                    ],
+                },
+                PROMPT: {
+                    START: (author: User) => `${author}, what do you want to transcribe?`,
+                    RETRY: (author: User) => `${author}, what do you want to transcribe?`,
+                }
+            },
             INFO: {
 
             },
 
             HELP: {
                 DESCRIPTION: {
-                    CONTENT: 'Displays a list of available commands, or detailed information for a specified command.',
+                    CONTENT: (prefix: string | string[] | Promise<string | string[]>) => stripIndents`Displays a list of available commands, or detailed information for a specified command.
+					Use \`${prefix}help --perm\` to hide commands you don't have permission to use.
+					Use \`${prefix}help --dm\` to hide commands you cant use on DM's.
+                    `,
                     USAGE: '[command]'
                 },
-                REPLY: (prefix: string | string[] | Promise<string | string[]>) => stripIndents`**A list of available commands.**
-					For additional info on a command, type \`${prefix}help <command>\`
+                REPLY: (prefix: string | string[] | Promise<string | string[]>, msg: Message) => stripIndents`**A list of available commands.**
+                    For additional info on a command, type \`${prefix}help <command>\`
+                    Use \`${prefix}help --perm\` to hide commands you don't have permission to use.
+                    ${!msg.guild ? `Use \`${prefix}help --dm\` to hide commands you cant use on DM's.` : ''}
                 `,
                 EMBED: {
                     FIELD_COMMANDS: 'Commands',
@@ -335,17 +475,14 @@ const MESSAGES: Messages = {
             PING: {
                 DESCRIPTION: "Checks the bot's ping to the Discord servers.",
                 RESPONSES: [
-                    'No.',
-                    'Not happening.',
-                    'Maybe later.',
-                    stripIndents`:ping_pong: Pong! \`$(ping)ms\`
-						Heartbeat: \`$(heartbeat)ms\``,
-                    stripIndents`Just so you know, I'm not doing this for fun! \`$(ping)ms\`
-						Doki doki: \`$(heartbeat)ms\``,
-                    stripIndents`Don't think this means anything special! \`$(ping)ms\`
-						Heartbeat: \`$(heartbeat)ms\``,
-                    stripIndents`Can we get on with this already?! \`$(ping)ms\`
-						Heartbeat: \`$(heartbeat)ms\``,
+                    { response: 'You had 0.01% chance of getting this answer.', chance: 0.0001 },
+                    { response: 'No.', chance: 0.1 },
+                    {
+                        response:
+                            stripIndents`:ping_pong: Pong! \`$(ping)ms\`
+                            Heartbeat: \`$(heartbeat)ms\``,
+                        chance: 0.899
+                    },
                 ],
             },
 
@@ -375,11 +512,11 @@ const MESSAGES: Messages = {
 				║ h     ║ m       ║ s       ║
 				╚═══════╩═════════╩═════════╝
 				\`\`\`\
-				**remindme list**
+				**$(prefix)reminder list**
 				Shows 10 latest currently running reminders.
-				**remindme del <ID>**
+				**$(prefix)reminder del <ID>**
 				Delete a single reminder by ID.
-				**remindme clear**
+				**$(prefix)reminder clear**
 				Clears all reminders you have set.
 				`,
                 ADD: {

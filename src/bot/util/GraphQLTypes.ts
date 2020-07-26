@@ -71,448 +71,6 @@ export type TextComparisonExp = {
   _nin?: Maybe<Array<Scalars['_text']>>;
 };
 
-/** columns and relationships of "cases" */
-export type Cases = {
-  __typename?: 'cases';
-  /** The action of this case */
-  action: Scalars['Int'];
-  /** The duration of this case */
-  action_duration?: Maybe<Scalars['timestamptz']>;
-  /** Whether this case has been processed or not */
-  action_processed?: Maybe<Scalars['Boolean']>;
-  /** The case id */
-  case_id: Scalars['Int'];
-  created_at: Scalars['timestamptz'];
-  /** The id of the guild this case belongs to */
-  guild: Scalars['String'];
-  id: Scalars['uuid'];
-  /** The id of the message this case belongs to */
-  message?: Maybe<Scalars['String']>;
-  /** The id of the moderator this case belongs to */
-  mod_id?: Maybe<Scalars['String']>;
-  /** The tag of the moderator this case belongs to */
-  mod_tag?: Maybe<Scalars['String']>;
-  /** The reason of this case */
-  reason?: Maybe<Scalars['String']>;
-  /** The id of the case this case references */
-  ref_id?: Maybe<Scalars['Int']>;
-  /** The id of the target this case belongs to */
-  target_id: Scalars['String'];
-  /** The tag of the target this case belongs to */
-  target_tag: Scalars['String'];
-};
-
-/** aggregated selection of "cases" */
-export type CasesAggregate = {
-  __typename?: 'cases_aggregate';
-  aggregate?: Maybe<CasesAggregateFields>;
-  nodes: Array<Cases>;
-};
-
-/** aggregate fields of "cases" */
-export type CasesAggregateFields = {
-  __typename?: 'cases_aggregate_fields';
-  avg?: Maybe<CasesAvgFields>;
-  count?: Maybe<Scalars['Int']>;
-  max?: Maybe<CasesMaxFields>;
-  min?: Maybe<CasesMinFields>;
-  stddev?: Maybe<CasesStddevFields>;
-  stddev_pop?: Maybe<CasesStddevPopFields>;
-  stddev_samp?: Maybe<CasesStddevSampFields>;
-  sum?: Maybe<CasesSumFields>;
-  var_pop?: Maybe<CasesVarPopFields>;
-  var_samp?: Maybe<CasesVarSampFields>;
-  variance?: Maybe<CasesVarianceFields>;
-};
-
-
-/** aggregate fields of "cases" */
-export type CasesAggregateFieldsCountArgs = {
-  columns?: Maybe<Array<CasesSelectColumn>>;
-  distinct?: Maybe<Scalars['Boolean']>;
-};
-
-/** order by aggregate values of table "cases" */
-export type CasesAggregateOrderBy = {
-  avg?: Maybe<CasesAvgOrderBy>;
-  count?: Maybe<OrderBy>;
-  max?: Maybe<CasesMaxOrderBy>;
-  min?: Maybe<CasesMinOrderBy>;
-  stddev?: Maybe<CasesStddevOrderBy>;
-  stddev_pop?: Maybe<CasesStddevPopOrderBy>;
-  stddev_samp?: Maybe<CasesStddevSampOrderBy>;
-  sum?: Maybe<CasesSumOrderBy>;
-  var_pop?: Maybe<CasesVarPopOrderBy>;
-  var_samp?: Maybe<CasesVarSampOrderBy>;
-  variance?: Maybe<CasesVarianceOrderBy>;
-};
-
-/** input type for inserting array relation for remote table "cases" */
-export type CasesArrRelInsertInput = {
-  data: Array<CasesInsertInput>;
-  on_conflict?: Maybe<CasesOnConflict>;
-};
-
-/** aggregate avg on columns */
-export type CasesAvgFields = {
-  __typename?: 'cases_avg_fields';
-  action?: Maybe<Scalars['Float']>;
-  case_id?: Maybe<Scalars['Float']>;
-  ref_id?: Maybe<Scalars['Float']>;
-};
-
-/** order by avg() on columns of table "cases" */
-export type CasesAvgOrderBy = {
-  action?: Maybe<OrderBy>;
-  case_id?: Maybe<OrderBy>;
-  ref_id?: Maybe<OrderBy>;
-};
-
-/** Boolean expression to filter rows from the table "cases". All fields are combined with a logical 'AND'. */
-export type CasesBoolExp = {
-  _and?: Maybe<Array<Maybe<CasesBoolExp>>>;
-  _not?: Maybe<CasesBoolExp>;
-  _or?: Maybe<Array<Maybe<CasesBoolExp>>>;
-  action?: Maybe<IntComparisonExp>;
-  action_duration?: Maybe<TimestamptzComparisonExp>;
-  action_processed?: Maybe<BooleanComparisonExp>;
-  case_id?: Maybe<IntComparisonExp>;
-  created_at?: Maybe<TimestamptzComparisonExp>;
-  guild?: Maybe<StringComparisonExp>;
-  id?: Maybe<UuidComparisonExp>;
-  message?: Maybe<StringComparisonExp>;
-  mod_id?: Maybe<StringComparisonExp>;
-  mod_tag?: Maybe<StringComparisonExp>;
-  reason?: Maybe<StringComparisonExp>;
-  ref_id?: Maybe<IntComparisonExp>;
-  target_id?: Maybe<StringComparisonExp>;
-  target_tag?: Maybe<StringComparisonExp>;
-};
-
-/** unique or primary key constraints on table "cases" */
-export enum CasesConstraint {
-  /** unique or primary key constraint */
-  CasesPkey = 'cases_pkey'
-}
-
-/** input type for incrementing integer columne in table "cases" */
-export type CasesIncInput = {
-  action?: Maybe<Scalars['Int']>;
-  case_id?: Maybe<Scalars['Int']>;
-  ref_id?: Maybe<Scalars['Int']>;
-};
-
-/** input type for inserting data into table "cases" */
-export type CasesInsertInput = {
-  action?: Maybe<Scalars['Int']>;
-  action_duration?: Maybe<Scalars['timestamptz']>;
-  action_processed?: Maybe<Scalars['Boolean']>;
-  case_id?: Maybe<Scalars['Int']>;
-  created_at?: Maybe<Scalars['timestamptz']>;
-  guild?: Maybe<Scalars['String']>;
-  id?: Maybe<Scalars['uuid']>;
-  message?: Maybe<Scalars['String']>;
-  mod_id?: Maybe<Scalars['String']>;
-  mod_tag?: Maybe<Scalars['String']>;
-  reason?: Maybe<Scalars['String']>;
-  ref_id?: Maybe<Scalars['Int']>;
-  target_id?: Maybe<Scalars['String']>;
-  target_tag?: Maybe<Scalars['String']>;
-};
-
-/** aggregate max on columns */
-export type CasesMaxFields = {
-  __typename?: 'cases_max_fields';
-  action?: Maybe<Scalars['Int']>;
-  action_duration?: Maybe<Scalars['timestamptz']>;
-  case_id?: Maybe<Scalars['Int']>;
-  created_at?: Maybe<Scalars['timestamptz']>;
-  guild?: Maybe<Scalars['String']>;
-  message?: Maybe<Scalars['String']>;
-  mod_id?: Maybe<Scalars['String']>;
-  mod_tag?: Maybe<Scalars['String']>;
-  reason?: Maybe<Scalars['String']>;
-  ref_id?: Maybe<Scalars['Int']>;
-  target_id?: Maybe<Scalars['String']>;
-  target_tag?: Maybe<Scalars['String']>;
-};
-
-/** order by max() on columns of table "cases" */
-export type CasesMaxOrderBy = {
-  action?: Maybe<OrderBy>;
-  action_duration?: Maybe<OrderBy>;
-  case_id?: Maybe<OrderBy>;
-  created_at?: Maybe<OrderBy>;
-  guild?: Maybe<OrderBy>;
-  message?: Maybe<OrderBy>;
-  mod_id?: Maybe<OrderBy>;
-  mod_tag?: Maybe<OrderBy>;
-  reason?: Maybe<OrderBy>;
-  ref_id?: Maybe<OrderBy>;
-  target_id?: Maybe<OrderBy>;
-  target_tag?: Maybe<OrderBy>;
-};
-
-/** aggregate min on columns */
-export type CasesMinFields = {
-  __typename?: 'cases_min_fields';
-  action?: Maybe<Scalars['Int']>;
-  action_duration?: Maybe<Scalars['timestamptz']>;
-  case_id?: Maybe<Scalars['Int']>;
-  created_at?: Maybe<Scalars['timestamptz']>;
-  guild?: Maybe<Scalars['String']>;
-  message?: Maybe<Scalars['String']>;
-  mod_id?: Maybe<Scalars['String']>;
-  mod_tag?: Maybe<Scalars['String']>;
-  reason?: Maybe<Scalars['String']>;
-  ref_id?: Maybe<Scalars['Int']>;
-  target_id?: Maybe<Scalars['String']>;
-  target_tag?: Maybe<Scalars['String']>;
-};
-
-/** order by min() on columns of table "cases" */
-export type CasesMinOrderBy = {
-  action?: Maybe<OrderBy>;
-  action_duration?: Maybe<OrderBy>;
-  case_id?: Maybe<OrderBy>;
-  created_at?: Maybe<OrderBy>;
-  guild?: Maybe<OrderBy>;
-  message?: Maybe<OrderBy>;
-  mod_id?: Maybe<OrderBy>;
-  mod_tag?: Maybe<OrderBy>;
-  reason?: Maybe<OrderBy>;
-  ref_id?: Maybe<OrderBy>;
-  target_id?: Maybe<OrderBy>;
-  target_tag?: Maybe<OrderBy>;
-};
-
-/** response of any mutation on the table "cases" */
-export type CasesMutationResponse = {
-  __typename?: 'cases_mutation_response';
-  /** number of affected rows by the mutation */
-  affected_rows: Scalars['Int'];
-  /** data of the affected rows by the mutation */
-  returning: Array<Cases>;
-};
-
-/** input type for inserting object relation for remote table "cases" */
-export type CasesObjRelInsertInput = {
-  data: CasesInsertInput;
-  on_conflict?: Maybe<CasesOnConflict>;
-};
-
-/** on conflict condition type for table "cases" */
-export type CasesOnConflict = {
-  constraint: CasesConstraint;
-  update_columns: Array<CasesUpdateColumn>;
-  where?: Maybe<CasesBoolExp>;
-};
-
-/** ordering options when selecting data from "cases" */
-export type CasesOrderBy = {
-  action?: Maybe<OrderBy>;
-  action_duration?: Maybe<OrderBy>;
-  action_processed?: Maybe<OrderBy>;
-  case_id?: Maybe<OrderBy>;
-  created_at?: Maybe<OrderBy>;
-  guild?: Maybe<OrderBy>;
-  id?: Maybe<OrderBy>;
-  message?: Maybe<OrderBy>;
-  mod_id?: Maybe<OrderBy>;
-  mod_tag?: Maybe<OrderBy>;
-  reason?: Maybe<OrderBy>;
-  ref_id?: Maybe<OrderBy>;
-  target_id?: Maybe<OrderBy>;
-  target_tag?: Maybe<OrderBy>;
-};
-
-/** select columns of table "cases" */
-export enum CasesSelectColumn {
-  /** column name */
-  Action = 'action',
-  /** column name */
-  ActionDuration = 'action_duration',
-  /** column name */
-  ActionProcessed = 'action_processed',
-  /** column name */
-  CaseId = 'case_id',
-  /** column name */
-  CreatedAt = 'created_at',
-  /** column name */
-  Guild = 'guild',
-  /** column name */
-  Id = 'id',
-  /** column name */
-  Message = 'message',
-  /** column name */
-  ModId = 'mod_id',
-  /** column name */
-  ModTag = 'mod_tag',
-  /** column name */
-  Reason = 'reason',
-  /** column name */
-  RefId = 'ref_id',
-  /** column name */
-  TargetId = 'target_id',
-  /** column name */
-  TargetTag = 'target_tag'
-}
-
-/** input type for updating data in table "cases" */
-export type CasesSetInput = {
-  action?: Maybe<Scalars['Int']>;
-  action_duration?: Maybe<Scalars['timestamptz']>;
-  action_processed?: Maybe<Scalars['Boolean']>;
-  case_id?: Maybe<Scalars['Int']>;
-  created_at?: Maybe<Scalars['timestamptz']>;
-  guild?: Maybe<Scalars['String']>;
-  id?: Maybe<Scalars['uuid']>;
-  message?: Maybe<Scalars['String']>;
-  mod_id?: Maybe<Scalars['String']>;
-  mod_tag?: Maybe<Scalars['String']>;
-  reason?: Maybe<Scalars['String']>;
-  ref_id?: Maybe<Scalars['Int']>;
-  target_id?: Maybe<Scalars['String']>;
-  target_tag?: Maybe<Scalars['String']>;
-};
-
-/** aggregate stddev on columns */
-export type CasesStddevFields = {
-  __typename?: 'cases_stddev_fields';
-  action?: Maybe<Scalars['Float']>;
-  case_id?: Maybe<Scalars['Float']>;
-  ref_id?: Maybe<Scalars['Float']>;
-};
-
-/** order by stddev() on columns of table "cases" */
-export type CasesStddevOrderBy = {
-  action?: Maybe<OrderBy>;
-  case_id?: Maybe<OrderBy>;
-  ref_id?: Maybe<OrderBy>;
-};
-
-/** aggregate stddev_pop on columns */
-export type CasesStddevPopFields = {
-  __typename?: 'cases_stddev_pop_fields';
-  action?: Maybe<Scalars['Float']>;
-  case_id?: Maybe<Scalars['Float']>;
-  ref_id?: Maybe<Scalars['Float']>;
-};
-
-/** order by stddev_pop() on columns of table "cases" */
-export type CasesStddevPopOrderBy = {
-  action?: Maybe<OrderBy>;
-  case_id?: Maybe<OrderBy>;
-  ref_id?: Maybe<OrderBy>;
-};
-
-/** aggregate stddev_samp on columns */
-export type CasesStddevSampFields = {
-  __typename?: 'cases_stddev_samp_fields';
-  action?: Maybe<Scalars['Float']>;
-  case_id?: Maybe<Scalars['Float']>;
-  ref_id?: Maybe<Scalars['Float']>;
-};
-
-/** order by stddev_samp() on columns of table "cases" */
-export type CasesStddevSampOrderBy = {
-  action?: Maybe<OrderBy>;
-  case_id?: Maybe<OrderBy>;
-  ref_id?: Maybe<OrderBy>;
-};
-
-/** aggregate sum on columns */
-export type CasesSumFields = {
-  __typename?: 'cases_sum_fields';
-  action?: Maybe<Scalars['Int']>;
-  case_id?: Maybe<Scalars['Int']>;
-  ref_id?: Maybe<Scalars['Int']>;
-};
-
-/** order by sum() on columns of table "cases" */
-export type CasesSumOrderBy = {
-  action?: Maybe<OrderBy>;
-  case_id?: Maybe<OrderBy>;
-  ref_id?: Maybe<OrderBy>;
-};
-
-/** update columns of table "cases" */
-export enum CasesUpdateColumn {
-  /** column name */
-  Action = 'action',
-  /** column name */
-  ActionDuration = 'action_duration',
-  /** column name */
-  ActionProcessed = 'action_processed',
-  /** column name */
-  CaseId = 'case_id',
-  /** column name */
-  CreatedAt = 'created_at',
-  /** column name */
-  Guild = 'guild',
-  /** column name */
-  Id = 'id',
-  /** column name */
-  Message = 'message',
-  /** column name */
-  ModId = 'mod_id',
-  /** column name */
-  ModTag = 'mod_tag',
-  /** column name */
-  Reason = 'reason',
-  /** column name */
-  RefId = 'ref_id',
-  /** column name */
-  TargetId = 'target_id',
-  /** column name */
-  TargetTag = 'target_tag'
-}
-
-/** aggregate var_pop on columns */
-export type CasesVarPopFields = {
-  __typename?: 'cases_var_pop_fields';
-  action?: Maybe<Scalars['Float']>;
-  case_id?: Maybe<Scalars['Float']>;
-  ref_id?: Maybe<Scalars['Float']>;
-};
-
-/** order by var_pop() on columns of table "cases" */
-export type CasesVarPopOrderBy = {
-  action?: Maybe<OrderBy>;
-  case_id?: Maybe<OrderBy>;
-  ref_id?: Maybe<OrderBy>;
-};
-
-/** aggregate var_samp on columns */
-export type CasesVarSampFields = {
-  __typename?: 'cases_var_samp_fields';
-  action?: Maybe<Scalars['Float']>;
-  case_id?: Maybe<Scalars['Float']>;
-  ref_id?: Maybe<Scalars['Float']>;
-};
-
-/** order by var_samp() on columns of table "cases" */
-export type CasesVarSampOrderBy = {
-  action?: Maybe<OrderBy>;
-  case_id?: Maybe<OrderBy>;
-  ref_id?: Maybe<OrderBy>;
-};
-
-/** aggregate variance on columns */
-export type CasesVarianceFields = {
-  __typename?: 'cases_variance_fields';
-  action?: Maybe<Scalars['Float']>;
-  case_id?: Maybe<Scalars['Float']>;
-  ref_id?: Maybe<Scalars['Float']>;
-};
-
-/** order by variance() on columns of table "cases" */
-export type CasesVarianceOrderBy = {
-  action?: Maybe<OrderBy>;
-  case_id?: Maybe<OrderBy>;
-  ref_id?: Maybe<OrderBy>;
-};
-
 
 /** expression to compare columns of type jsonb. All fields are combined with logical 'AND'. */
 export type JsonbComparisonExp = {
@@ -537,179 +95,9 @@ export type JsonbComparisonExp = {
   _nin?: Maybe<Array<Scalars['jsonb']>>;
 };
 
-/** columns and relationships of "lockdowns" */
-export type Lockdowns = {
-  __typename?: 'lockdowns';
-  /** The id of the channel this lockdown belongs to */
-  channel: Scalars['String'];
-  /** The duration of the lockdown */
-  duration: Scalars['timestamptz'];
-  /** The id of the guild this lockdown belongs to */
-  guild: Scalars['String'];
-  id: Scalars['uuid'];
-};
-
-/** aggregated selection of "lockdowns" */
-export type LockdownsAggregate = {
-  __typename?: 'lockdowns_aggregate';
-  aggregate?: Maybe<LockdownsAggregateFields>;
-  nodes: Array<Lockdowns>;
-};
-
-/** aggregate fields of "lockdowns" */
-export type LockdownsAggregateFields = {
-  __typename?: 'lockdowns_aggregate_fields';
-  count?: Maybe<Scalars['Int']>;
-  max?: Maybe<LockdownsMaxFields>;
-  min?: Maybe<LockdownsMinFields>;
-};
-
-
-/** aggregate fields of "lockdowns" */
-export type LockdownsAggregateFieldsCountArgs = {
-  columns?: Maybe<Array<LockdownsSelectColumn>>;
-  distinct?: Maybe<Scalars['Boolean']>;
-};
-
-/** order by aggregate values of table "lockdowns" */
-export type LockdownsAggregateOrderBy = {
-  count?: Maybe<OrderBy>;
-  max?: Maybe<LockdownsMaxOrderBy>;
-  min?: Maybe<LockdownsMinOrderBy>;
-};
-
-/** input type for inserting array relation for remote table "lockdowns" */
-export type LockdownsArrRelInsertInput = {
-  data: Array<LockdownsInsertInput>;
-  on_conflict?: Maybe<LockdownsOnConflict>;
-};
-
-/** Boolean expression to filter rows from the table "lockdowns". All fields are combined with a logical 'AND'. */
-export type LockdownsBoolExp = {
-  _and?: Maybe<Array<Maybe<LockdownsBoolExp>>>;
-  _not?: Maybe<LockdownsBoolExp>;
-  _or?: Maybe<Array<Maybe<LockdownsBoolExp>>>;
-  channel?: Maybe<StringComparisonExp>;
-  duration?: Maybe<TimestamptzComparisonExp>;
-  guild?: Maybe<StringComparisonExp>;
-  id?: Maybe<UuidComparisonExp>;
-};
-
-/** unique or primary key constraints on table "lockdowns" */
-export enum LockdownsConstraint {
-  /** unique or primary key constraint */
-  LockdownsGuildChannelKey = 'lockdowns_guild_channel_key',
-  /** unique or primary key constraint */
-  LockdownsPkey = 'lockdowns_pkey'
-}
-
-/** input type for inserting data into table "lockdowns" */
-export type LockdownsInsertInput = {
-  channel?: Maybe<Scalars['String']>;
-  duration?: Maybe<Scalars['timestamptz']>;
-  guild?: Maybe<Scalars['String']>;
-  id?: Maybe<Scalars['uuid']>;
-};
-
-/** aggregate max on columns */
-export type LockdownsMaxFields = {
-  __typename?: 'lockdowns_max_fields';
-  channel?: Maybe<Scalars['String']>;
-  duration?: Maybe<Scalars['timestamptz']>;
-  guild?: Maybe<Scalars['String']>;
-};
-
-/** order by max() on columns of table "lockdowns" */
-export type LockdownsMaxOrderBy = {
-  channel?: Maybe<OrderBy>;
-  duration?: Maybe<OrderBy>;
-  guild?: Maybe<OrderBy>;
-};
-
-/** aggregate min on columns */
-export type LockdownsMinFields = {
-  __typename?: 'lockdowns_min_fields';
-  channel?: Maybe<Scalars['String']>;
-  duration?: Maybe<Scalars['timestamptz']>;
-  guild?: Maybe<Scalars['String']>;
-};
-
-/** order by min() on columns of table "lockdowns" */
-export type LockdownsMinOrderBy = {
-  channel?: Maybe<OrderBy>;
-  duration?: Maybe<OrderBy>;
-  guild?: Maybe<OrderBy>;
-};
-
-/** response of any mutation on the table "lockdowns" */
-export type LockdownsMutationResponse = {
-  __typename?: 'lockdowns_mutation_response';
-  /** number of affected rows by the mutation */
-  affected_rows: Scalars['Int'];
-  /** data of the affected rows by the mutation */
-  returning: Array<Lockdowns>;
-};
-
-/** input type for inserting object relation for remote table "lockdowns" */
-export type LockdownsObjRelInsertInput = {
-  data: LockdownsInsertInput;
-  on_conflict?: Maybe<LockdownsOnConflict>;
-};
-
-/** on conflict condition type for table "lockdowns" */
-export type LockdownsOnConflict = {
-  constraint: LockdownsConstraint;
-  update_columns: Array<LockdownsUpdateColumn>;
-  where?: Maybe<LockdownsBoolExp>;
-};
-
-/** ordering options when selecting data from "lockdowns" */
-export type LockdownsOrderBy = {
-  channel?: Maybe<OrderBy>;
-  duration?: Maybe<OrderBy>;
-  guild?: Maybe<OrderBy>;
-  id?: Maybe<OrderBy>;
-};
-
-/** select columns of table "lockdowns" */
-export enum LockdownsSelectColumn {
-  /** column name */
-  Channel = 'channel',
-  /** column name */
-  Duration = 'duration',
-  /** column name */
-  Guild = 'guild',
-  /** column name */
-  Id = 'id'
-}
-
-/** input type for updating data in table "lockdowns" */
-export type LockdownsSetInput = {
-  channel?: Maybe<Scalars['String']>;
-  duration?: Maybe<Scalars['timestamptz']>;
-  guild?: Maybe<Scalars['String']>;
-  id?: Maybe<Scalars['uuid']>;
-};
-
-/** update columns of table "lockdowns" */
-export enum LockdownsUpdateColumn {
-  /** column name */
-  Channel = 'channel',
-  /** column name */
-  Duration = 'duration',
-  /** column name */
-  Guild = 'guild',
-  /** column name */
-  Id = 'id'
-}
-
 /** mutation root */
 export type MutationRoot = {
   __typename?: 'mutation_root';
-  /** delete data from the table: "cases" */
-  deleteCases?: Maybe<CasesMutationResponse>;
-  /** delete data from the table: "lockdowns" */
-  deleteLockdowns?: Maybe<LockdownsMutationResponse>;
   /** delete data from the table: "reaction_roles" */
   deleteReactionRoles?: Maybe<ReactionRolesMutationResponse>;
   /** delete data from the table: "remindmes" */
@@ -722,10 +110,18 @@ export type MutationRoot = {
   deleteTags?: Maybe<TagsMutationResponse>;
   /** delete data from the table: "twitch_streams" */
   deleteTwitchStreams?: Maybe<TwitchStreamsMutationResponse>;
-  /** insert data into the table: "cases" */
-  insertCases?: Maybe<CasesMutationResponse>;
-  /** insert data into the table: "lockdowns" */
-  insertLockdowns?: Maybe<LockdownsMutationResponse>;
+  /** delete single row from the table: "reaction_roles" */
+  delete_reaction_roles_by_pk?: Maybe<ReactionRoles>;
+  /** delete single row from the table: "remindmes" */
+  delete_remindmes_by_pk?: Maybe<Remindmes>;
+  /** delete single row from the table: "role_states" */
+  delete_role_states_by_pk?: Maybe<RoleStates>;
+  /** delete single row from the table: "settings" */
+  delete_settings_by_pk?: Maybe<Settings>;
+  /** delete single row from the table: "tags" */
+  delete_tags_by_pk?: Maybe<Tags>;
+  /** delete single row from the table: "twitch_streams" */
+  delete_twitch_streams_by_pk?: Maybe<TwitchStreams>;
   /** insert data into the table: "reaction_roles" */
   insertReactionRoles?: Maybe<ReactionRolesMutationResponse>;
   /** insert data into the table: "remindmes" */
@@ -738,10 +134,18 @@ export type MutationRoot = {
   insertTags?: Maybe<TagsMutationResponse>;
   /** insert data into the table: "twitch_streams" */
   insertTwitchStreams?: Maybe<TwitchStreamsMutationResponse>;
-  /** update data of the table: "cases" */
-  updateCases?: Maybe<CasesMutationResponse>;
-  /** update data of the table: "lockdowns" */
-  updateLockdowns?: Maybe<LockdownsMutationResponse>;
+  /** insert a single row into the table: "reaction_roles" */
+  insert_reaction_roles_one?: Maybe<ReactionRoles>;
+  /** insert a single row into the table: "remindmes" */
+  insert_remindmes_one?: Maybe<Remindmes>;
+  /** insert a single row into the table: "role_states" */
+  insert_role_states_one?: Maybe<RoleStates>;
+  /** insert a single row into the table: "settings" */
+  insert_settings_one?: Maybe<Settings>;
+  /** insert a single row into the table: "tags" */
+  insert_tags_one?: Maybe<Tags>;
+  /** insert a single row into the table: "twitch_streams" */
+  insert_twitch_streams_one?: Maybe<TwitchStreams>;
   /** update data of the table: "reaction_roles" */
   updateReactionRoles?: Maybe<ReactionRolesMutationResponse>;
   /** update data of the table: "remindmes" */
@@ -754,18 +158,18 @@ export type MutationRoot = {
   updateTags?: Maybe<TagsMutationResponse>;
   /** update data of the table: "twitch_streams" */
   updateTwitchStreams?: Maybe<TwitchStreamsMutationResponse>;
-};
-
-
-/** mutation root */
-export type MutationRootDeleteCasesArgs = {
-  where: CasesBoolExp;
-};
-
-
-/** mutation root */
-export type MutationRootDeleteLockdownsArgs = {
-  where: LockdownsBoolExp;
+  /** update single row of the table: "reaction_roles" */
+  update_reaction_roles_by_pk?: Maybe<ReactionRoles>;
+  /** update single row of the table: "remindmes" */
+  update_remindmes_by_pk?: Maybe<Remindmes>;
+  /** update single row of the table: "role_states" */
+  update_role_states_by_pk?: Maybe<RoleStates>;
+  /** update single row of the table: "settings" */
+  update_settings_by_pk?: Maybe<Settings>;
+  /** update single row of the table: "tags" */
+  update_tags_by_pk?: Maybe<Tags>;
+  /** update single row of the table: "twitch_streams" */
+  update_twitch_streams_by_pk?: Maybe<TwitchStreams>;
 };
 
 
@@ -806,16 +210,38 @@ export type MutationRootDeleteTwitchStreamsArgs = {
 
 
 /** mutation root */
-export type MutationRootInsertCasesArgs = {
-  objects: Array<CasesInsertInput>;
-  on_conflict?: Maybe<CasesOnConflict>;
+export type MutationRootDeleteReactionRolesByPkArgs = {
+  id: Scalars['Int'];
 };
 
 
 /** mutation root */
-export type MutationRootInsertLockdownsArgs = {
-  objects: Array<LockdownsInsertInput>;
-  on_conflict?: Maybe<LockdownsOnConflict>;
+export type MutationRootDeleteRemindmesByPkArgs = {
+  id: Scalars['Int'];
+};
+
+
+/** mutation root */
+export type MutationRootDeleteRoleStatesByPkArgs = {
+  id: Scalars['uuid'];
+};
+
+
+/** mutation root */
+export type MutationRootDeleteSettingsByPkArgs = {
+  guild: Scalars['String'];
+};
+
+
+/** mutation root */
+export type MutationRootDeleteTagsByPkArgs = {
+  id: Scalars['uuid'];
+};
+
+
+/** mutation root */
+export type MutationRootDeleteTwitchStreamsByPkArgs = {
+  id: Scalars['Int'];
 };
 
 
@@ -862,17 +288,44 @@ export type MutationRootInsertTwitchStreamsArgs = {
 
 
 /** mutation root */
-export type MutationRootUpdateCasesArgs = {
-  _inc?: Maybe<CasesIncInput>;
-  _set?: Maybe<CasesSetInput>;
-  where: CasesBoolExp;
+export type MutationRootInsertReactionRolesOneArgs = {
+  object: ReactionRolesInsertInput;
+  on_conflict?: Maybe<ReactionRolesOnConflict>;
 };
 
 
 /** mutation root */
-export type MutationRootUpdateLockdownsArgs = {
-  _set?: Maybe<LockdownsSetInput>;
-  where: LockdownsBoolExp;
+export type MutationRootInsertRemindmesOneArgs = {
+  object: RemindmesInsertInput;
+  on_conflict?: Maybe<RemindmesOnConflict>;
+};
+
+
+/** mutation root */
+export type MutationRootInsertRoleStatesOneArgs = {
+  object: RoleStatesInsertInput;
+  on_conflict?: Maybe<RoleStatesOnConflict>;
+};
+
+
+/** mutation root */
+export type MutationRootInsertSettingsOneArgs = {
+  object: SettingsInsertInput;
+  on_conflict?: Maybe<SettingsOnConflict>;
+};
+
+
+/** mutation root */
+export type MutationRootInsertTagsOneArgs = {
+  object: TagsInsertInput;
+  on_conflict?: Maybe<TagsOnConflict>;
+};
+
+
+/** mutation root */
+export type MutationRootInsertTwitchStreamsOneArgs = {
+  object: TwitchStreamsInsertInput;
+  on_conflict?: Maybe<TwitchStreamsOnConflict>;
 };
 
 
@@ -936,6 +389,67 @@ export type MutationRootUpdateTwitchStreamsArgs = {
   where: TwitchStreamsBoolExp;
 };
 
+
+/** mutation root */
+export type MutationRootUpdateReactionRolesByPkArgs = {
+  _append?: Maybe<ReactionRolesAppendInput>;
+  _delete_at_path?: Maybe<ReactionRolesDeleteAtPathInput>;
+  _delete_elem?: Maybe<ReactionRolesDeleteElemInput>;
+  _delete_key?: Maybe<ReactionRolesDeleteKeyInput>;
+  _inc?: Maybe<ReactionRolesIncInput>;
+  _prepend?: Maybe<ReactionRolesPrependInput>;
+  _set?: Maybe<ReactionRolesSetInput>;
+  pk_columns: ReactionRolesPkColumnsInput;
+};
+
+
+/** mutation root */
+export type MutationRootUpdateRemindmesByPkArgs = {
+  _inc?: Maybe<RemindmesIncInput>;
+  _set?: Maybe<RemindmesSetInput>;
+  pk_columns: RemindmesPkColumnsInput;
+};
+
+
+/** mutation root */
+export type MutationRootUpdateRoleStatesByPkArgs = {
+  _set?: Maybe<RoleStatesSetInput>;
+  pk_columns: RoleStatesPkColumnsInput;
+};
+
+
+/** mutation root */
+export type MutationRootUpdateSettingsByPkArgs = {
+  _append?: Maybe<SettingsAppendInput>;
+  _delete_at_path?: Maybe<SettingsDeleteAtPathInput>;
+  _delete_elem?: Maybe<SettingsDeleteElemInput>;
+  _delete_key?: Maybe<SettingsDeleteKeyInput>;
+  _prepend?: Maybe<SettingsPrependInput>;
+  _set?: Maybe<SettingsSetInput>;
+  pk_columns: SettingsPkColumnsInput;
+};
+
+
+/** mutation root */
+export type MutationRootUpdateTagsByPkArgs = {
+  _inc?: Maybe<TagsIncInput>;
+  _set?: Maybe<TagsSetInput>;
+  pk_columns: TagsPkColumnsInput;
+};
+
+
+/** mutation root */
+export type MutationRootUpdateTwitchStreamsByPkArgs = {
+  _append?: Maybe<TwitchStreamsAppendInput>;
+  _delete_at_path?: Maybe<TwitchStreamsDeleteAtPathInput>;
+  _delete_elem?: Maybe<TwitchStreamsDeleteElemInput>;
+  _delete_key?: Maybe<TwitchStreamsDeleteKeyInput>;
+  _inc?: Maybe<TwitchStreamsIncInput>;
+  _prepend?: Maybe<TwitchStreamsPrependInput>;
+  _set?: Maybe<TwitchStreamsSetInput>;
+  pk_columns: TwitchStreamsPkColumnsInput;
+};
+
 /** column ordering options */
 export enum OrderBy {
   /** in the ascending order, nulls last */
@@ -955,18 +469,6 @@ export enum OrderBy {
 /** query root */
 export type QueryRoot = {
   __typename?: 'query_root';
-  /** fetch data from the table: "cases" */
-  cases: Array<Cases>;
-  /** fetch aggregated fields from the table: "cases" */
-  casesAggregate: CasesAggregate;
-  /** fetch data from the table: "cases" using primary key columns */
-  casesByPk?: Maybe<Cases>;
-  /** fetch data from the table: "lockdowns" */
-  lockdowns: Array<Lockdowns>;
-  /** fetch aggregated fields from the table: "lockdowns" */
-  lockdownsAggregate: LockdownsAggregate;
-  /** fetch data from the table: "lockdowns" using primary key columns */
-  lockdownsByPk?: Maybe<Lockdowns>;
   /** fetch data from the table: "reaction_roles" */
   reactionRoles: Array<ReactionRoles>;
   /** fetch aggregated fields from the table: "reaction_roles" */
@@ -1003,58 +505,6 @@ export type QueryRoot = {
   twitchStreamsAggregate: TwitchStreamsAggregate;
   /** fetch data from the table: "twitch_streams" using primary key columns */
   twitchStreamsByPk?: Maybe<TwitchStreams>;
-};
-
-
-/** query root */
-export type QueryRootCasesArgs = {
-  distinct_on?: Maybe<Array<CasesSelectColumn>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<CasesOrderBy>>;
-  where?: Maybe<CasesBoolExp>;
-};
-
-
-/** query root */
-export type QueryRootCasesAggregateArgs = {
-  distinct_on?: Maybe<Array<CasesSelectColumn>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<CasesOrderBy>>;
-  where?: Maybe<CasesBoolExp>;
-};
-
-
-/** query root */
-export type QueryRootCasesByPkArgs = {
-  id: Scalars['uuid'];
-};
-
-
-/** query root */
-export type QueryRootLockdownsArgs = {
-  distinct_on?: Maybe<Array<LockdownsSelectColumn>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<LockdownsOrderBy>>;
-  where?: Maybe<LockdownsBoolExp>;
-};
-
-
-/** query root */
-export type QueryRootLockdownsAggregateArgs = {
-  distinct_on?: Maybe<Array<LockdownsSelectColumn>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<LockdownsOrderBy>>;
-  where?: Maybe<LockdownsBoolExp>;
-};
-
-
-/** query root */
-export type QueryRootLockdownsByPkArgs = {
-  id: Scalars['uuid'];
 };
 
 
@@ -1311,7 +761,7 @@ export type ReactionRolesBoolExp = {
 /** unique or primary key constraints on table "reaction_roles" */
 export enum ReactionRolesConstraint {
   /** unique or primary key constraint */
-  ReactionrolesPkey = 'reactionroles_pkey'
+  ReactionRolesPkey = 'reaction_roles_pkey'
 }
 
 /** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
@@ -1329,7 +779,7 @@ export type ReactionRolesDeleteKeyInput = {
   roles?: Maybe<Scalars['String']>;
 };
 
-/** input type for incrementing integer columne in table "reaction_roles" */
+/** input type for incrementing integer column in table "reaction_roles" */
 export type ReactionRolesIncInput = {
   id?: Maybe<Scalars['Int']>;
 };
@@ -1406,6 +856,11 @@ export type ReactionRolesOrderBy = {
   id?: Maybe<OrderBy>;
   message?: Maybe<OrderBy>;
   roles?: Maybe<OrderBy>;
+};
+
+/** primary key columns input for table: "reaction_roles" */
+export type ReactionRolesPkColumnsInput = {
+  id: Scalars['Int'];
 };
 
 /** prepend existing jsonb value of filtered columns with new jsonb value */
@@ -1530,14 +985,14 @@ export type ReactionRolesVarianceOrderBy = {
 /** columns and relationships of "remindmes" */
 export type Remindmes = {
   __typename?: 'remindmes';
-  id: Scalars['Int'];
-  guild: Scalars['String'];
-  channel: Scalars['String'];
-  message: Scalars['String'];
   author: Scalars['String'];
-  text: Scalars['String'];
+  channel: Scalars['String'];
   createdAt: Scalars['timestamptz'];
   duration: Scalars['timestamptz'];
+  guild: Scalars['String'];
+  id: Scalars['Int'];
+  message: Scalars['String'];
+  text: Scalars['String'];
 };
 
 /** aggregated selection of "remindmes" */
@@ -1620,12 +1075,10 @@ export type RemindmesBoolExp = {
 /** unique or primary key constraints on table "remindmes" */
 export enum RemindmesConstraint {
   /** unique or primary key constraint */
-  RemindmesIdKey = 'remindmes_id_key',
-  /** unique or primary key constraint */
   RemindmesPkey = 'remindmes_pkey'
 }
 
-/** input type for incrementing integer columne in table "remindmes" */
+/** input type for incrementing integer column in table "remindmes" */
 export type RemindmesIncInput = {
   id?: Maybe<Scalars['Int']>;
 };
@@ -1724,6 +1177,11 @@ export type RemindmesOrderBy = {
   id?: Maybe<OrderBy>;
   message?: Maybe<OrderBy>;
   text?: Maybe<OrderBy>;
+};
+
+/** primary key columns input for table: "remindmes" */
+export type RemindmesPkColumnsInput = {
+  id: Scalars['Int'];
 };
 
 /** select columns of table "remindmes" */
@@ -1933,12 +1391,14 @@ export type RoleStatesInsertInput = {
 export type RoleStatesMaxFields = {
   __typename?: 'role_states_max_fields';
   guild?: Maybe<Scalars['String']>;
+  id?: Maybe<Scalars['uuid']>;
   member?: Maybe<Scalars['String']>;
 };
 
 /** order by max() on columns of table "role_states" */
 export type RoleStatesMaxOrderBy = {
   guild?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
   member?: Maybe<OrderBy>;
 };
 
@@ -1946,12 +1406,14 @@ export type RoleStatesMaxOrderBy = {
 export type RoleStatesMinFields = {
   __typename?: 'role_states_min_fields';
   guild?: Maybe<Scalars['String']>;
+  id?: Maybe<Scalars['uuid']>;
   member?: Maybe<Scalars['String']>;
 };
 
 /** order by min() on columns of table "role_states" */
 export type RoleStatesMinOrderBy = {
   guild?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
   member?: Maybe<OrderBy>;
 };
 
@@ -1983,6 +1445,11 @@ export type RoleStatesOrderBy = {
   id?: Maybe<OrderBy>;
   member?: Maybe<OrderBy>;
   roles?: Maybe<OrderBy>;
+};
+
+/** primary key columns input for table: "role_states" */
+export type RoleStatesPkColumnsInput = {
+  id: Scalars['uuid'];
 };
 
 /** select columns of table "role_states" */
@@ -2159,6 +1626,12 @@ export type SettingsOrderBy = {
   settings?: Maybe<OrderBy>;
 };
 
+/** primary key columns input for table: "settings" */
+export type SettingsPkColumnsInput = {
+  /** The id of the guild this setting belongs to */
+  guild: Scalars['String'];
+};
+
 /** prepend existing jsonb value of filtered columns with new jsonb value */
 export type SettingsPrependInput = {
   settings?: Maybe<Scalars['jsonb']>;
@@ -2189,18 +1662,6 @@ export enum SettingsUpdateColumn {
 /** subscription root */
 export type SubscriptionRoot = {
   __typename?: 'subscription_root';
-  /** fetch data from the table: "cases" */
-  cases: Array<Cases>;
-  /** fetch aggregated fields from the table: "cases" */
-  casesAggregate: CasesAggregate;
-  /** fetch data from the table: "cases" using primary key columns */
-  casesByPk?: Maybe<Cases>;
-  /** fetch data from the table: "lockdowns" */
-  lockdowns: Array<Lockdowns>;
-  /** fetch aggregated fields from the table: "lockdowns" */
-  lockdownsAggregate: LockdownsAggregate;
-  /** fetch data from the table: "lockdowns" using primary key columns */
-  lockdownsByPk?: Maybe<Lockdowns>;
   /** fetch data from the table: "reaction_roles" */
   reactionRoles: Array<ReactionRoles>;
   /** fetch aggregated fields from the table: "reaction_roles" */
@@ -2237,58 +1698,6 @@ export type SubscriptionRoot = {
   twitchStreamsAggregate: TwitchStreamsAggregate;
   /** fetch data from the table: "twitch_streams" using primary key columns */
   twitchStreamsByPk?: Maybe<TwitchStreams>;
-};
-
-
-/** subscription root */
-export type SubscriptionRootCasesArgs = {
-  distinct_on?: Maybe<Array<CasesSelectColumn>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<CasesOrderBy>>;
-  where?: Maybe<CasesBoolExp>;
-};
-
-
-/** subscription root */
-export type SubscriptionRootCasesAggregateArgs = {
-  distinct_on?: Maybe<Array<CasesSelectColumn>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<CasesOrderBy>>;
-  where?: Maybe<CasesBoolExp>;
-};
-
-
-/** subscription root */
-export type SubscriptionRootCasesByPkArgs = {
-  id: Scalars['uuid'];
-};
-
-
-/** subscription root */
-export type SubscriptionRootLockdownsArgs = {
-  distinct_on?: Maybe<Array<LockdownsSelectColumn>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<LockdownsOrderBy>>;
-  where?: Maybe<LockdownsBoolExp>;
-};
-
-
-/** subscription root */
-export type SubscriptionRootLockdownsAggregateArgs = {
-  distinct_on?: Maybe<Array<LockdownsSelectColumn>>;
-  limit?: Maybe<Scalars['Int']>;
-  offset?: Maybe<Scalars['Int']>;
-  order_by?: Maybe<Array<LockdownsOrderBy>>;
-  where?: Maybe<LockdownsBoolExp>;
-};
-
-
-/** subscription root */
-export type SubscriptionRootLockdownsByPkArgs = {
-  id: Scalars['uuid'];
 };
 
 
@@ -2558,7 +1967,7 @@ export enum TagsConstraint {
   TagsPkey = 'tags_pkey'
 }
 
-/** input type for incrementing integer columne in table "tags" */
+/** input type for incrementing integer column in table "tags" */
 export type TagsIncInput = {
   uses?: Maybe<Scalars['Int']>;
 };
@@ -2585,6 +1994,7 @@ export type TagsMaxFields = {
   content?: Maybe<Scalars['String']>;
   createdAt?: Maybe<Scalars['timestamptz']>;
   guild?: Maybe<Scalars['String']>;
+  id?: Maybe<Scalars['uuid']>;
   lastModified?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['timestamptz']>;
@@ -2597,6 +2007,7 @@ export type TagsMaxOrderBy = {
   content?: Maybe<OrderBy>;
   createdAt?: Maybe<OrderBy>;
   guild?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
   lastModified?: Maybe<OrderBy>;
   name?: Maybe<OrderBy>;
   updatedAt?: Maybe<OrderBy>;
@@ -2610,6 +2021,7 @@ export type TagsMinFields = {
   content?: Maybe<Scalars['String']>;
   createdAt?: Maybe<Scalars['timestamptz']>;
   guild?: Maybe<Scalars['String']>;
+  id?: Maybe<Scalars['uuid']>;
   lastModified?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['timestamptz']>;
@@ -2622,6 +2034,7 @@ export type TagsMinOrderBy = {
   content?: Maybe<OrderBy>;
   createdAt?: Maybe<OrderBy>;
   guild?: Maybe<OrderBy>;
+  id?: Maybe<OrderBy>;
   lastModified?: Maybe<OrderBy>;
   name?: Maybe<OrderBy>;
   updatedAt?: Maybe<OrderBy>;
@@ -2665,6 +2078,11 @@ export type TagsOrderBy = {
   updatedAt?: Maybe<OrderBy>;
   user?: Maybe<OrderBy>;
   uses?: Maybe<OrderBy>;
+};
+
+/** primary key columns input for table: "tags" */
+export type TagsPkColumnsInput = {
+  id: Scalars['uuid'];
 };
 
 /** select columns of table "tags" */
@@ -2940,9 +2358,9 @@ export type TwitchStreamsBoolExp = {
 /** unique or primary key constraints on table "twitch_streams" */
 export enum TwitchStreamsConstraint {
   /** unique or primary key constraint */
-  TwitchStreamsPkey = 'twitch_streams_pkey',
+  TwitchStreamsGuildChannelStreamerKey = 'twitch_streams_guild_channel_streamer_key',
   /** unique or primary key constraint */
-  TwitchStreamsStreamerChannelGuildKey = 'twitch_streams_streamer_channel_guild_key'
+  TwitchStreamsPkey = 'twitch_streams_pkey'
 }
 
 /** delete the field or element with specified path (for JSON arrays, negative integers count from the end) */
@@ -2960,7 +2378,7 @@ export type TwitchStreamsDeleteKeyInput = {
   categories?: Maybe<Scalars['String']>;
 };
 
-/** input type for incrementing integer columne in table "twitch_streams" */
+/** input type for incrementing integer column in table "twitch_streams" */
 export type TwitchStreamsIncInput = {
   duration?: Maybe<Scalars['Int']>;
   id?: Maybe<Scalars['Int']>;
@@ -3064,6 +2482,11 @@ export type TwitchStreamsOrderBy = {
   startedAt?: Maybe<OrderBy>;
   streamer?: Maybe<OrderBy>;
   streamerName?: Maybe<OrderBy>;
+};
+
+/** primary key columns input for table: "twitch_streams" */
+export type TwitchStreamsPkColumnsInput = {
+  id: Scalars['Int'];
 };
 
 /** prepend existing jsonb value of filtered columns with new jsonb value */

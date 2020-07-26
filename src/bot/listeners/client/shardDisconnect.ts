@@ -16,9 +16,5 @@ export default class ShardDisconnectListener extends Listener {
 			topic: TOPICS.DISCORD,
 			event: `SHARD ${id} DISCONNECT`,
 		});
-		this.client.promServer.close();
-		this.client.logger.info(`Metrics server closed.`, { topic: TOPICS.METRICS, event: `SHARD ${id} DISCONNECT` });
-		this.client.twitchListener.close();
-		this.client.logger.info(`Twitch listener server closed.`, { topic: TOPICS.TWITCH, event: `SHARD ${id} RECONNECTING` });
 	}
 }

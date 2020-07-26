@@ -26,6 +26,8 @@ export enum SETTINGS {
 	ROLE_STATE = 'ROLE_STATE',
 	BLACKLIST = 'BLACKLIST',
 	EMOTE_VOTE = 'EMOTE_VOTE',
+	MEMBER_LOG = 'MEMBER_LOG',
+	AUTO_ROLE = 'AUTO_ROLE'
 };
 
 export interface Settings {
@@ -34,6 +36,13 @@ export interface Settings {
 	PREMIUM: boolean;
 	ROLE_STATE: boolean;
 	BLACKLIST: string[];
+	AUTO_ROLE: string;
+	MEMBER_LOG: {
+		CHANNEL: string;
+		MESSAGE: {
+			CONTENT: string;
+		}
+	};
 	EMOTE_VOTE: {
 		[key: string]: number | string
 	};
@@ -76,8 +85,109 @@ export interface Messages {
 	}
 
 	COMMANDS: {
+		EMBED: {
+			DESCRIPTION: {
+				CONTENT: string;
+			}
+			EDIT: {
+				DESCRIPTION: {
+					CONTENT: string;
+				}
+			}
+			SEND: {
+				DESCRIPTION: {
+					CONTENT: string;
+				}
+				PROMPT: {
+					START: string;
+					RETRY: string;
+				}
+			}
+		}
+
+		CONFIG: {
+			DESCRIPTION: {
+				CONTENT: string;
+				USAGE: string;
+			}
+			TOGGLE: {
+				DESCRIPTION: {
+					CONTENT: string;
+					USAGE: string;
+				}
+				REPLY: Function;
+				ROLE_STATE: {
+					DESCRIPTION: {
+						CONTENT: string;
+					}
+					REPLY_DEACTIVATED: string;
+					REPLY_ACTIVATED: string;
+				}
+			}
+
+			SET: {
+				DESCRIPTION: {
+					CONTENT: string;
+					USAGE: string;
+				}
+				REPLY: Function;
+				MEMBER_LOG: {
+					DESCRIPTION: {
+						CONTENT: string;
+						USAGE: string;
+						EXAMPLES: string[];
+					}
+					REPLY: Function;
+				}
+
+				AUTO_ROLE: {
+					DESCRIPTION: {
+						CONTENT: string;
+						USAGE: string;
+						EXAMPLES: string[];
+					}
+					REPLY: Function;
+				}
+			}
+
+			DELETE: {
+				DESCRIPTION: {
+					CONTENT: string;
+					USAGE: string;
+				}
+				REPLY: Function;
+				MEMBER_LOG: {
+					DESCRIPTION: {
+						CONTENT: string;
+					}
+					REPLY: string;
+				}
+
+				AUTO_ROLE: {
+					DESCRIPTION: {
+						CONTENT: string;
+					}
+					REPLY: string;
+				}
+			}
+
+			CLEAR: {
+				DESCRIPTION: {
+					CONTENT: string;
+				}
+				REPLY: string;
+			}
+
+			CHECK: {
+				DESCRIPTION: {
+					CONTENT: string;
+				}
+			}
+		}
+
 		CATEGORIES: {
 			[category: string]: string;
+			CONFIG: string;
 			INFO: string;
 			OWNER: string;
 			REACTIONROLE: string;
@@ -294,9 +404,22 @@ export interface Messages {
 		}
 
 		UTIL: {
-			HELP: {
+			RUNE: {
 				DESCRIPTION: {
 					CONTENT: string;
+					USAGE: string;
+					EXAMPLES: string[];
+				}
+
+				PROMPT: {
+					START: Function;
+					RETRY: Function;
+				}
+			}
+
+			HELP: {
+				DESCRIPTION: {
+					CONTENT: Function;
 					USAGE: string;
 				}
 				REPLY: Function;
@@ -321,7 +444,10 @@ export interface Messages {
 
 			PING: {
 				DESCRIPTION: string;
-				RESPONSES: string[];
+				RESPONSES: {
+					chance: number;
+					response: string;
+				}[]
 			}
 
 			PREFIX: {
@@ -406,10 +532,6 @@ export const CYBORG = {
 	},
 
 	EVENTS: {
-		REACTIONROLE: {
-			ADD: 'Added a new role by reaction.',
-			RMV: 'Removed a role by reaction.',
-		},
 		GUILD_MEMBER_ADD: {
 			ROLE_STATE: 'Automatic role state',
 		},

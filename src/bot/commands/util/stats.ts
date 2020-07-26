@@ -21,10 +21,6 @@ export default class StatsCommand extends Command {
 	}
 
 	public async exec(message: Message) {
-		/* 		const mtl = this.client.prometheus.fetchQuery('cyborg_messages_total');
-				const mpm = this.client.prometheus.fetchQuery('rate(cyborg_messages_total[1m])*60');
-				const ctl = this.client.prometheus.fetchQuery('cyborg_commands_total');
-				const cpm = this.client.prometheus.fetchQuery('rate(cyborg_commands_total[1m])*60'); */
 		this.client.ws.ping;
 		const embed = new MessageEmbed()
 			.setColor(COLORS.EMBED)

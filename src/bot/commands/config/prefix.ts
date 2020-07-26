@@ -11,7 +11,7 @@ export default class PrefixCommand extends Command {
 				usage: () => '[prefix]',
 				examples: () => ['*', 'Cyborg'],
 			},
-			category: 'util',
+			category: 'config',
 			channel: 'guild',
 			userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
 			ratelimit: 2,

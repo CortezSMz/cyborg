@@ -1,5 +1,5 @@
 import { Command } from 'discord-akairo';
-import { Message, TextChannel } from 'discord.js';
+import { Message, TextChannel, Permissions } from 'discord.js';
 
 export default class PurgeCommand extends Command {
     public constructor() {
@@ -11,6 +11,7 @@ export default class PurgeCommand extends Command {
                 examples: () => null,
             },
             category: 'owner',
+            clientPermissions: [Permissions.FLAGS.MANAGE_MESSAGES],
             ownerOnly: true,
             channel: 'guild',
             args: [

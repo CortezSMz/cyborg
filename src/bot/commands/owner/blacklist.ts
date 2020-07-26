@@ -9,7 +9,7 @@ export default class BlacklistCommand extends Command {
 			description: {
 				content: (message: Message) => LOCALE(message.guild!).COMMANDS.OWNER.BLACKLIST.DESCRIPTION,
 				usage: () => '<user>',
-				examples: () => ['Corteez', '@Corteez', '200502727170588673'],
+				examples: () => ['Cosmzs', '@Cosmzs', '200502727170588673'],
 			},
 			category: 'owner',
 			ownerOnly: true,

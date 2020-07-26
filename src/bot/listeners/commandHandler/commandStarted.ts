@@ -14,12 +14,11 @@ export default class CommandStartedListener extends Listener {
 	public exec(message: Message, command: Command, args: any) {
 		this.client.logger.info(
 			`Started ${command.id} on ${message.guild ? `${message.guild.name} (${message.guild.id})` : 'DM'}${
-				Object.keys(args).length && !args.command
-					? ` with arguments ${args.mod ? args.mod.id : JSON.stringify(args)}`
-					: ''
+			Object.keys(args).length && !args.command
+				? ` with arguments ${args.mod ? args.mod.id : JSON.stringify(args)}`
+				: ''
 			}`,
 			{ topic: TOPICS.DISCORD_AKAIRO, event: EVENTS.COMMAND_STARTED },
 		);
-		this.client.prometheus.commandCounter.inc();
 	}
 }

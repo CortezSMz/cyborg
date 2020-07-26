@@ -11,7 +11,7 @@ export default class LanguageCommand extends Command {
 				usage: () => '[language]',
 				examples: () => ['PT-BR', 'EN', 'português', 'english'],
 			},
-			category: 'util',
+			category: 'config',
 			channel: 'guild',
 			userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
 			ratelimit: 2,

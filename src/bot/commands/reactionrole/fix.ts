@@ -79,7 +79,7 @@ export default class ReactionRoleFixCommand extends Command {
             roleReactionMessage.edit(embed);
         } else {
             msg.util?.send(stripIndents`
-            Alright! Here's the custom content **with roles in the same order of the reactions** if you wish:\`\`\`js
+            Alright! Here's the custom content **with reactions in the same order of the roles** if you wish:\`\`\`js
             ${embed.description}\`\`\``)
         }
     }

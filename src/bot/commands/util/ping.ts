@@ -1,6 +1,6 @@
 import { Command } from 'discord-akairo';
 import { Message } from 'discord.js';
-import { LOCALE } from '../../util/constants';
+import { LOCALE, Messages } from '../../util/constants';
 
 export default class PingCommand extends Command {
 	public constructor() {
@@ -20,8 +20,23 @@ export default class PingCommand extends Command {
 		const msg = await message.util?.send('Pinging...');
 		if (!msg) return null;
 
+		interface responses {
+			chance: number;
+			response: string;
+		};
+
+		function randomResponse(response: responses[]) {
+			var rnd = Math.random();
+			var cc = 0;
+			for (var i = 0; i < response.length; i++) {
+				cc += response[i].chance;
+				if (rnd < cc) return response[i].response;
+			}
+			return 'Pong.';
+		}
+
 		return message.util?.send(
-			LOCALE(message.guild!).COMMANDS.UTIL.PING.RESPONSES[Math.floor(Math.random() * LOCALE(message.guild!).COMMANDS.UTIL.PING.RESPONSES.length)]
+			randomResponse(LOCALE(message.guild!).COMMANDS.UTIL.PING.RESPONSES)
 				.replace(
 					'$(ping)',
 					(

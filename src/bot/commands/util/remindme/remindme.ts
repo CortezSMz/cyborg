@@ -7,11 +7,11 @@ import { PrefixSupplier } from 'discord-akairo';
 export default class RemindmeCommand extends Command {
 	public constructor() {
 		super('remindme-add', {
-			aliases: ['remindme', 'reminder', 'remind'],
+			aliases: ['reminder', 'remindme', 'remind'],
 			category: 'util',
 			description: {
-				content: (message: Message) => LOCALE(message.guild!).COMMANDS.UTIL.REMINDME.DESCRIPTION,
-				usage: (message: Message) => '<when> <...text>',
+				content: (message: Message) => LOCALE(message.guild!).COMMANDS.UTIL.REMINDME.DESCRIPTION.replace(/\$\(prefix\)/g, (this.handler.prefix as PrefixSupplier)(message) as string),
+				usage: () => '<when> <...text>',
 				examples: () => [
 					"1s i'm lonely",
 					'15m call mom',
@@ -30,7 +30,7 @@ export default class RemindmeCommand extends Command {
 		});
 	}
 
-	public *args() {
+	public * args() {
 		const methodOrArg = yield {
 			type: Argument.union('duration', [
 				['remindme-add', 'add'],

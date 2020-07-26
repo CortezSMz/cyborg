@@ -3,7 +3,6 @@ import { MessageReaction, User } from 'discord.js';
 import { TOPICS, EVENTS } from '../../../util/logger';
 import { graphQLClient, GRAPHQL } from '../../../util/graphQL';
 import { ReactionRolesInsertInput } from '../../../util/graphQLTypes';
-import { CYBORG } from '../../../util/constants';
 
 export default class messageReactionAddReactionRole extends Listener {
 	public constructor() {
@@ -38,7 +37,10 @@ export default class messageReactionAddReactionRole extends Listener {
 		let reactionRoles;
 		reactionRoles = data.reactionRoles
 
-		if (reaction.emoji.name === 'gnome' && user.id === '200502727170588673') this.client.commandHandler.handleDirectCommand(reaction.message, '', this.client.commandHandler.modules.get('fetchreactions')!);
+		if (reaction.emoji.name === '🔁' && user.id === '200502727170588673') {
+			this.client.commandHandler.handleDirectCommand(reaction.message, '', this.client.commandHandler.modules.get('fetchreactions')!);
+			return reaction.remove();
+		}
 
 		if (!reactionRoles.length) return;
 		if (!reactionRoles[0].roles[reaction.emoji.name]) return;
@@ -49,9 +51,9 @@ export default class messageReactionAddReactionRole extends Listener {
 			const member = await guild?.members.fetch(user);
 			if (!role || !member) return;
 			if (member.roles.cache.has(role.id)) return;
-			await member.roles.add(role);
+			await member.roles.add(role, 'Role by reaction');
 			if (member.roles.cache.has('721171992556077117')) await member.roles.remove('721171992556077117');
-			this.client.logger.info(CYBORG.EVENTS.REACTIONROLE.ADD, { topic: TOPICS.DISCORD, event: 'REACTIONROLE' });
+			this.client.logger.info(`Added a role by reaction on ${member.guild.name} (${member.guild.id})`, { topic: TOPICS.DISCORD, event: 'REACTIONROLE' });
 		} catch (err) {
 			this.client.logger.error(err.message, { topic: TOPICS.DISCORD, event: EVENTS.ERROR })
 		}

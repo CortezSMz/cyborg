@@ -9,7 +9,7 @@ export default class HelpCommand extends Command {
 		super('help', {
 			aliases: ['help'],
 			description: {
-				content: (message: Message) => LOCALE(message.guild!).COMMANDS.UTIL.HELP.DESCRIPTION.CONTENT,
+				content: (message: Message) => LOCALE(message.guild!).COMMANDS.UTIL.HELP.DESCRIPTION.CONTENT((this.handler.prefix as PrefixSupplier)(message)),
 				usage: (message: Message) => LOCALE(message.guild!).COMMANDS.UTIL.HELP.DESCRIPTION.USAGE,
 				examples: () => null,
 			},
@@ -21,25 +21,40 @@ export default class HelpCommand extends Command {
 					id: 'command',
 					type: 'commandAlias',
 				},
+				{
+					id: 'filterByPerms',
+					match: 'flag',
+					flag: ['--perm']
+				},
+				{
+					id: 'filterByDm',
+					match: 'flag',
+					flag: ['--dm']
+				},
 			],
 		});
 	}
 
-	public async exec(message: Message, { command }: { command: Command }) {
+	public async exec(message: Message, { command, filterByPerms, filterByDm }: { command: Command; filterByPerms: boolean; filterByDm: boolean }) {
 		const prefix = (this.handler.prefix as PrefixSupplier)(message);
 		if (!command) {
 			const embed = new MessageEmbed()
 				.setColor(COLORS.EMBED)
-				.addField(`ﾅ ${LOCALE(message.guild!).COMMANDS.UTIL.HELP.EMBED.FIELD_COMMANDS} `, LOCALE(message.guild!).COMMANDS.UTIL.HELP.REPLY(prefix));
+				.addField(`ﾅ ${LOCALE(message.guild!).COMMANDS.UTIL.HELP.EMBED.FIELD_COMMANDS} `, LOCALE(message.guild!).COMMANDS.UTIL.HELP.REPLY(prefix, message));
 
 			for (const category of this.handler.categories.sort().values()) {
 				if (category.id === 'owner' && message.author.id !== this.client.config.owner) continue;
 				embed.addField(
 					`ﾅ ${LOCALE(message.guild!).COMMANDS.CATEGORIES[category.id.toUpperCase()]}`,
 					`${category
-						.filter((cmd) => cmd.aliases.length > 0)
-						.map((cmd) => `\`${cmd.aliases[0]}\``)
-						.join(' ')}`,
+						.filter((cmd) => cmd.aliases.length > 0) // (filterByDm && cmd.channel !== 'guild')
+						.map((cmd) => {
+							// @ts-ignore
+							if (filterByPerms && message.guild && !message.member?.permissions.has(cmd.userPermissions)) return `||_\`${cmd.aliases[0]}\`_||`
+							else if (filterByDm && cmd.channel === 'guild') return `||_\`${cmd.aliases[0]}\`_||`
+							else return `**\`${cmd.aliases[0]}\`**`
+						})
+						.join(' ')}\u200b`,
 				);
 				if (category.id === 'tag' && message.guild) {
 					const { data } = await graphQLClient.query<any, TagsInsertInput>({

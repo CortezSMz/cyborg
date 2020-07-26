@@ -1,6 +1,6 @@
 import { Command } from 'discord-akairo';
 import { Message, Util } from 'discord.js';
-import { LOCALE, PRODUCTION, SETTINGS } from '../../util/constants';
+import { LOCALE, PRODUCTION } from '../../util/constants';
 import { GRAPHQL, graphQLClient } from '../../util/graphQL';
 import { Tags, TagsInsertInput } from '../../util/graphQLTypes';
 import { interpolateString } from '../../util/template';
@@ -53,9 +53,14 @@ export default class TagShowCommand extends Command {
 
 		if (tag.templated) {
 			const output = interpolateString(tag.content, {
+				authorid: message.author.id,
 				author: message.author.toString(),
+				channelid: message.channel.id,
 				channel: message.channel.toString(),
+				guildid: message.guild ? message.guild.id : null,
 				guild: message.guild ? message.guild.toString() : null,
+				count: `${tag.uses + 1}`,
+				mention: message.mentions.users.first()?.toString() || message.author.toString()
 			});
 
 			return message.util?.send(output || 'The output was empty.');

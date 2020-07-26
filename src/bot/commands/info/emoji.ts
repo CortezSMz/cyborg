@@ -16,7 +16,7 @@ export default class EmojiInfoCommand extends Command {
 				examples: () => ['🤔', 'thinking_face', '713815930983153675', '<:Thonk:713815930983153675>'],
 			},
 			category: 'info',
-			channel: 'guild',
+			//channel: 'guild',
 			clientPermissions: [Permissions.FLAGS.EMBED_LINKS],
 			ratelimit: 2,
 			args: [
@@ -25,9 +25,9 @@ export default class EmojiInfoCommand extends Command {
 					match: 'content',
 					type: async (message, content) => {
 						if (EMOJI_REGEX.test(content)) [, content] = EMOJI_REGEX.exec(content)!;
-						const guild = message.guild!;
-						if (!isNaN((content as unknown) as number)) return guild.emojis.cache.get(content);
-						return guild.emojis.cache.find((e) => e.name === content) || emojis.find(content);
+						const guild = message.guild;
+						if (!isNaN((content as unknown) as number)) return guild?.emojis.cache.get(content) || this.client.emojis.cache.get(content)
+						return guild?.emojis.cache.find((e) => e.name === content) || emojis.find(content) || this.client.emojis.cache.find((e) => e.name === content);
 					},
 					prompt: {
 						start: (message: Message) => LOCALE(message.guild!).COMMANDS.INFO.EMOJI.PROMPT.START(message.author),

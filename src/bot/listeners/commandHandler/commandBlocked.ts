@@ -19,6 +19,6 @@ export default class CommandBlockedListener extends Listener {
 			} with reason ${reason}`,
 			{ topic: TOPICS.DISCORD_AKAIRO, event: EVENTS.COMMAND_BLOCKED },
 		);
-		if (reason === 'guild') return message.author.send(`You can not use \`${(this.client.commandHandler.prefix as PrefixSupplier)(message)}${command.id}\` on DMs`)
+		if (reason === 'guild') return message.author.send(`Sorry, you can't use \`${(this.client.commandHandler.prefix as PrefixSupplier)(message)}${command.id}\` on DMs`)
 	}
 }

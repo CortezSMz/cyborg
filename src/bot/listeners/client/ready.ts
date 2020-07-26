@@ -21,9 +21,5 @@ export default class ReadyListener extends Listener {
 			event: EVENTS.READY,
 		});
 		this.client.user?.setActivity(CYBORG.EVENTS.READY.ACTIVITY(this.client.user?.username));
-		this.client.twitchListener.listen(6600);
-		this.client.logger.info('Listening to twitch on 6600', { topic: TOPICS.TWITCH, event: EVENTS.READY });
-		//this.client.promServer.listen(5500);
-		//this.client.logger.info('Metrics listening on 5500', { topic: TOPICS.METRICS, event: EVENTS.READY });
 	}
 }

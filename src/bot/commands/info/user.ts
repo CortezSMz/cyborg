@@ -12,7 +12,7 @@ export default class UserInfoCommand extends Command {
 			description: {
 				content: (message: Message) => LOCALE(message.guild!).COMMANDS.INFO.USER.DESCRIPTION,
 				usage: () => '[member]',
-				examples: () => ['Corteez', '@Corteez', '200502727170588673'],
+				examples: () => ['Cosmzs', '@Cosmzs', '200502727170588673'],
 			},
 			category: 'info',
 			channel: 'guild',

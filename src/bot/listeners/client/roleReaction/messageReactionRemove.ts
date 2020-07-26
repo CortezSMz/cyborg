@@ -47,8 +47,8 @@ export default class messageReactionRemoveReactionRole extends Listener {
             const member = await guild?.members.fetch(user);
             if (!role || !member) return;
             if (!member.roles.cache.has(role.id)) return;
-            await member.roles.remove(role);
-            this.client.logger.info(CYBORG.EVENTS.REACTIONROLE.RMV, { topic: TOPICS.DISCORD, event: 'REACTIONROLE' });
+            await member.roles.remove(role, 'Role by reaction');
+            this.client.logger.info(`Removed a role by reaction on ${member.guild.name} (${member.guild.id})`, { topic: TOPICS.DISCORD, event: 'REACTIONROLE' });
         } catch (err) {
             this.client.logger.error(err.message, { topic: TOPICS.DISCORD, event: EVENTS.ERROR })
         }
