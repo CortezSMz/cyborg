@@ -89,7 +89,9 @@ export default class TwitchScheduler {
                 .replace('$(streamer)', onlineData.user_name.replace(/([^a-zA-Z0-9])/g, '\\$1')) +
             `\n<https://www.twitch.tv/${onlineData.user_name}>`
             , { embed }
-        );
+        ).catch(() => { });
+
+        if (!message) return;
 
         this.streamers.set(ID, {
             ...storedData,
@@ -192,15 +194,15 @@ export default class TwitchScheduler {
         })
 
         // only worth when DB is local, else too slow to maintain :(
-
-        graphQLClient.mutate<any, TwitchStreamsInsertInput>({
-            mutation: GRAPHQL.MUTATION.UPDATE_TWITCH_STREAMS,
-            variables: {
-                id: ID,
-                ...this.streamers.get(ID),
-                streamer: onlineData.user_id
-            },
-        });
+        /* 
+                graphQLClient.mutate<any, TwitchStreamsInsertInput>({
+                    mutation: GRAPHQL.MUTATION.UPDATE_TWITCH_STREAMS,
+                    variables: {
+                        id: ID,
+                        ...this.streamers.get(ID),
+                        streamer: onlineData.user_id
+                    },
+                }); */
 
     };
 
@@ -250,7 +252,7 @@ export default class TwitchScheduler {
             LOCALE(guild).COMMANDS.TWITCH.DELETED_MESSAGE
                 .replace(/\$\(streamer\)/g, storedData.streamerName)
                 .replace('$(prefix)', this.client.settings.get(storedData.guild, SETTINGS.PREFIX, process.env.COMMAND_PREFIX))
-        );
+        ).catch(() => { });
 
         await graphQLClient.mutate<any, TwitchStreamsInsertInput>({
             mutation: GRAPHQL.MUTATION.UPDATE_TWITCH_STREAMS,

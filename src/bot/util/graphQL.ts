@@ -208,6 +208,25 @@ export const GRAPHQL = {
 			}
 		`,
 
+		TWITCH_STREAMS_BY_GUILD: gql`
+		query($guild: String!) {
+			twitchStreams${PRODUCTION ? '' : 'Staging'}(where: {
+					guild: { _eq: $guild }
+				}) {
+					id
+					streamer
+					streamerName
+					online
+					message
+					guild
+					channel
+					categories
+					duration
+					startedAt
+				}
+			}
+		`,
+
 		REMINDMES_DURATION: gql`
 		query {
 			remindmes${PRODUCTION ? '' : 'Staging'} {
@@ -388,7 +407,16 @@ export const GRAPHQL = {
 				}
 			}
 		`,
-
+		TWITCH_STREAMS_BY_STREAMER_GUILD: gql`
+			mutation($streamer: String!, $guild: String!) {
+				deleteTwitchStreams${PRODUCTION ? '' : 'Staging'}(where: {
+					streamer: { _eq: $streamer },
+					guild: { _eq: $guild }
+				}) {
+					affected_rows
+				}
+			}
+		`,
 		INSERT_ROLE_STATE: gql`
 			mutation($objects: [${PRODUCTION ? '' : 'staging_'}role_states_insert_input!]!) {
 				insertRoleStates${PRODUCTION ? '' : 'Staging'}(objects: $objects) {

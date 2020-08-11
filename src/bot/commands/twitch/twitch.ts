@@ -17,7 +17,7 @@ export default class TwitchCommand extends Command {
             },
             channel: 'guild',
             category: 'twitch',
-            clientPermissions: [Permissions.FLAGS.EMBED_LINKS],
+            clientPermissions: [Permissions.FLAGS.EMBED_LINKS, Permissions.FLAGS.MENTION_EVERYONE],
             userPermissions: [Permissions.FLAGS.MANAGE_GUILD],
             ratelimit: 2
         });

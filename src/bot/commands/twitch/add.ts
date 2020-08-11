@@ -3,6 +3,8 @@ import { Message, Permissions, TextChannel } from 'discord.js';
 import { graphQLClient, GRAPHQL } from '../../util/graphQL';
 import { TwitchStreamsInsertInput, TwitchStreams } from '../../util/graphQLTypes';
 import { SETTINGS } from '../../util/constants';
+import { stripIndents } from 'common-tags';
+import { PrefixSupplier } from 'discord-akairo';
 const fetch = require('node-fetch');
 
 export default class TwitchAddCommand extends Command {
@@ -34,6 +36,20 @@ export default class TwitchAddCommand extends Command {
     }
 
     public async exec(message: Message, { channel, streamer }: { channel: TextChannel, streamer: string }) {
+        const { data } = await graphQLClient.query<any, TwitchStreamsInsertInput>({
+            query: GRAPHQL.QUERY.TWITCH_STREAMS_BY_GUILD,
+            variables: {
+                guild: message.guild!.id,
+            },
+        });
+        const streams: TwitchStreams[] = data.twitchStreams;
+
+        if (streams.find(stream => stream.streamerName === streamer)) return message.util?.send(stripIndents`Já estou notificando esse streamer.
+        Use \`${(this.handler.prefix as PrefixSupplier)(message)}twitch list\` para ver quais streamers já estão configurados.`)
+
+        if (streams.length >= 5) return message.util?.send(stripIndents`Você só pode configurar 5 streamers.
+        Use \`${(this.handler.prefix as PrefixSupplier)(message)}twitch list\` para ver quais streamers já estão configurados.`)
+
         const body = await fetch(`https://api.twitch.tv/helix/users?login=${streamer}`, {
             method: 'GET',
             headers: {
@@ -52,5 +68,7 @@ export default class TwitchAddCommand extends Command {
                 streamerName: twitchStream.data[0].display_name,
             },
         });
+
+        message.util?.reply(`prontinho! Quando ${twitchStream.data[0].display_name.replace(/([^a-zA-Z0-9])/g, '\\$1')} ficar online eu irei notificar nesse canal.`)
     }
 }
