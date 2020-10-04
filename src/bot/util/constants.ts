@@ -1,4 +1,4 @@
-import * as locale from "./locale";
+import * as locale from './locale';
 import { Guild } from 'discord.js';
 import CyborgClient from '../client/CyborgClient';
 
@@ -17,7 +17,7 @@ export enum COLORS {
 	WARN = 16776960,
 	MEMBER_JOIN = 8450847,
 	MEMBER_LEFT = 16745216,
-};
+}
 
 export enum SETTINGS {
 	PREFIX = 'PREFIX',
@@ -27,8 +27,8 @@ export enum SETTINGS {
 	BLACKLIST = 'BLACKLIST',
 	EMOTE_VOTE = 'EMOTE_VOTE',
 	MEMBER_LOG = 'MEMBER_LOG',
-	AUTO_ROLE = 'AUTO_ROLE'
-};
+	AUTO_ROLE = 'AUTO_ROLE',
+}
 
 export interface Settings {
 	PREFIX: string;
@@ -41,19 +41,30 @@ export interface Settings {
 		CHANNEL: string;
 		MESSAGE: {
 			CONTENT: string;
-		}
+		};
 	};
 	EMOTE_VOTE: {
-		[key: string]: number | string
+		[key: string]: number | string;
 	};
-};
+}
 
 export const isPremium = (guild: Guild) => {
-	return (guild?.client as CyborgClient)?.settings.get(guild, SETTINGS.PREMIUM, false) ?? false;
+	return (
+		(guild?.client as CyborgClient)?.settings.get(
+			guild,
+			SETTINGS.PREMIUM,
+			false,
+		) ?? false
+	);
 };
 
 export const LOCALE = (guild: Guild) => {
-	let lang = (guild?.client as CyborgClient)?.settings.get(guild, SETTINGS.LANGUAGE, process.env.DEFAULT_LANG) ?? process.env.DEFAULT_LANG;
+	let lang =
+		(guild?.client as CyborgClient)?.settings.get(
+			guild,
+			SETTINGS.LANGUAGE,
+			process.env.DEFAULT_LANG,
+		) ?? process.env.DEFAULT_LANG;
 	// @ts-ignore
 	return locale[lang.replace(/-/g, '')].MESSAGES as Messages;
 };
@@ -68,125 +79,124 @@ export interface Messages {
 			TIMEOUT: string;
 			ENDED: string;
 			CANCEL: string;
-		}
-	}
+		};
+	};
 
 	LISTENERS: {
-		CLIENT: {
-
-		}
+		CLIENT: {};
 
 		COMMAND_HANDLER: {
 			MISSING_PERMISSIONS: {
 				CLIENT: string;
 				USER: Function;
-			}
-		}
-	}
+			};
+		};
+	};
 
 	COMMANDS: {
 		EMBED: {
 			DESCRIPTION: {
 				CONTENT: string;
-			}
+			};
 			EDIT: {
 				DESCRIPTION: {
 					CONTENT: string;
-				}
-			}
+				};
+			};
 			SEND: {
 				DESCRIPTION: {
 					CONTENT: string;
-				}
+				};
 				PROMPT: {
 					START: string;
 					RETRY: string;
-				}
-			}
-		}
+				};
+			};
+		};
 
 		CONFIG: {
 			DESCRIPTION: {
 				CONTENT: string;
 				USAGE: string;
-			}
+			};
 			TOGGLE: {
 				DESCRIPTION: {
 					CONTENT: string;
 					USAGE: string;
-				}
+				};
 				REPLY: Function;
 				ROLE_STATE: {
 					DESCRIPTION: {
 						CONTENT: string;
-					}
+					};
 					REPLY_DEACTIVATED: string;
 					REPLY_ACTIVATED: string;
-				}
-			}
+				};
+			};
 
 			SET: {
 				DESCRIPTION: {
 					CONTENT: string;
 					USAGE: string;
-				}
+				};
 				REPLY: Function;
 				MEMBER_LOG: {
 					DESCRIPTION: {
 						CONTENT: string;
 						USAGE: string;
 						EXAMPLES: string[];
-					}
+					};
 					REPLY: Function;
-				}
+				};
 
 				AUTO_ROLE: {
 					DESCRIPTION: {
 						CONTENT: string;
 						USAGE: string;
 						EXAMPLES: string[];
-					}
+					};
 					REPLY: Function;
-				}
-			}
+				};
+			};
 
 			DELETE: {
 				DESCRIPTION: {
 					CONTENT: string;
 					USAGE: string;
-				}
+				};
 				REPLY: Function;
 				MEMBER_LOG: {
 					DESCRIPTION: {
 						CONTENT: string;
-					}
+					};
 					REPLY: string;
-				}
+				};
 
 				AUTO_ROLE: {
 					DESCRIPTION: {
 						CONTENT: string;
-					}
+					};
 					REPLY: string;
-				}
-			}
+				};
+			};
 
 			CLEAR: {
 				DESCRIPTION: {
 					CONTENT: string;
-				}
+				};
 				REPLY: string;
-			}
+			};
 
 			CHECK: {
 				DESCRIPTION: {
 					CONTENT: string;
-				}
-			}
-		}
+				};
+			};
+		};
 
 		CATEGORIES: {
 			[category: string]: string;
+			FUN: string;
 			CONFIG: string;
 			INFO: string;
 			OWNER: string;
@@ -194,7 +204,7 @@ export interface Messages {
 			TAG: string;
 			UTIL: string;
 			TWITCH: string;
-		}
+		};
 
 		REACTIONROLE: {
 			CREATE: {
@@ -202,34 +212,34 @@ export interface Messages {
 				PROMPT: {
 					START_TITLE: Function;
 					RETRY_TITLE: Function;
-				}
-			}
-		}
+				};
+			};
+		};
 
 		OWNER: {
 			RELOAD: {
 				PROMPT: {
 					START: Function;
 					RETRY: Function;
-				}
-			}
+				};
+			};
 
 			BLACKLIST: {
 				DESCRIPTION: string;
 				PROMPT: {
 					START: Function;
-				}
+				};
 				REPLY: Function;
 				REPLY_2: Function;
-			}
+			};
 
 			EVAL: {
 				DESCRIPTION: string;
 				PROMPT: {
 					START: Function;
-				}
-			}
-		}
+				};
+			};
+		};
 
 		INFO: {
 			CHANNEL: {
@@ -237,51 +247,51 @@ export interface Messages {
 					CONTENT: string;
 					USAGE: string;
 					EXAMPLES: string[];
-				}
+				};
 				EMBED: {
 					DESCRIPTION: Function;
 					FIELD_INFO: {
 						NAME: string;
 						VALUE: Function;
-					}
-				}
-			}
+					};
+				};
+			};
 
 			EMOJI: {
 				DESCRIPTION: {
 					CONTENT: string;
-				}
+				};
 				PROMPT: {
 					START: Function;
 					RETRY: Function;
-				}
+				};
 				EMBED: {
 					DESCRIPTION: {
 						GUILDEMOJI: Function;
-						EMOJI: Function
-					}
+						EMOJI: Function;
+					};
 					FIELD_INFO: {
 						NAME: string;
 						VALUE: {
 							GUILDEMOJI: Function;
 							EMOJI: Function;
-						}
-					}
-				}
-			}
+						};
+					};
+				};
+			};
 
 			ROLE: {
 				DESCRIPTION: string;
-			}
+			};
 
 			SERVER: {
 				DESCRIPTION: string;
-			}
+			};
 
 			USER: {
 				DESCRIPTION: string;
-			}
-		}
+			};
+		};
 
 		TAGS: {
 			DESCRIPTION: string;
@@ -291,99 +301,99 @@ export interface Messages {
 				PROMPT: {
 					START: Function;
 					RETRY: Function;
-				}
+				};
 				PROMPT_2: {
 					START: Function;
-				}
+				};
 				TOO_LONG: string;
 				REPLY: Function;
-			}
+			};
 
 			ALIAS: {
 				DESCRIPTION: string;
 				PROMPT: {
 					START: Function;
 					RETRY: Function;
-				}
+				};
 				PROMPT_2: {
 					START: Function;
 					RETRY: Function;
-				}
+				};
 				PROMPT_3: {
 					START: Function;
 					RETRY: Function;
-				}
+				};
 				TOO_LONG: string;
 				REPLY: Function;
-			}
+			};
 
 			DELETE: {
 				DESCRIPTION: string;
 				PROMPT: {
 					START: Function;
 					RETRY: Function;
-				}
+				};
 				OWN_TAG: string;
 				REPLY: Function;
-			}
+			};
 
 			DOWNLOAD: {
 				DESCRIPTION: string;
 				REPLY: string;
-			}
+			};
 
 			EDIT: {
 				DESCRIPTION: string;
 				PROMPT: {
 					START: Function;
 					RETRY: Function;
-				}
+				};
 				PROMPT_2: {
 					START: Function;
-				}
+				};
 				OWN_TAG: string;
 				TOO_LONG: string;
 				REPLY: Function;
-			}
+			};
 
 			INFO: {
 				DESCRIPTION: string;
 				PROMPT: {
 					START: Function;
 					RETRY: Function;
-				}
-			}
+				};
+			};
 
 			LIST: {
 				DESCRIPTION: string;
 				NO_TAGS: Function;
 				GUILD_NO_TAGS: Function;
-			}
+			};
 
 			SEARCH: {
 				DESCRIPTION: string;
 				PROMPT: {
 					START: Function;
-				}
+				};
 				NO_RESULT: Function;
 				TOO_BIG: string;
-			}
+			};
 
 			SHOW: {
 				DESCRIPTION: string;
 				PROMPT: {
 					START: Function;
-				}
-			}
+				};
+			};
 
 			SOURCE: {
 				DESCRIPTION: string;
 				PROMPT: {
 					START: Function;
 					RETRY: Function;
-				}
-			}
-		}
+				};
+			};
+		};
 
 		TWITCH: {
 			ONLINE_MESSAGE: string;
@@ -393,15 +403,15 @@ export interface Messages {
 				FIELD_CATEGORY: {
 					CATEGORY: string;
 					GAME: string;
-				}
+				};
 				FIELD_VIEWERS: string;
 				FOOTER: string;
-			}
+			};
 			OFFLINE_EMBED: {
 				DESCRIPTION: string;
 				FOOTER: string;
-			}
-		}
+			};
+		};
 
 		UTIL: {
 			RUNE: {
@@ -409,53 +419,51 @@ export interface Messages {
 					CONTENT: string;
 					USAGE: string;
 					EXAMPLES: string[];
-				}
+				};
 
 				PROMPT: {
 					START: Function;
 					RETRY: Function;
-				}
-			}
+				};
+			};
 
 			HELP: {
 				DESCRIPTION: {
 					CONTENT: Function;
 					USAGE: string;
-				}
+				};
 				REPLY: Function;
 				EMBED: {
 					FIELD_COMMANDS: string;
 					FIELD_DESCRIPTION: string;
 					FIELD_ALIASES: string;
 					FIELD_EXAMPLES: string;
-				}
-			}
+				};
+			};
 
-			INFO: {
-
-			}
+			INFO: {};
 
 			LANGUAGE: {
 				DESCRIPTION: string;
 				REPLY: Function;
 				REPLY_2: Function;
 				REPLY_3: Function;
-			}
+			};
 
 			PING: {
 				DESCRIPTION: string;
 				RESPONSES: {
 					chance: number;
 					response: string;
-				}[]
-			}
+				}[];
+			};
 
 			PREFIX: {
 				DESCRIPTION: string;
 				REPLY: Function;
 				REPLY_2: Function;
 				REPLY_3: Function;
-			}
+			};
 
 			REMINDME: {
 				DESCRIPTION: string;
@@ -464,39 +472,39 @@ export interface Messages {
 					PROMPT_TIME: {
 						START: Function;
 						RETRY: Function;
-					}
+					};
 					PROMPT_TEXT: {
 						START: Function;
-					}
-				}
+					};
+				};
 				LIST: {
 					NOT_FOUND: string;
 					TITLE: string;
 					FOOTER_1: string;
 					FOOTER_2: string;
-				}
+				};
 				CLEAR: {
 					NOT_FOUND: string;
 					AWAIT_MESSAGE: string;
 					TIMEOUT: string;
 					REPLY: string;
-				}
+				};
 				DEL: {
 					PROMPT: {
 						START: Function;
 						RETRY: Function;
-					}
+					};
 					ERROR: string;
 					REPLY: string;
-				}
-			}
+				};
+			};
 
 			STATS: {
 				DESCRIPTION: string;
-			}
-		}
-	}
-};
+			};
+		};
+	};
+}
 
 export const CYBORG = {
 	COMMAND_HANDLER: {
@@ -546,13 +554,13 @@ export const CYBORG = {
 		},
 
 		SHARD_RECONNECT: {
-			LOG: "Shard reconnecting.",
+			LOG: 'Shard reconnecting.',
 		},
 
 		SHARD_RESUME: {
 			LOG: 'Shard resumed.',
 		},
-	}
+	},
 };
 
 export const PROMETHEUS = {

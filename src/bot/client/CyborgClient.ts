@@ -170,6 +170,6 @@ export default class CyborgClient extends AkairoClient {
 
 	public async start() {
 		await this._init();
-		return this.login(process.env.TOKEN);
+		return this.login(this.config.token);
 	}
 }
