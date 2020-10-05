@@ -1,60 +1,55 @@
 import { stripIndents } from 'common-tags';
-import { Argument } from 'discord-akairo';
-import { Flag } from 'discord-akairo';
-import { Command } from 'discord-akairo';
-import { User } from 'discord.js';
-import { MessageEmbed } from 'discord.js';
-import { Message } from 'discord.js';
+import { Argument, Flag, Command } from 'discord-akairo';
+import { User, MessageEmbed, Message } from 'discord.js';
 import { COLORS } from '../../util/constants';
+
+export interface CARD {
+	v: string;
+	s: string;
+	w: number;
+}
 
 export default class BlackJackCommand extends Command {
 	public constructor() {
 		super('blackjack', {
 			aliases: ['blackjack'],
 			description: {
-				content: () => '',
-				usage: () => '',
+				content: () => 'J, Q and K = 10 | A = 11 or 1',
+				usage: () => 'Type `h` to `hit` or type `s` to `stand`.',
 			},
 			category: 'fun',
 			ratelimit: 2,
 		});
 	}
 
-	private readonly values = [
-		'A',
-		'2',
-		'3',
-		'4',
-		'5',
-		'6',
-		'7',
-		'8',
-		'9',
-		'10',
-		'J',
-		'Q',
-		'K',
-	];
+	private readonly values: string[] = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
 
-	private readonly suits = ['♠️', '♦️', '♣️', '♥️'];
+	private readonly suits: string[] = ['♠️', '♦️', '♣️', '♥️'];
 
 	public gameEmbed: MessageEmbed = new MessageEmbed();
 
-	public deck: Array<{ v: string; s: string; w: number }> = [];
+	public deck: Array<CARD> = [];
 
 	public createDeck() {
 		this.deck = [];
 		for (let i = 0; i < this.values.length; i++) {
 			for (let x = 0; x < this.suits.length; x++) {
-				let weight = parseInt(this.values[i]);
-				if (
-					this.values[i] == 'J' ||
-					this.values[i] == 'Q' ||
-					this.values[i] == 'K'
-				)
-					weight = 10;
-				if (this.values[i] == 'A') weight = 11;
-				const card = {
+				let weight: number = 0;
+
+				switch (this.values[i]) {
+					case 'J':
+					case 'Q':
+					case 'K':
+						weight = 10;
+						break;
+					case 'A':
+						weight = 11;
+						break;
+					default:
+						weight = parseInt(this.values[i]);
+						break;
+				}
+				const card: CARD = {
 					v: this.values[i],
 					s: this.suits[x],
 					w: weight,
@@ -63,14 +58,8 @@ export default class BlackJackCommand extends Command {
 			}
 		}
 	}
-	private players: Array<{
-		name: string;
-		ID: number;
-		Total: number;
-		hand: Array<{ v: string; s: string; w: number }>;
-	}> = [];
 
-	public shuffle = (deck: Array<{ v: string; s: string; w: number }>) => {
+	public shuffle = (deck: Array<CARD>) => {
 		for (let i = 0; i < 1000; i++) {
 			const location1 = Math.floor(Math.random() * deck.length);
 			const location2 = Math.floor(Math.random() * deck.length);
@@ -81,10 +70,17 @@ export default class BlackJackCommand extends Command {
 		}
 	};
 
+	private players: Array<{
+		name: string;
+		ID: number;
+		Total: number;
+		hand: Array<CARD>;
+	}> = [];
+
 	public createPlayers(qtd: Number, author: User) {
 		this.players = [];
 		for (let i = 1; i <= qtd; i++) {
-			const hand: Array<{ v: string; s: string; w: number }> = [];
+			const hand: Array<CARD> = [];
 			const player = {
 				name: i === 1 ? author.username : 'Cyborg',
 				ID: i,
@@ -120,7 +116,7 @@ export default class BlackJackCommand extends Command {
 				p.name,
 				stripIndents`
 				${p.hand.map((c) => `\`${c.s}${c.v}\``).join(' | ')}
-				Total: ${p.hand.reduce((a, b) => a + (b['w'] || 0), 0)}
+				Total: ${this.getScore(p)}
 				`,
 				true,
 			)
@@ -134,12 +130,38 @@ export default class BlackJackCommand extends Command {
 			);
 	}
 
+	public getScore(player: { name: string; ID: number; Total: number; hand: Array<CARD> }) {
+		let playerScore: number = player.hand.reduce((a, b) => a + (b['w'] || 0), 0);
+		const aces = player.hand.filter((c: CARD) => c.v === 'A');
+
+		if (!!aces.length) {
+			for (const _ of aces.values()) {
+				if (playerScore <= 21) continue;
+				else playerScore -= 10;
+			}
+		}
+
+		return playerScore;
+	}
+
+	public check(phrase?: string) {
+		let playerScore: number = this.getScore(this.players[0]);
+
+		if (playerScore > 21) {
+			return 'lost';
+		}
+
+		if (playerScore === 21 || phrase === 'stand') {
+			return this.end(playerScore);
+		}
+
+		return Flag.fail(phrase);
+	}
+
 	public end(playerScore: number) {
 		for (let i = 0; i < 100; i++) {
-			const botScore = this.players[1].hand.reduce(
-				(a, b) => a + (b['w'] || 0),
-				0,
-			);
+			const botScore = this.getScore(this.players[1]);
+
 			if (botScore > 21) {
 				return 'won';
 			} else if (botScore >= 17 && playerScore < botScore) {
@@ -159,44 +181,29 @@ export default class BlackJackCommand extends Command {
 		this.createDeck();
 		this.shuffle(this.deck);
 		this.createPlayers(2, msg.author);
-
 		this.dealHands();
-
 		this.updateEmbed();
 
-		if (
-			this.players[1].hand.reduce((a, b) => a + (b['w'] || 0), 0) === 21
-		) {
+		if (this.players[1].hand.length === 2 && this.getScore(this.players[1]) === 21) {
 			return { option: 'houseblackjack' };
 		}
 
-		if (
-			this.players[0].hand.reduce((a, b) => a + (b['w'] || 0), 0) === 21
-		) {
+		if (this.players[0].hand.length === 2 && this.getScore(this.players[0]) === 21) {
 			return { option: 'blackjack' };
 		}
 
 		const option = yield {
 			type: Argument.compose(
 				[
-					['hit', 'h'],
-					['stand', 's'],
+					['hit', 'h', 'draw', 'd'],
+					['stand', 's', 'stay', 'leave', 'l', 'stop'],
 				],
 				(_, phrase: string) => {
 					if (phrase === 'hit') this.hit();
+
 					this.updateEmbed();
 
-					const playerScore = this.players[0].hand.reduce(
-						(a, b) => a + (b['w'] || 0),
-						0,
-					);
-					if (playerScore > 21) return 'lost';
-
-					if (playerScore === 21 || phrase === 'stand') {
-						return this.end(playerScore);
-					}
-
-					Flag.fail(phrase);
+					return this.check(phrase);
 				},
 			),
 			prompt: {
@@ -216,7 +223,6 @@ export default class BlackJackCommand extends Command {
 	}
 
 	public exec(message: Message, { option }: { option: string }) {
-		console.log(option);
 		const p = this.players[0];
 		const bot = this.players[1];
 
@@ -227,7 +233,7 @@ export default class BlackJackCommand extends Command {
 				p.name,
 				stripIndents`
 				${p.hand.map((c) => `\`${c.s}${c.v}\``).join(' | ')}
-				Total: ${p.hand.reduce((a, b) => a + (b['w'] || 0), 0)}
+				Total: ${this.getScore(p)}
 				`,
 				true,
 			)
@@ -235,7 +241,7 @@ export default class BlackJackCommand extends Command {
 				bot.name,
 				stripIndents`
 				${bot.hand.map((c) => `\`${c.s}${c.v}\``).join(' | ')}
-				Total: ${bot.hand.reduce((a, b) => a + (b['w'] || 0), 0)}
+				Total: ${this.getScore(bot)}
 				`,
 				true,
 			);

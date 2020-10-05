@@ -1,15 +1,27 @@
 import { stripIndents } from 'common-tags';
-import { User, TextChannel, GuildEmoji, Message } from 'discord.js';
+import { User, MessageEmbed, TextChannel, GuildEmoji, Message } from 'discord.js';
 import { Messages } from '../constants';
 import moment = require('moment');
 
 const MESSAGES: Messages = {
 	COMMAND_HANDLER: {
 		PROMPT: {
-			MODIFY_START: (str: string) =>
-				`${str}\n\nType \`cancel\` to cancel the command.`,
-			MODIFY_RETRY: (str: string) =>
-				`${str}\n\nType \`cancel\` to cancel the command.`,
+			MODIFY_START: (str: string | { content: string; embed: MessageEmbed }) => {
+				if (typeof str === 'string') return `${str}\n\nType \`cancel\` to cancel the command.`;
+				if (typeof str === 'object')
+					return (str = {
+						...str,
+						content: `${str.content ? str.content : ''}\n\nType \`cancel\` to cancel the command.`,
+					});
+			},
+			MODIFY_RETRY: (str: string | { content: string; embed: MessageEmbed }) => {
+				if (typeof str === 'string') return `${str}\n\nType \`cancel\` to cancel the command.`;
+				if (typeof str === 'object')
+					return (str = {
+						...str,
+						content: `${str.content ? str.content : ''}\n\nType \`cancel\` to cancel the command.`,
+					});
+			},
 			CANCEL_WORD: 'cancel',
 			STOP_WORD: 'stop',
 			TIMEOUT: 'Guess you took too long, the command has been cancelled.',
@@ -24,9 +36,7 @@ const MESSAGES: Messages = {
 			MISSING_PERMISSIONS: {
 				CLIENT: stripIndents`Humpf. I can't help you if you don't let me.
                 I need **$(perm)** to run **$(prefix)$(cmd)**`,
-				USER: (
-					author: User,
-				) => stripIndents`I won't let you do that, ${author}.
+				USER: (author: User) => stripIndents`I won't let you do that, ${author}.
                 You need **$(perm)** to use **$(prefix)$(cmd)**`,
 			},
 		},
@@ -84,9 +94,7 @@ const MESSAGES: Messages = {
 					CONTENT: 'Toggles a value in the config.',
 					USAGE: '<method> <...arguments>',
 				},
-				REPLY: (
-					prefix: string | string[] | Promise<string | string[]>,
-				) => stripIndents`
+				REPLY: (prefix: string | string[] | Promise<string | string[]>) => stripIndents`
                 When you beg me so much I just can't not help you~
                 Check \`${prefix}help config\` for more information.
             `,
@@ -104,9 +112,7 @@ const MESSAGES: Messages = {
 					CONTENT: 'Deletes the restriction roles of the guild.',
 					USAGE: '<method> <...arguments>',
 				},
-				REPLY: (
-					prefix: string | string[] | Promise<string | string[]>,
-				) => stripIndents`
+				REPLY: (prefix: string | string[] | Promise<string | string[]>) => stripIndents`
                 When you beg me so much I just can't not help you~
                 Check \`${prefix}help config\` for more information.
             `,
@@ -114,14 +120,9 @@ const MESSAGES: Messages = {
 					DESCRIPTION: {
 						CONTENT: 'Sets member log on the server.',
 						USAGE: '<channel>',
-						EXAMPLES: [
-							'#memberlog',
-							'member-log',
-							'731705121464909824',
-						],
+						EXAMPLES: ['#memberlog', 'member-log', '731705121464909824'],
 					},
-					REPLY: (channel: string) =>
-						`set member log channel to **${channel}**`,
+					REPLY: (channel: string) => `set member log channel to **${channel}**`,
 				},
 				AUTO_ROLE: {
 					DESCRIPTION: {
@@ -129,8 +130,7 @@ const MESSAGES: Messages = {
 						USAGE: '<role>',
 						EXAMPLES: ['@role', '706400473669697546'],
 					},
-					REPLY: (channel: string) =>
-						`new members will get the **${channel}** role`,
+					REPLY: (channel: string) => `new members will get the **${channel}** role`,
 				},
 			},
 
@@ -139,9 +139,7 @@ const MESSAGES: Messages = {
 					CONTENT: 'Deletes a value to the config.',
 					USAGE: '<method> <...arguments>',
 				},
-				REPLY: (
-					prefix: string | string[] | Promise<string | string[]>,
-				) => stripIndents`
+				REPLY: (prefix: string | string[] | Promise<string | string[]>) => stripIndents`
                 When you beg me so much I just can't not help you~
                 Check \`${prefix}help config\` for more information.
             `,
@@ -175,8 +173,7 @@ const MESSAGES: Messages = {
 
 		REACTIONROLE: {
 			CREATE: {
-				DESCRIPTION:
-					'Create a **roles by reactions** message on the channel.',
+				DESCRIPTION: 'Create a **roles by reactions** message on the channel.',
 				PROMPT: {
 					START_TITLE: (author: User | null) => stripIndents`
 					${author}, what would you like the title of the embed to be?
@@ -195,30 +192,24 @@ const MESSAGES: Messages = {
 		OWNER: {
 			RELOAD: {
 				PROMPT: {
-					START: (author: User | null) =>
-						`${author}, what module would you like to reload?`,
-					RETRY: (author: User | null) =>
-						`${author}, please provide a valid module!`,
+					START: (author: User | null) => `${author}, what module would you like to reload?`,
+					RETRY: (author: User | null) => `${author}, please provide a valid module!`,
 				},
 			},
 
 			BLACKLIST: {
 				DESCRIPTION: 'Prohibit/Allow a user from using Cyborg.',
 				PROMPT: {
-					START: (author: User | null) =>
-						`${author}, who would you like to blacklist/unblacklist?`,
+					START: (author: User | null) => `${author}, who would you like to blacklist/unblacklist?`,
 				},
-				REPLY: (user: string) =>
-					`${user}, have you realized Cyborg's greatness? You've got good eyes~`,
-				REPLY_2: (user: string) =>
-					`${user}, you are not worthy of Cyborg's luck~`,
+				REPLY: (user: string) => `${user}, have you realized Cyborg's greatness? You've got good eyes~`,
+				REPLY_2: (user: string) => `${user}, you are not worthy of Cyborg's luck~`,
 			},
 
 			EVAL: {
 				DESCRIPTION: "You can't use this anyway, so why explain.",
 				PROMPT: {
-					START: (author: User | null) =>
-						`${author}, what would you like to evaluate?`,
+					START: (author: User | null) => `${author}, what would you like to evaluate?`,
 				},
 			},
 		},
@@ -231,17 +222,14 @@ const MESSAGES: Messages = {
 					EXAMPLES: ['#general', 'general', '222197033908436994'],
 				},
 				EMBED: {
-					DESCRIPTION: (channel: TextChannel) =>
-						`Info about **${channel.name}** (ID: ${channel.id})`,
+					DESCRIPTION: (channel: TextChannel) => `Info about **${channel.name}** (ID: ${channel.id})`,
 					FIELD_INFO: {
 						NAME: 'Info',
 						VALUE: (channel: TextChannel) => stripIndents`
                         • Type: ${channel.type}
                         • Topic ${channel.topic || 'None'}
                         • NSFW: ${Boolean(channel.nsfw)}
-                        • Creation Date: ${moment
-							.utc(channel.createdAt)
-							.format('YYYY/MM/DD hh:mm:ss')}
+                        • Creation Date: ${moment.utc(channel.createdAt).format('YYYY/MM/DD hh:mm:ss')}
                     `,
 					},
 				},
@@ -252,15 +240,12 @@ const MESSAGES: Messages = {
 					CONTENT: 'Get information about an emoji.',
 				},
 				PROMPT: {
-					START: (author: User | null) =>
-						`${author}, what emoji would you like information about?`,
-					RETRY: (author: User | null) =>
-						`${author}, please provide a valid emoji!`,
+					START: (author: User | null) => `${author}, what emoji would you like information about?`,
+					RETRY: (author: User | null) => `${author}, please provide a valid emoji!`,
 				},
 				EMBED: {
 					DESCRIPTION: {
-						GUILDEMOJI: (emoji: GuildEmoji) =>
-							`Info about ${emoji.name} (ID: ${emoji.id})`,
+						GUILDEMOJI: (emoji: GuildEmoji) => `Info about ${emoji.name} (ID: ${emoji.id})`,
 						EMOJI: (emoji: any) => `Info about ${emoji.emoji}`,
 					},
 					FIELD_INFO: {
@@ -268,9 +253,7 @@ const MESSAGES: Messages = {
 						VALUE: {
 							GUILDEMOJI: (emoji: GuildEmoji) => stripIndents`
                             • Identifier: \`<${emoji.identifier}>\`
-                            • Creation Date: ${moment
-								.utc(emoji.createdAt ?? 0)
-								.format('YYYY/MM/DD hh:mm:ss')}
+                            • Creation Date: ${moment.utc(emoji.createdAt ?? 0).format('YYYY/MM/DD hh:mm:ss')}
                             • URL: ${emoji.url}
                             `,
 							EMOJI: (emoji: any) => stripIndents`
@@ -315,59 +298,41 @@ const MESSAGES: Messages = {
 			`,
 
 			ADD: {
-				DESCRIPTION:
-					'Adds a tag, usable for everyone on the server (Markdown can be used).',
+				DESCRIPTION: 'Adds a tag, usable for everyone on the server (Markdown can be used).',
 				PROMPT: {
-					START: (author: User | null) =>
-						`${author}, what should the tag be named?`,
-					RETRY: (author: User | null, val: string) =>
-						`${author}, a tag with the name **${val}** already exists.`,
+					START: (author: User | null) => `${author}, what should the tag be named?`,
+					RETRY: (author: User | null, val: string) => `${author}, a tag with the name **${val}** already exists.`,
 				},
 				PROMPT_2: {
-					START: (author: User | null) =>
-						`${author}, what should the content of the tag be?`,
+					START: (author: User | null) => `${author}, what should the content of the tag be?`,
 				},
-				TOO_LONG:
-					'you must still have water behind your ears to not realize that messages have a limit of 2000 characters!',
-				REPLY: (name: string) =>
-					`leave it to me! A tag with the name **${name}** has been added.`,
+				TOO_LONG: 'you must still have water behind your ears to not realize that messages have a limit of 2000 characters!',
+				REPLY: (name: string) => `leave it to me! A tag with the name **${name}** has been added.`,
 			},
 
 			ALIAS: {
 				DESCRIPTION: 'Alias a tag.',
 				PROMPT: {
-					START: (author: User | null) =>
-						`${author}, what tag do you want to alias?`,
-					RETRY: (author: User | null, val: string) =>
-						`${author}, a tag with the name **${val}** does not exists.`,
+					START: (author: User | null) => `${author}, what tag do you want to alias?`,
+					RETRY: (author: User | null, val: string) => `${author}, a tag with the name **${val}** does not exists.`,
 				},
 				PROMPT_2: {
-					START: (author: User | null) =>
-						`${author}, what alias do you want to apply to this tag?`,
-					RETRY: (author: User | null, val: string) =>
-						`${author}, a tag with the name **${val}** already exists.`,
+					START: (author: User | null) => `${author}, what alias do you want to apply to this tag?`,
+					RETRY: (author: User | null, val: string) => `${author}, a tag with the name **${val}** already exists.`,
 				},
 				PROMPT_3: {
-					START: (author: User | null) =>
-						`${author}, what alias do you want to remove to this tag?`,
-					RETRY: (author: User | null, val: string) =>
-						`${author}, a tag with the name **${val}** already exists.`,
+					START: (author: User | null) => `${author}, what alias do you want to remove to this tag?`,
+					RETRY: (author: User | null, val: string) => `${author}, a tag with the name **${val}** already exists.`,
 				},
-				TOO_LONG:
-					'you must still have water behind your ears to not realize that messages have a limit of 2000 characters!',
-				REPLY: (first: string, second: string, add: boolean) =>
-					`alias ${second.substring(0, 1900)} ${
-						add ? 'added to' : 'deleted from'
-					} tag ${first}.`,
+				TOO_LONG: 'you must still have water behind your ears to not realize that messages have a limit of 2000 characters!',
+				REPLY: (first: string, second: string, add: boolean) => `alias ${second.substring(0, 1900)} ${add ? 'added to' : 'deleted from'} tag ${first}.`,
 			},
 
 			DELETE: {
 				DESCRIPTION: 'Deletes a tag.',
 				PROMPT: {
-					START: (author: User | null) =>
-						`${author}, what tag do you want to delete?`,
-					RETRY: (author: User | null, val: string) =>
-						`${author}, a tag with the name **${val}** does not exists.`,
+					START: (author: User | null) => `${author}, what tag do you want to delete?`,
+					RETRY: (author: User | null, val: string) => `${author}, a tag with the name **${val}** does not exists.`,
 				},
 				OWN_TAG: 'you can only delete your own tags.',
 				REPLY: (tag: string) => `successfully deleted **${tag}**.`,
@@ -381,19 +346,14 @@ const MESSAGES: Messages = {
 			EDIT: {
 				DESCRIPTION: 'Edit a tag (Markdown can be used).',
 				PROMPT: {
-					START: (author: User | null) =>
-						`${author}, what tag do you want to edit?`,
-					RETRY: (author: User | null, val: string) =>
-						`${author}, a tag with the name **${val}** does not exists.`,
+					START: (author: User | null) => `${author}, what tag do you want to edit?`,
+					RETRY: (author: User | null, val: string) => `${author}, a tag with the name **${val}** does not exists.`,
 				},
 				PROMPT_2: {
-					START: (author: User | null) =>
-						`${author}, what should the new content be?`,
+					START: (author: User | null) => `${author}, what should the new content be?`,
 				},
-				OWN_TAG:
-					'losers are only allowed to edit their own tags! Hah hah hah!',
-				TOO_LONG:
-					'you must still have water behind your ears to not realize that messages have a limit of 2000 characters!',
+				OWN_TAG: 'losers are only allowed to edit their own tags! Hah hah hah!',
+				TOO_LONG: 'you must still have water behind your ears to not realize that messages have a limit of 2000 characters!',
 				REPLY: (tag: string, hoist: boolean, template: boolean) => {
 					if (hoist && template) {
 						return `successfully edited **${tag}** to be hoisted and templated.`;
@@ -414,59 +374,45 @@ const MESSAGES: Messages = {
 			INFO: {
 				DESCRIPTION: 'Displays information about a tag.',
 				PROMPT: {
-					START: (author: User | null) =>
-						`${author}, what tag do you want information on?`,
-					RETRY: (author: User | null, val: string) =>
-						`${author}, a tag with the name **${val}** does not exists.`,
+					START: (author: User | null) => `${author}, what tag do you want information on?`,
+					RETRY: (author: User | null, val: string) => `${author}, a tag with the name **${val}** does not exists.`,
 				},
 			},
 
 			LIST: {
 				DESCRIPTION: 'Lists all server tags.',
-				NO_TAGS: (member?: string) =>
-					member
-						? `**${member}** doesn't have any tags.`
-						: "you don't have any tags.",
-				GUILD_NO_TAGS: (guild: string) =>
-					`**${guild}** doesn't have any tags. Why not add some?`,
+				NO_TAGS: (member?: string) => (member ? `**${member}** doesn't have any tags.` : "you don't have any tags."),
+				GUILD_NO_TAGS: (guild: string) => `**${guild}** doesn't have any tags. Why not add some?`,
 			},
 
 			SEARCH: {
 				DESCRIPTION: 'Searches a tag.',
 				PROMPT: {
-					START: (author: User | null) =>
-						`${author}, what do you want to search for?`,
+					START: (author: User | null) => `${author}, what do you want to search for?`,
 				},
-				NO_RESULT: (query: string) =>
-					`No results found with query ${query}.`,
-				TOO_BIG:
-					'the output is way too big to display, make your search more specific and try again!',
+				NO_RESULT: (query: string) => `No results found with query ${query}.`,
+				TOO_BIG: 'the output is way too big to display, make your search more specific and try again!',
 			},
 
 			SHOW: {
 				DESCRIPTION: 'Displays a tag.',
 				PROMPT: {
-					START: (author: User | null) =>
-						`${author}, what tag do you want to see?`,
+					START: (author: User | null) => `${author}, what tag do you want to see?`,
 				},
 			},
 
 			SOURCE: {
-				DESCRIPTION:
-					'Displays a tags source (Highlighted with Markdown).',
+				DESCRIPTION: 'Displays a tags source (Highlighted with Markdown).',
 				PROMPT: {
-					START: (author: User | null) =>
-						`${author}, what tag do you want to see the source of?`,
-					RETRY: (author: User | null, val: string) =>
-						`${author}, a tag with the name **${val}** does not exists.`,
+					START: (author: User | null) => `${author}, what tag do you want to see the source of?`,
+					RETRY: (author: User | null, val: string) => `${author}, a tag with the name **${val}** does not exists.`,
 				},
 			},
 		},
 
 		TWITCH: {
 			ONLINE_MESSAGE: '@everyone $(streamer) is live!',
-			OFFLINE_MESSAGE:
-				'This stream has ended, stay tuned for the next ones!',
+			OFFLINE_MESSAGE: 'This stream has ended, stay tuned for the next ones!',
 			DELETED_MESSAGE: stripIndents`Looks like the last notification for \`$(streamer)\` was deleted, I'll send it again in a minute If the stream is still online.
             If you want me to stop notifying this streamer you should use \`$(prefix)twitch rmv $(streamer)\``,
 			ONLINE_EMBED: {
@@ -493,44 +439,27 @@ const MESSAGES: Messages = {
 				DESCRIPTION: {
 					CONTENT: 'Transcribe text to Futhark Runes',
 					USAGE: '<text to transcribe>',
-					EXAMPLES: [
-						'Cosmzs',
-						'Nice and beautiful text',
-						'space:single Nice and beautiful text',
-						'dot:cross Nice and beautiful text',
-						'dot:double space:cross Nice and beautiful text',
-					],
+					EXAMPLES: ['Cosmzs', 'Nice and beautiful text', 'space:single Nice and beautiful text', 'dot:cross Nice and beautiful text', 'dot:double space:cross Nice and beautiful text'],
 				},
 				PROMPT: {
-					START: (author: User) =>
-						`${author}, what do you want to transcribe?`,
-					RETRY: (author: User) =>
-						`${author}, what do you want to transcribe?`,
+					START: (author: User) => `${author}, what do you want to transcribe?`,
+					RETRY: (author: User) => `${author}, what do you want to transcribe?`,
 				},
 			},
 			INFO: {},
 
 			HELP: {
 				DESCRIPTION: {
-					CONTENT: (
-						prefix: string | string[] | Promise<string | string[]>,
-					) => stripIndents`Displays a list of available commands, or detailed information for a specified command.
+					CONTENT: (prefix: string | string[] | Promise<string | string[]>) => stripIndents`Displays a list of available commands, or detailed information for a specified command.
 					Use \`${prefix}help --perm\` to hide commands you don't have permission to use.
 					Use \`${prefix}help --dm\` to hide commands you cant use on DM's.
                     `,
 					USAGE: '[command]',
 				},
-				REPLY: (
-					prefix: string | string[] | Promise<string | string[]>,
-					msg: Message,
-				) => stripIndents`**A list of available commands.**
+				REPLY: (prefix: string | string[] | Promise<string | string[]>, msg: Message) => stripIndents`**A list of available commands.**
                     For additional info on a command, type \`${prefix}help <command>\`
                     Use \`${prefix}help --perm\` to hide commands you don't have permission to use.
-                    ${
-						!msg.guild
-							? `Use \`${prefix}help --dm\` to hide commands you cant use on DM's.`
-							: ''
-					}
+                    ${!msg.guild ? `Use \`${prefix}help --dm\` to hide commands you cant use on DM's.` : ''}
                 `,
 				EMBED: {
 					FIELD_COMMANDS: 'Commands',
@@ -541,22 +470,17 @@ const MESSAGES: Messages = {
 			},
 
 			LANGUAGE: {
-				DESCRIPTION:
-					'Displays or changes the language that the bot uses on this guild.',
-				REPLY: (language: string) =>
-					`The current language for this guild is: \`${language}\``,
-				REPLY_2: (language: string) =>
-					`the language has been reset to \`${language}\``,
-				REPLY_3: (language: string) =>
-					`the language has been set to \`${language}\``,
+				DESCRIPTION: 'Displays or changes the language that the bot uses on this guild.',
+				REPLY: (language: string) => `The current language for this guild is: \`${language}\``,
+				REPLY_2: (language: string) => `the language has been reset to \`${language}\``,
+				REPLY_3: (language: string) => `the language has been set to \`${language}\``,
 			},
 
 			PING: {
 				DESCRIPTION: "Checks the bot's ping to the Discord servers.",
 				RESPONSES: [
 					{
-						response:
-							'You had 0.01% chance of getting this answer.',
+						response: 'You had 0.01% chance of getting this answer.',
 						chance: 0.0001,
 					},
 					{ response: 'No.', chance: 0.1 },
@@ -570,13 +494,9 @@ const MESSAGES: Messages = {
 
 			PREFIX: {
 				DESCRIPTION: 'Displays or changes the prefix of the guild.',
-				REPLY: (
-					prefix: string | string[] | Promise<string | string[]>,
-				) => `The current prefix for this guild is: \`${prefix}\``,
-				REPLY_2: (prefix: string) =>
-					`the prefix has been reset to \`${prefix}\``,
-				REPLY_3: (prefix: string) =>
-					`the prefix has been set to \`${prefix}\``,
+				REPLY: (prefix: string | string[] | Promise<string | string[]>) => `The current prefix for this guild is: \`${prefix}\``,
+				REPLY_2: (prefix: string) => `the prefix has been reset to \`${prefix}\``,
+				REPLY_3: (prefix: string) => `the prefix has been set to \`${prefix}\``,
 			},
 
 			REMINDME: {
@@ -606,19 +526,16 @@ const MESSAGES: Messages = {
 				Clears all reminders you have set.
 				`,
 				ADD: {
-					TOO_LONG:
-						'you must still have water behind your ears to not realize that messages have a limit of 2000 characters!',
+					TOO_LONG: 'you must still have water behind your ears to not realize that messages have a limit of 2000 characters!',
 					PROMPT_TIME: {
-						START: (author: User | null) =>
-							`${author}, when do you want me to remind you?`,
+						START: (author: User | null) => `${author}, when do you want me to remind you?`,
 						RETRY: (author: User | null) => stripIndents`
 						${author}, when do you want me do remind you?
 						
 						Check \`$(prefix)help remindme\` for more information on valid time formats.`,
 					},
 					PROMPT_TEXT: {
-						START: (author: User | null) =>
-							`${author}, what should I remind you of?`,
+						START: (author: User | null) => `${author}, what should I remind you of?`,
 					},
 				},
 				LIST: {
@@ -638,8 +555,7 @@ const MESSAGES: Messages = {
 				},
 				DEL: {
 					PROMPT: {
-						START: (author: User | null) =>
-							`${author}, whats the ID of the reminder you want to delete?`,
+						START: (author: User | null) => `${author}, whats the ID of the reminder you want to delete?`,
 						RETRY: (author: User | null) => stripIndents`
 						${author}, whats the ID of the reminder you want to delete?
 						
