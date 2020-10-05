@@ -33,7 +33,7 @@
     "moment": "^2.24.0",
     "moment-duration-format": "^2.3.2",
     "node-emoji": "^1.10.0",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "punycode": "^2.1.1",
     "reflect-metadata": "^0.1.13",
     "tslib": "^1.11.1",
