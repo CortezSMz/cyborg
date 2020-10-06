@@ -1,12 +1,26 @@
 import { stripIndents } from 'common-tags';
 import { Argument, Flag, Command } from 'discord-akairo';
-import { User, MessageEmbed, Message } from 'discord.js';
+import { User, MessageEmbed, Message, Snowflake, Collection } from 'discord.js';
 import { COLORS } from '../../util/constants';
 
-export interface CARD {
+export interface Card {
 	v: string;
 	s: string;
 	w: number;
+}
+
+export interface Player {
+	name: string;
+	ID: string;
+	total: number;
+	hand: Array<Card>;
+}
+
+export interface GameInstance {
+	players: Array<Player>;
+	deck: Array<Card>;
+	embed: MessageEmbed;
+	ended: boolean;
 }
 
 export default class BlackJackCommand extends Command {
@@ -14,24 +28,23 @@ export default class BlackJackCommand extends Command {
 		super('blackjack', {
 			aliases: ['blackjack'],
 			description: {
-				content: () => 'J, Q and K = 10 | A = 11 or 1',
-				usage: () => 'Type `h` to `hit` or type `s` to `stand`.',
+				content: () => 'Type `h` to `hit` or type `s` to `stand`.\n\nJ, Q and K = 10 | A = 11 or 1',
+				usage: () => '',
+				examples: () => [],
 			},
 			category: 'fun',
 			ratelimit: 2,
 		});
 	}
 
+	public instances: Collection<Snowflake, GameInstance> = new Collection();
+
 	private readonly values: string[] = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
 
 	private readonly suits: string[] = ['♠️', '♦️', '♣️', '♥️'];
 
-	public gameEmbed: MessageEmbed = new MessageEmbed();
-
-	public deck: Array<CARD> = [];
-
-	public createDeck() {
-		this.deck = [];
+	private createDeck() {
+		let deck: Array<Card> = [];
 		for (let i = 0; i < this.values.length; i++) {
 			for (let x = 0; x < this.suits.length; x++) {
 				let weight: number = 0;
@@ -49,17 +62,19 @@ export default class BlackJackCommand extends Command {
 						weight = parseInt(this.values[i]);
 						break;
 				}
-				const card: CARD = {
+				const card: Card = {
 					v: this.values[i],
 					s: this.suits[x],
 					w: weight,
 				};
-				this.deck.push(card);
+				deck.push(card);
 			}
 		}
+		this.shuffle(deck);
+		return deck;
 	}
 
-	public shuffle = (deck: Array<CARD>) => {
+	private shuffle = (deck: Array<Card>) => {
 		for (let i = 0; i < 1000; i++) {
 			const location1 = Math.floor(Math.random() * deck.length);
 			const location2 = Math.floor(Math.random() * deck.length);
@@ -70,69 +85,58 @@ export default class BlackJackCommand extends Command {
 		}
 	};
 
-	private players: Array<{
-		name: string;
-		ID: number;
-		Total: number;
-		hand: Array<CARD>;
-	}> = [];
-
-	public createPlayers(qtd: Number, author: User) {
-		this.players = [];
-		for (let i = 1; i <= qtd; i++) {
-			const hand: Array<CARD> = [];
-			const player = {
-				name: i === 1 ? author.username : 'Cyborg',
-				ID: i,
-				Total: 0,
-				hand,
-			};
-			this.players.push(player);
-		}
+	public createPlayer(author: User) {
+		const hand: Array<Card> = [];
+		const player: Player = {
+			name: author.username,
+			ID: author.id,
+			total: 0,
+			hand,
+		};
+		return player;
 	}
 
-	public dealHands() {
-		for (let i = 0; i < 2; i++) {
-			for (let x = 0; x < this.players.length; x++) {
-				const card = this.deck.pop();
-				this.players[x].hand.push(card!);
+	public dealHands(user: User) {
+		const instance = this.instances.get(user.id)!;
+		for (const player of instance.players.values()) {
+			for (let i = 0; i < 2; i++) {
+				const card = instance.deck.pop();
+				player.hand.push(card!);
 			}
 		}
 	}
 
-	public hit() {
-		const card = this.deck.pop();
-		this.players[0].hand.push(card!);
+	public hit(user: User) {
+		const instance = this.instances.get(user.id)!;
+		const card = instance.deck.pop();
+		instance.players.find((p: Player) => p.ID === user.id)!.hand.push(card!);
 	}
 
-	public updateEmbed() {
-		const p = this.players[0];
-		const bot = this.players[1];
+	public updateEmbed(user: User) {
+		const instance = this.instances.get(user.id)!;
 
-		this.gameEmbed
-			.setColor(COLORS.EMBED)
-			.spliceFields(0, 2, [])
-			.addField(
-				p.name,
+		instance.embed.setColor(COLORS.EMBED).spliceFields(0, 2, []);
+
+		for (const player of instance.players.values()) {
+			instance.embed.addField(
+				player.name,
 				stripIndents`
-				${p.hand.map((c) => `\`${c.s}${c.v}\``).join(' | ')}
-				Total: ${this.getScore(p)}
-				`,
-				true,
-			)
-			.addField(
-				bot.name,
-				stripIndents`
-				\`${bot.hand[0].s}${bot.hand[0].v}\` \`?\`
-				Total: ?
-				`,
+					${player.hand
+						.map((c, i) => {
+							if (!instance.ended && player.ID === this.client.user!.id && i !== 0) return `\`?\``;
+							else return `\`${c.s}${c.v}\``;
+						})
+						.join(' | ')}
+					Total: ${player.ID !== this.client.user!.id ? this.getScore(player) : instance.ended ? this.getScore(player) : '`?`'}
+					`,
 				true,
 			);
+		}
 	}
 
-	public getScore(player: { name: string; ID: number; Total: number; hand: Array<CARD> }) {
+	public getScore(player: Player) {
 		let playerScore: number = player.hand.reduce((a, b) => a + (b['w'] || 0), 0);
-		const aces = player.hand.filter((c: CARD) => c.v === 'A');
+		const aces = player.hand.filter((c: Card) => c.v === 'A');
 
 		if (!!aces.length) {
 			for (const _ of aces.values()) {
@@ -144,130 +148,111 @@ export default class BlackJackCommand extends Command {
 		return playerScore;
 	}
 
-	public check(phrase?: string) {
-		let playerScore: number = this.getScore(this.players[0]);
+	public check(user: User, phrase?: string) {
+		const instance = this.instances.get(user.id)!;
+		let playerScore: number = this.getScore(instance.players.find((p: Player) => p.ID === user.id)!);
 
-		if (playerScore > 21) {
-			return 'lost';
-		}
-
-		if (playerScore === 21 || phrase === 'stand') {
-			return this.end(playerScore);
+		if (playerScore >= 21 || phrase === 'stand') {
+			return this.end(user, playerScore);
 		}
 
 		return Flag.fail(phrase);
 	}
 
-	public end(playerScore: number) {
-		for (let i = 0; i < 100; i++) {
-			const botScore = this.getScore(this.players[1]);
+	public end(user: User, playerScore: number, bljk?: { h: boolean; p: boolean }) {
+		const instance = this.instances.get(user.id)!;
+		this.instances.set(user.id, {
+			...instance,
+			ended: true,
+		});
+
+		if (bljk?.h || bljk?.p) return { house: bljk?.h, player: bljk?.p, blackjack: true };
+
+		if (playerScore > 21) {
+			return { player: false, house: true, blackjack: false };
+		}
+
+		for (let i = 0; i < instance.deck.length; i++) {
+			const botScore = this.getScore(instance.players[1]);
 
 			if (botScore > 21) {
-				return 'won';
+				return { player: true, house: false, blackjack: false };
 			} else if (botScore >= 17 && playerScore < botScore) {
-				return 'lost';
+				return { player: false, house: true, blackjack: false };
 			} else if (botScore >= 17 && playerScore > botScore) {
-				return 'won';
+				return { player: true, house: false, blackjack: false };
 			} else if (botScore < 17) {
-				const card = this.deck.pop();
-				this.players[1].hand.push(card!);
+				const card = instance.deck.pop();
+				instance.players[1].hand.push(card!);
 			}
 		}
 
-		return 'lost';
+		return { player: false, house: true, blackjack: false };
 	}
 
 	public *args(msg: Message) {
-		this.createDeck();
-		this.shuffle(this.deck);
-		this.createPlayers(2, msg.author);
-		this.dealHands();
-		this.updateEmbed();
+		this.instances.set(msg.author.id, {
+			deck: this.createDeck(),
+			embed: new MessageEmbed(),
+			players: [this.createPlayer(msg.author), this.createPlayer(this.client.user!)],
+			ended: false,
+		});
 
-		if (this.players[1].hand.length === 2 && this.getScore(this.players[1]) === 21) {
-			return { option: 'houseblackjack' };
+		this.dealHands(msg.author);
+		this.updateEmbed(msg.author);
+
+		if (this.instances.get(msg.author.id)!.players[1].hand.length === 2 && this.getScore(this.instances.get(msg.author.id)!.players[1]) === 21) {
+			return this.end(msg.author, 0, { p: false, h: true });
 		}
 
-		if (this.players[0].hand.length === 2 && this.getScore(this.players[0]) === 21) {
-			return { option: 'blackjack' };
+		if (this.instances.get(msg.author.id)!.players[0].hand.length === 2 && this.getScore(this.instances.get(msg.author.id)!.players[0]) === 21) {
+			return this.end(msg.author, 0, { p: true, h: false });
 		}
 
-		const option = yield {
+		const result = yield {
 			type: Argument.compose(
 				[
 					['hit', 'h', 'draw', 'd'],
 					['stand', 's', 'stay', 'leave', 'l', 'stop'],
 				],
-				(_, phrase: string) => {
-					if (phrase === 'hit') this.hit();
+				(msg: Message, phrase: string) => {
+					if (phrase === 'hit') this.hit(msg.author);
 
-					this.updateEmbed();
+					this.updateEmbed(msg.author);
 
-					return this.check(phrase);
+					return this.check(msg.author, phrase);
 				},
 			),
 			prompt: {
 				retries: Infinity,
 				start: {
-					content: 'Type `h` to `hit` or type `s` to `stand`.',
-					embed: this.gameEmbed,
+					content: 'Type `h` to `hit` or `s` to `stand`.',
+					embed: this.instances.get(msg.author.id)!.embed,
 				},
 				retry: {
-					content: 'Type `h` to `hit` or type `s` to `stand`.',
-					embed: this.gameEmbed,
+					content: 'Type `h` to `hit` or `s` to `stand`.',
+					embed: this.instances.get(msg.author.id)!.embed,
 				},
 			},
 		};
 
-		return { option };
+		return result;
 	}
 
-	public exec(message: Message, { option }: { option: string }) {
-		const p = this.players[0];
-		const bot = this.players[1];
+	public exec(message: Message, { player, house, blackjack }: { player: boolean; house: boolean; blackjack: boolean }) {
+		const instance = this.instances.get(message.author.id)!;
+		this.updateEmbed(message.author);
 
-		this.gameEmbed
-			.setColor(COLORS.EMBED)
-			.spliceFields(0, 2, [])
-			.addField(
-				p.name,
-				stripIndents`
-				${p.hand.map((c) => `\`${c.s}${c.v}\``).join(' | ')}
-				Total: ${this.getScore(p)}
-				`,
-				true,
-			)
-			.addField(
-				bot.name,
-				stripIndents`
-				${bot.hand.map((c) => `\`${c.s}${c.v}\``).join(' | ')}
-				Total: ${this.getScore(bot)}
-				`,
-				true,
-			);
+		let string: string = '';
 
-		if (option === 'lost') {
-			message.channel.send('You lost the game.', {
-				embed: this.gameEmbed.setColor('#e6101b'),
-			});
-		}
+		if (blackjack) string = 'Blackjack! ';
+		if (player) string += 'You won the game!';
+		if (house) string += 'You lost the game.';
 
-		if (option === 'houseblackjack') {
-			message.channel.send('Blackjack! You lost the game.', {
-				embed: this.gameEmbed.setColor('#e6101b'),
-			});
-		}
+		message.channel.send(string, {
+			embed: instance.embed.setColor(player ? '#10e614' : '#e6101b'),
+		});
 
-		if (option === 'won') {
-			message.channel.send('You won the game.', {
-				embed: this.gameEmbed.setColor('#10e614'),
-			});
-		}
-
-		if (option === 'blackjack') {
-			message.channel.send('Blackjack!', {
-				embed: this.gameEmbed.setColor('#10e614'),
-			});
-		}
+		this.instances.delete(message.author.id);
 	}
 }
