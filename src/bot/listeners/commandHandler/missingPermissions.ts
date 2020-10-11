@@ -52,29 +52,19 @@ export default class CommandErrorListener extends Listener {
 	}
 
 	public exec(message: Message, command: Command, type: string, missing: any) {
+		if (typeof missing === 'string') return message.util?.send(missing);
+
 		missing = missing[0] || missing;
+
 		const prefix = this.client.settings.get(message.guild!, SETTINGS.PREFIX, process.env.COMMAND_PREFIX);
 
 		switch (type) {
 			case 'client':
-				this.client.logger.info(
-					`Client is missing ${PERMISSIONS[missing]} for the command ${command.id} on ${message.guild ? `${message.guild.name} (${message.guild.id})` : 'DM'}`,
-					{ topic: TOPICS.DISCORD_AKAIRO, event: EVENTS.COMMAND_ERROR }
-				);
-				return message.util?.send(
-					LOCALE(message.guild!).LISTENERS.COMMAND_HANDLER.MISSING_PERMISSIONS.CLIENT
-						.replace('$(perm)', PERMISSIONS[missing])
-						.replace('$(prefix)', prefix)
-						.replace('$(cmd)', command.id.replace(/-/g, ' '))
-				);
+				this.client.logger.info(`Client is missing ${PERMISSIONS[missing]} for the command ${command.id} on ${message.guild ? `${message.guild.name} (${message.guild.id})` : 'DM'}`, { topic: TOPICS.DISCORD_AKAIRO, event: EVENTS.COMMAND_ERROR });
+				return message.util?.send(LOCALE(message.guild!).LISTENERS.COMMAND_HANDLER.MISSING_PERMISSIONS.CLIENT.replace('$(perm)', PERMISSIONS[missing]).replace('$(prefix)', prefix).replace('$(cmd)', command.id.replace(/-/g, ' ')));
 
 			case 'user':
-				return message.util?.send(
-					LOCALE(message.guild!).LISTENERS.COMMAND_HANDLER.MISSING_PERMISSIONS.USER(message.author)
-						.replace('$(perm)', PERMISSIONS[missing])
-						.replace('$(prefix)', prefix)
-						.replace('$(cmd)', command.id.replace(/-/g, ' '))
-				);
+				return message.util?.send(LOCALE(message.guild!).LISTENERS.COMMAND_HANDLER.MISSING_PERMISSIONS.USER(message.author).replace('$(perm)', PERMISSIONS[missing]).replace('$(prefix)', prefix).replace('$(cmd)', command.id.replace(/-/g, ' ')));
 		}
 	}
 }

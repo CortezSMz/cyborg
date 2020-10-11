@@ -1,5 +1,5 @@
 import { stripIndents } from 'common-tags';
-import { User, TextChannel, GuildEmoji, MessageEmbed, MessageOptions, Message } from 'discord.js';
+import { User, TextChannel, GuildEmoji, MessageEmbed, Util, Message } from 'discord.js';
 import { Messages } from '../constants';
 import moment = require('moment');
 

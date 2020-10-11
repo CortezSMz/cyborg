@@ -2,7 +2,7 @@ import { AkairoClient, CommandHandler, Flag, InhibitorHandler, ListenerHandler }
 import { Message, Util, Collection } from 'discord.js';
 import { join } from 'path';
 import { Logger } from 'winston';
-import TwitchScheduler from '../structures/TwitchScheduler'
+import TwitchScheduler from '../structures/TwitchScheduler';
 import RemindmeScheduler from '../structures/RemindmeScheduler';
 import HasuraProvider from '../structures/SettingsProvider';
 import { LOCALE, PRODUCTION, SETTINGS, CYBORG } from '../util/constants';
