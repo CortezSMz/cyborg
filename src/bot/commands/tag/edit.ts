@@ -1,6 +1,6 @@
 import { Command } from 'discord-akairo';
 import { Message, Util } from 'discord.js';
-import { LOCALE } from '../../util/constants';
+
 import { GRAPHQL, graphQLClient } from '../../util/graphQL';
 import { Tags, TagsSetInput } from '../../util/graphQLTypes';
 import { interpolateString } from '../../util/template';
@@ -10,7 +10,7 @@ export default class TagEditCommand extends Command {
 		super('tag-edit', {
 			category: 'tag',
 			description: {
-				content: (message: Message) => LOCALE(message.guild!).COMMANDS.TAGS.EDIT.DESCRIPTION,
+				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.TAGS.EDIT.DESCRIPTION,
 				usage: () => '<tag> [--hoist/--unhoist/--pin/--unpin/--template/--untemplate] <content>',
 				examples: () => ['Test Some new content', '"Test 1" Some more new content', 'Test --hoist', '"Test 1" --unpin'],
 			},
@@ -24,8 +24,8 @@ export default class TagEditCommand extends Command {
 		const tag = yield {
 			type: 'tag',
 			prompt: {
-				start: (message: Message) => LOCALE(message.guild!).COMMANDS.TAGS.EDIT.PROMPT.START(message.author),
-				retry: (message: Message, { failure }: { failure: { value: string } }) => LOCALE(message.guild!).COMMANDS.TAGS.EDIT.PROMPT.RETRY(message.author, failure.value),
+				start: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.TAGS.EDIT.PROMPT.START(message.author),
+				retry: (message: Message, { failure }: { failure: { value: string } }) => this.client.LOCALE(message.guild!).COMMANDS.TAGS.EDIT.PROMPT.RETRY(message.author, failure.value),
 			},
 		};
 
@@ -51,37 +51,27 @@ export default class TagEditCommand extends Command {
 
 		const content = yield hoist || unhoist || template || untemplate
 			? {
-				match: 'rest',
-				type: 'string',
-			}
+					match: 'rest',
+					type: 'string',
+			  }
 			: {
-				match: 'rest',
-				type: 'string',
-				prompt: {
-					start: (message: Message) => LOCALE(message.guild!).COMMANDS.TAGS.EDIT.PROMPT_2.START(message.author),
-				},
-			};
+					match: 'rest',
+					type: 'string',
+					prompt: {
+						start: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.TAGS.EDIT.PROMPT_2.START(message.author),
+					},
+			  };
 
 		return { tag, hoist, unhoist, template, untemplate, content };
 	}
 
-	public async exec(
-		message: Message,
-		{
-			tag,
-			hoist,
-			unhoist,
-			template,
-			untemplate,
-			content,
-		}: { tag: Tags; hoist: boolean; unhoist: boolean; template: boolean; untemplate: boolean; content: string },
-	) {
+	public async exec(message: Message, { tag, hoist, unhoist, template, untemplate, content }: { tag: Tags; hoist: boolean; unhoist: boolean; template: boolean; untemplate: boolean; content: string }) {
 		const staff = message.member?.permissions.has(['MANAGE_MESSAGES']) ?? false;
 		if (tag.user !== message.author.id && !staff) {
-			return message.util?.reply(LOCALE(message.guild!).COMMANDS.TAGS.EDIT.OWN_TAG);
+			return message.util?.reply(this.client.LOCALE(message.guild!).COMMANDS.TAGS.EDIT.OWN_TAG);
 		}
 		if (content?.length >= 1950) {
-			return message.util?.reply(LOCALE(message.guild!).COMMANDS.TAGS.EDIT.TOO_LONG);
+			return message.util?.reply(this.client.LOCALE(message.guild!).COMMANDS.TAGS.EDIT.TOO_LONG);
 		}
 		if (content && (!staff || !template || untemplate)) {
 			content = Util.cleanContent(content, message);
@@ -91,18 +81,18 @@ export default class TagEditCommand extends Command {
 		const templated = staff && (template || untemplate) ? template : tag.templated;
 		const vars = content
 			? {
-				id: tag.id,
-				hoisted: staff && (hoist || unhoist) ? hoist : tag.hoisted,
-				templated,
-				content,
-				lastModified: message.author.id,
-			}
+					id: tag.id,
+					hoisted: staff && (hoist || unhoist) ? hoist : tag.hoisted,
+					templated,
+					content,
+					lastModified: message.author.id,
+			  }
 			: {
-				id: tag.id,
-				hoisted: staff && (hoist || unhoist) ? hoist : tag.hoisted,
-				templated,
-				lastModified: message.author.id,
-			};
+					id: tag.id,
+					hoisted: staff && (hoist || unhoist) ? hoist : tag.hoisted,
+					templated,
+					lastModified: message.author.id,
+			  };
 
 		if (templated) {
 			try {
@@ -121,12 +111,6 @@ export default class TagEditCommand extends Command {
 			variables: vars,
 		});
 
-		return message.util?.reply(
-			LOCALE(message.guild!).COMMANDS.TAGS.EDIT.REPLY(
-				tag.name,
-				staff && (hoist || unhoist),
-				staff && (template || untemplate),
-			),
-		);
+		return message.util?.reply(this.client.LOCALE(message.guild!).COMMANDS.TAGS.EDIT.REPLY(tag.name, staff && (hoist || unhoist), staff && (template || untemplate)));
 	}
 }

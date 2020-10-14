@@ -1,13 +1,12 @@
 import { Command, Flag, PrefixSupplier } from 'discord-akairo';
 import { Message, Permissions } from 'discord.js';
-import { LOCALE } from '../../../util/constants';
 
 export default class SetConfigCommand extends Command {
 	public constructor() {
 		super('config-set', {
 			description: {
-				content: (message: Message) => LOCALE(message.guild!).COMMANDS.CONFIG.SET.DESCRIPTION.CONTENT,
-				usage: (message: Message) => LOCALE(message.guild!).COMMANDS.CONFIG.SET.DESCRIPTION.USAGE,
+				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.CONFIG.SET.DESCRIPTION.CONTENT,
+				usage: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.CONFIG.SET.DESCRIPTION.USAGE,
 				examples: () => null,
 			},
 			category: 'config',
@@ -25,7 +24,7 @@ export default class SetConfigCommand extends Command {
 			],
 			otherwise: (msg: Message) => {
 				const prefix = (this.handler.prefix as PrefixSupplier)(msg);
-				return LOCALE(msg.guild!).COMMANDS.CONFIG.SET.REPLY(prefix);
+				return this.client.LOCALE(msg.guild!).COMMANDS.CONFIG.SET.REPLY(prefix);
 			},
 		};
 

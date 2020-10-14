@@ -3,7 +3,7 @@ import { Command } from 'discord-akairo';
 import { Message, MessageEmbed, Permissions, Role } from 'discord.js';
 import * as moment from 'moment';
 import 'moment-duration-format';
-import { LOCALE, COLORS } from '../../util/constants';
+import { COLORS } from '../../util/constants';
 
 interface PermissionsIndex {
 	[key: string]: string;
@@ -45,7 +45,7 @@ export default class RoleInfoCommand extends Command {
 		super('role', {
 			aliases: ['role', 'role-info'],
 			description: {
-				content: (message: Message) => LOCALE(message.guild!).COMMANDS.INFO.ROLE.DESCRIPTION,
+				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.INFO.ROLE.DESCRIPTION,
 				usage: () => '[role]',
 				examples: () => ['Mod', '@Mod'],
 			},
@@ -67,7 +67,7 @@ export default class RoleInfoCommand extends Command {
 	public async exec(message: Message, { role }: { role: Role }) {
 		const permissions = Object.keys(PERMISSIONS).filter(
 			// @ts-ignore
-			(permission) => role.permissions.serialize()[permission],
+			permission => role.permissions.serialize()[permission]
 		);
 
 		const embed = new MessageEmbed()
@@ -80,13 +80,13 @@ export default class RoleInfoCommand extends Command {
 				• Hoisted: ${role.hoist ? 'Yes' : 'No'}
 				• Mentionable: ${role.mentionable ? 'Yes' : 'No'}
 				• Creation Date: ${moment.utc(role.createdAt).format('YYYY/MM/DD hh:mm:ss')}
-			`,
+			`
 			)
 			.addField(
 				'ﾅ Permissions',
 				stripIndents`
-				${permissions.map((permission) => `• ${PERMISSIONS[permission]}`).join('\n') || 'None'}
-			`,
+				${permissions.map(permission => `• ${PERMISSIONS[permission]}`).join('\n') || 'None'}
+			`
 			)
 			.setThumbnail(message.guild!.iconURL() ?? '');
 

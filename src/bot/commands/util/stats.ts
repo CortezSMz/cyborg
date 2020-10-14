@@ -3,14 +3,14 @@ import { Command } from 'discord-akairo';
 import { Message, MessageEmbed, Permissions } from 'discord.js';
 import * as moment from 'moment';
 import 'moment-duration-format';
-import { LOCALE, COLORS, SETTINGS } from '../../util/constants';
+import { COLORS, SETTINGS } from '../../util/constants';
 
 export default class StatsCommand extends Command {
 	public constructor() {
 		super('stats', {
 			aliases: ['stats'],
 			description: {
-				content: (message: Message) => LOCALE(message.guild!).COMMANDS.UTIL.STATS.DESCRIPTION,
+				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.UTIL.STATS.DESCRIPTION,
 				usage: () => null,
 				examples: () => null,
 			},
@@ -37,7 +37,7 @@ export default class StatsCommand extends Command {
 				• Users: ${this.client.users.cache.size}
 				• Channels: ${this.client.channels.cache.size}
 				`,
-				true,
+				true
 			)
 			.addField('ﾅ Version', '0.1.0', true)
 			.addField('ﾅ Library', '[discord.js](https://discord.js.org)[ブakairo](https://github.com/1Computer1/discord-akairo)', true)

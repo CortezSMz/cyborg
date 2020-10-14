@@ -1,14 +1,14 @@
 import { Command } from 'discord-akairo';
 import { Message, Permissions, TextChannel } from 'discord.js';
-import { LOCALE, SETTINGS } from '../../../util/constants';
+import { SETTINGS } from '../../../util/constants';
 
 export default class SetConfigMemberLogCommand extends Command {
 	public constructor() {
 		super('config-set-memberlog', {
 			description: {
-				content: (message: Message) => LOCALE(message.guild!).COMMANDS.CONFIG.SET.MEMBER_LOG.DESCRIPTION.CONTENT,
-				usage: (message: Message) => LOCALE(message.guild!).COMMANDS.CONFIG.SET.MEMBER_LOG.DESCRIPTION.USAGE,
-				examples: (message: Message) => LOCALE(message.guild!).COMMANDS.CONFIG.SET.MEMBER_LOG.DESCRIPTION.EXAMPLES
+				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.CONFIG.SET.MEMBER_LOG.DESCRIPTION.CONTENT,
+				usage: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.CONFIG.SET.MEMBER_LOG.DESCRIPTION.USAGE,
+				examples: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.CONFIG.SET.MEMBER_LOG.DESCRIPTION.EXAMPLES,
 			},
 			category: 'config',
 			channel: 'guild',
@@ -19,7 +19,7 @@ export default class SetConfigMemberLogCommand extends Command {
 					id: 'channel',
 					match: 'content',
 					type: 'textChannel',
-				}
+				},
 			],
 		});
 	}
@@ -29,6 +29,6 @@ export default class SetConfigMemberLogCommand extends Command {
 		const memberlog = this.client.settings.get(guild, SETTINGS.MEMBER_LOG, { CHANNEL: '' });
 		memberlog.CHANNEL = channel.id;
 		this.client.settings.set(guild, SETTINGS.MEMBER_LOG, memberlog);
-		return message.util?.reply(LOCALE(message.guild!).COMMANDS.CONFIG.SET.MEMBER_LOG.REPLY(channel.name));
+		return message.util?.reply(this.client.LOCALE(message.guild!).COMMANDS.CONFIG.SET.MEMBER_LOG.REPLY(channel.name));
 	}
 }

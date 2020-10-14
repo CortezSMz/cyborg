@@ -1,13 +1,13 @@
 import { Command, PrefixSupplier } from 'discord-akairo';
 import { Message, Permissions } from 'discord.js';
-import { LOCALE, SETTINGS } from '../../util/constants';
+import { SETTINGS } from '../../util/constants';
 
 export default class PrefixCommand extends Command {
 	public constructor() {
 		super('prefix', {
 			aliases: ['prefix'],
 			description: {
-				content: (message: Message) => LOCALE(message.guild!).COMMANDS.UTIL.PREFIX.DESCRIPTION,
+				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.UTIL.PREFIX.DESCRIPTION,
 				usage: () => '[prefix]',
 				examples: () => ['*', 'Cyborg'],
 			},
@@ -26,12 +26,12 @@ export default class PrefixCommand extends Command {
 
 	public async exec(message: Message, { prefix }: { prefix: string }) {
 		if (!prefix) {
-			return message.util?.send(LOCALE(message.guild!).COMMANDS.UTIL.PREFIX.REPLY((this.handler.prefix as PrefixSupplier)(message)));
+			return message.util?.send(this.client.LOCALE(message.guild!).COMMANDS.UTIL.PREFIX.REPLY((this.handler.prefix as PrefixSupplier)(message)));
 		}
 		this.client.settings.set(message.guild!, SETTINGS.PREFIX, prefix);
 		if (prefix === process.env.COMMAND_PREFIX) {
-			return message.util?.reply(LOCALE(message.guild!).COMMANDS.UTIL.PREFIX.REPLY_2(prefix));
+			return message.util?.reply(this.client.LOCALE(message.guild!).COMMANDS.UTIL.PREFIX.REPLY_2(prefix));
 		}
-		return message.util?.reply(LOCALE(message.guild!).COMMANDS.UTIL.PREFIX.REPLY_3(prefix));
+		return message.util?.reply(this.client.LOCALE(message.guild!).COMMANDS.UTIL.PREFIX.REPLY_3(prefix));
 	}
 }

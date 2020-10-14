@@ -1,6 +1,6 @@
 import { Command } from 'discord-akairo';
 import { Message, Util } from 'discord.js';
-import { LOCALE, PRODUCTION } from '../../util/constants';
+import { PRODUCTION } from '../../util/constants';
 import { GRAPHQL, graphQLClient } from '../../util/graphQL';
 import { Tags, TagsInsertInput } from '../../util/graphQLTypes';
 import { interpolateString } from '../../util/template';
@@ -10,7 +10,7 @@ export default class TagShowCommand extends Command {
 		super('tag-show', {
 			category: 'tag',
 			description: {
-				content: (message: Message) => LOCALE(message.guild!).COMMANDS.TAGS.SHOW.DESCRIPTION,
+				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.TAGS.SHOW.DESCRIPTION,
 				usage: () => '<tag>',
 			},
 			channel: 'guild',
@@ -21,7 +21,7 @@ export default class TagShowCommand extends Command {
 					match: 'content',
 					type: 'lowercase',
 					prompt: {
-						start: (message: Message) => LOCALE(message.guild!).COMMANDS.TAGS.SHOW.PROMPT.START(message.author),
+						start: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.TAGS.SHOW.PROMPT.START(message.author),
 					},
 				},
 			],
@@ -41,7 +41,7 @@ export default class TagShowCommand extends Command {
 		let tags: Tags[];
 		if (PRODUCTION) tags = data.tags;
 		else tags = data.tagsStaging;
-		const [tag] = tags.filter((t) => t.name === name || t.aliases.includes(name));
+		const [tag] = tags.filter(t => t.name === name || t.aliases.includes(name));
 		if (!tag) return;
 		graphQLClient.mutate<any, TagsInsertInput>({
 			mutation: GRAPHQL.MUTATION.UPDATE_TAG_USAGE,
@@ -60,7 +60,7 @@ export default class TagShowCommand extends Command {
 				guildid: message.guild ? message.guild.id : null,
 				guild: message.guild ? message.guild.toString() : null,
 				count: `${tag.uses + 1}`,
-				mention: message.mentions.users.first()?.toString() || message.author.toString()
+				mention: message.mentions.users.first()?.toString() || message.author.toString(),
 			});
 
 			return message.util?.send(output || 'The output was empty.');

@@ -3,7 +3,7 @@ import { Message, Permissions } from 'discord.js';
 import { graphQLClient, GRAPHQL } from '../../../util/graphQL';
 import { RemindmesInsertInput, Remindmes } from '../../../util/graphQLTypes';
 import { stripIndents } from 'common-tags';
-import { LOCALE, SETTINGS } from '../../../util/constants';
+import { SETTINGS } from '../../../util/constants';
 
 export default class RemindmeCommand extends Command {
 	public constructor() {
@@ -23,11 +23,12 @@ export default class RemindmeCommand extends Command {
 		});
 		let remindmes: Remindmes[];
 		remindmes = data.remindmes;
-		if (remindmes.length == 0) return message.util?.send(LOCALE(message.guild!).COMMANDS.UTIL.REMINDME.CLEAR.NOT_FOUND);
+		if (remindmes.length == 0) return message.util?.send(this.client.LOCALE(message.guild!).COMMANDS.UTIL.REMINDME.CLEAR.NOT_FOUND);
 
 		await message.util?.send(
-			LOCALE(message.guild!).COMMANDS.UTIL.REMINDME.CLEAR.AWAIT_MESSAGE
-				.replace('$(qtd)', `${remindmes.length}`)
+			this.client
+				.LOCALE(message.guild!)
+				.COMMANDS.UTIL.REMINDME.CLEAR.AWAIT_MESSAGE.replace('$(qtd)', `${remindmes.length}`)
 				.replace('$(s)', remindmes.length > 1 ? 's' : '')
 		);
 
@@ -37,7 +38,7 @@ export default class RemindmeCommand extends Command {
 		});
 
 		if (responses?.size !== 1) {
-			return message.util?.send(LOCALE(message.guild!).COMMANDS.UTIL.REMINDME.CLEAR.TIMEOUT);
+			return message.util?.send(this.client.LOCALE(message.guild!).COMMANDS.UTIL.REMINDME.CLEAR.TIMEOUT);
 		}
 		const response = responses.first();
 
@@ -54,8 +55,9 @@ export default class RemindmeCommand extends Command {
 				this.client.remindmeScheduler.queued.delete(remind.id);
 			}
 			return message.channel.send(
-				LOCALE(message.guild!).COMMANDS.UTIL.REMINDME.CLEAR.REPLY
-					.replace('$(qtd)', data.deleteRemindmes.affected_rows)
+				this.client
+					.LOCALE(message.guild!)
+					.COMMANDS.UTIL.REMINDME.CLEAR.REPLY.replace('$(qtd)', data.deleteRemindmes.affected_rows)
 					.replace('$(s)', remindmes.length > 1 ? 's' : '')
 			);
 		}

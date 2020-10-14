@@ -1,13 +1,13 @@
 import { Command, Flag } from 'discord-akairo';
 import { Message, Permissions } from 'discord.js';
-import { LOCALE } from '../../util/constants';
+
 export default class ConfigCommand extends Command {
 	public constructor() {
 		super('config', {
 			aliases: ['config'],
 			description: {
-				content: (message: Message) => LOCALE(message.guild!).COMMANDS.CONFIG.DESCRIPTION.CONTENT,
-				usage: (message: Message) => LOCALE(message.guild!).COMMANDS.CONFIG.DESCRIPTION.USAGE,
+				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.CONFIG.DESCRIPTION.CONTENT,
+				usage: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.CONFIG.DESCRIPTION.USAGE,
 				examples: () => null,
 			},
 			category: 'config',

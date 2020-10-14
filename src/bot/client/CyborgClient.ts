@@ -5,11 +5,13 @@ import { Logger } from 'winston';
 import TwitchScheduler from '../structures/TwitchScheduler';
 import RemindmeScheduler from '../structures/RemindmeScheduler';
 import HasuraProvider from '../structures/SettingsProvider';
-import { LOCALE, PRODUCTION, SETTINGS, CYBORG } from '../util/constants';
+import { PRODUCTION, SETTINGS, CYBORG, Messages } from '../util/constants';
 import { GRAPHQL, graphQLClient } from '../util/graphQL';
 import { Tags, TagsInsertInput } from '../util/graphQLTypes';
 import { EVENTS, logger, TOPICS } from '../util/logger';
 import ms from '../util/timeParser';
+import * as locale from '../util/locale';
+import { Guild } from 'discord.js';
 
 declare module 'discord-akairo' {
 	interface AkairoClient {
@@ -19,6 +21,7 @@ declare module 'discord-akairo' {
 		config: CyborgOptions;
 		remindmeScheduler: RemindmeScheduler;
 		twitchScheduler: TwitchScheduler;
+		LOCALE: (guild: Guild) => Messages;
 	}
 }
 
@@ -35,6 +38,8 @@ export default class CyborgClient extends AkairoClient {
 
 	public settings = new HasuraProvider();
 
+	public LOCALE: (guild: Guild) => Messages;
+
 	public commandHandler: CommandHandler = new CommandHandler(this, {
 		directory: join(__dirname, '..', 'commands'),
 		prefix: (message: Message): string => this.settings.get(message.guild!, SETTINGS.PREFIX, process.env.COMMAND_PREFIX),
@@ -46,13 +51,13 @@ export default class CyborgClient extends AkairoClient {
 		defaultCooldown: 3000,
 		argumentDefaults: {
 			prompt: {
-				modifyStart: (message: Message, str) => LOCALE(message.guild!).COMMAND_HANDLER.PROMPT.MODIFY_RETRY(str),
-				modifyRetry: (message: Message, str) => LOCALE(message.guild!).COMMAND_HANDLER.PROMPT.MODIFY_RETRY(str),
-				cancelWord: (message: Message) => LOCALE(message.guild!).COMMAND_HANDLER.PROMPT.CANCEL_WORD,
-				stopWord: (message: Message) => LOCALE(message.guild!).COMMAND_HANDLER.PROMPT.STOP_WORD,
-				timeout: (message: Message) => LOCALE(message.guild!).COMMAND_HANDLER.PROMPT.TIMEOUT,
-				ended: (message: Message) => LOCALE(message.guild!).COMMAND_HANDLER.PROMPT.ENDED,
-				cancel: (message: Message) => LOCALE(message.guild!).COMMAND_HANDLER.PROMPT.CANCEL,
+				modifyStart: (message: Message, str) => this.LOCALE(message.guild!).COMMAND_HANDLER.PROMPT.MODIFY_RETRY(str),
+				modifyRetry: (message: Message, str) => this.LOCALE(message.guild!).COMMAND_HANDLER.PROMPT.MODIFY_RETRY(str),
+				cancelWord: (message: Message) => this.LOCALE(message.guild!).COMMAND_HANDLER.PROMPT.CANCEL_WORD,
+				stopWord: (message: Message) => this.LOCALE(message.guild!).COMMAND_HANDLER.PROMPT.STOP_WORD,
+				timeout: (message: Message) => this.LOCALE(message.guild!).COMMAND_HANDLER.PROMPT.TIMEOUT,
+				ended: (message: Message) => this.LOCALE(message.guild!).COMMAND_HANDLER.PROMPT.ENDED,
+				cancel: (message: Message) => this.LOCALE(message.guild!).COMMAND_HANDLER.PROMPT.CANCEL,
 				retries: 3,
 				time: 30000,
 			},
@@ -93,14 +98,20 @@ export default class CyborgClient extends AkairoClient {
 				//disableMentions: 'everyone',
 				partials: ['MESSAGE', 'REACTION'],
 				// ws: { intents: ['GUILDS', 'GUILD_MESSAGES', 'GUILD_MESSAGE_REACTIONS'] },
-			},
+			}
 		);
 
 		this.root = config.root;
 
-		this.commandHandler.resolver.addType('duration', (_, str): number | null => {
-			if (!str) return null;
-			const time = ms(str);
+		this.LOCALE = (guild: Guild): Messages => {
+			let lang = this.settings.get(guild ?? null, SETTINGS.LANGUAGE, process.env.DEFAULT_LANG);
+			// @ts-ignore
+			return locale[lang.replace(/-/g, '')].MESSAGES as Messages;
+		};
+
+		this.commandHandler.resolver.addType('duration', (_, phrase): number | null => {
+			if (!phrase) return null;
+			const time = ms(phrase);
 			if (time && time >= 1000 && time <= 224763304449000 && !isNaN(time)) return time;
 			return null;
 		});
@@ -118,7 +129,7 @@ export default class CyborgClient extends AkairoClient {
 			let tags: Tags[];
 			if (PRODUCTION) tags = data.tags;
 			else tags = data.tagsStaging;
-			const [tag] = tags.filter((t) => t.name === phrase || t.aliases.includes(phrase));
+			const [tag] = tags.filter(t => t.name === phrase || t.aliases.includes(phrase));
 
 			return tag || Flag.fail(phrase);
 		});
@@ -127,7 +138,7 @@ export default class CyborgClient extends AkairoClient {
 			if (!message.guild) return Flag.fail(phrase);
 			if (!phrase) return Flag.fail(phrase);
 			const phraseArr = phrase.split(',');
-			phraseArr.forEach((s) => Util.cleanContent(s.trim().toLowerCase(), message));
+			phraseArr.forEach(s => Util.cleanContent(s.trim().toLowerCase(), message));
 			const { data } = await graphQLClient.query<any, TagsInsertInput>({
 				query: GRAPHQL.QUERY.TAGS_TYPE,
 				variables: {
@@ -137,7 +148,7 @@ export default class CyborgClient extends AkairoClient {
 			let tags: Tags[];
 			if (PRODUCTION) tags = data.tags;
 			else tags = data.tagsStaging;
-			const [tag] = tags.filter((t) => phraseArr.some((p) => p === t.name || t.aliases.includes(p)));
+			const [tag] = tags.filter(t => phraseArr.some(p => p === t.name || t.aliases.includes(p)));
 
 			return tag ? Flag.fail(tag.name) : phrase;
 		});

@@ -1,6 +1,6 @@
 import { Command } from 'discord-akairo';
 import { GuildMember, Message, MessageEmbed, Permissions } from 'discord.js';
-import { LOCALE, PRODUCTION, SETTINGS } from '../../util/constants';
+import { PRODUCTION, SETTINGS } from '../../util/constants';
 import { GRAPHQL, graphQLClient } from '../../util/graphQL';
 import { Tags, TagsInsertInput } from '../../util/graphQLTypes';
 
@@ -10,7 +10,7 @@ export default class TagListCommand extends Command {
 			aliases: ['tags'],
 			category: 'tag',
 			description: {
-				content: (message: Message) => LOCALE(message.guild!).COMMANDS.TAGS.LIST.DESCRIPTION,
+				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.TAGS.LIST.DESCRIPTION,
 				usage: () => null,
 				examples: () => null,
 			},
@@ -40,17 +40,17 @@ export default class TagListCommand extends Command {
 			if (PRODUCTION) tags = data.tags;
 			else tags = data.tagsStaging;
 			if (!tags.length) {
-				if (member.id === message.author.id) return message.util?.reply(LOCALE(message.guild!).COMMANDS.TAGS.LIST.NO_TAGS());
-				return message.util?.reply(LOCALE(message.guild!).COMMANDS.TAGS.LIST.NO_TAGS(member.displayName));
+				if (member.id === message.author.id) return message.util?.reply(this.client.LOCALE(message.guild!).COMMANDS.TAGS.LIST.NO_TAGS());
+				return message.util?.reply(this.client.LOCALE(message.guild!).COMMANDS.TAGS.LIST.NO_TAGS(member.displayName));
 			}
 			const embed = new MessageEmbed()
 				.setColor(0x30a9ed)
 				.setAuthor(`${member.user.tag} (${member.id})`, member.user.displayAvatarURL())
 				.setDescription(
 					tags
-						.map((tag) => `\`${tag.name}\``)
+						.map(tag => `\`${tag.name}\``)
 						.sort()
-						.join(', '),
+						.join(', ')
 				);
 
 			return message.util?.send(embed);
@@ -64,21 +64,19 @@ export default class TagListCommand extends Command {
 		let tags: Tags[];
 		if (PRODUCTION) tags = data.tags;
 		else tags = data.tagsStaging;
-		if (!tags.length) return message.util?.send(LOCALE(message.guild!).COMMANDS.TAGS.LIST.GUILD_NO_TAGS(guild.name));
+		if (!tags.length) return message.util?.send(this.client.LOCALE(message.guild!).COMMANDS.TAGS.LIST.GUILD_NO_TAGS(guild.name));
 		const hoistedTags = tags
-			.filter((tag) => tag.hoisted)
-			.map((tag) => `\`${tag.name}\``)
+			.filter(tag => tag.hoisted)
+			.map(tag => `\`${tag.name}\``)
 			.sort()
 			.join(', ');
 		const userTags = tags
-			.filter((tag) => !tag.hoisted)
-			.filter((tag) => tag.user === message.author.id)
-			.map((tag) => `\`${tag.name}\``)
+			.filter(tag => !tag.hoisted)
+			.filter(tag => tag.user === message.author.id)
+			.map(tag => `\`${tag.name}\``)
 			.sort()
 			.join(', ');
-		const embed = new MessageEmbed()
-			.setColor(0x30a9ed)
-			.setAuthor(`${message.author.tag} (${message.author.id})`, message.author.displayAvatarURL());
+		const embed = new MessageEmbed().setColor(0x30a9ed).setAuthor(`${message.author.tag} (${message.author.id})`, message.author.displayAvatarURL());
 		if (hoistedTags) embed.addField('ﾅ Tags', hoistedTags);
 		if (userTags) embed.addField(`ﾅ ${message.member?.displayName ?? 'Unknown'}'s tags`, userTags);
 

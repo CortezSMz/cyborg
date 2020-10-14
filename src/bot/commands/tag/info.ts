@@ -2,7 +2,7 @@ import { Command } from 'discord-akairo';
 import { Message, MessageEmbed, Permissions } from 'discord.js';
 import * as moment from 'moment';
 import 'moment-duration-format';
-import { LOCALE, COLORS } from '../../util/constants';
+import { COLORS } from '../../util/constants';
 import { Tags } from '../../util/graphQLTypes';
 
 export default class TagInfoCommand extends Command {
@@ -10,7 +10,7 @@ export default class TagInfoCommand extends Command {
 		super('tag-info', {
 			category: 'tag',
 			description: {
-				content: (message: Message) => LOCALE(message.guild!).COMMANDS.TAGS.INFO.DESCRIPTION,
+				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.TAGS.INFO.DESCRIPTION,
 				usage: () => '<tag>',
 			},
 			channel: 'guild',
@@ -22,8 +22,8 @@ export default class TagInfoCommand extends Command {
 					match: 'content',
 					type: 'tag',
 					prompt: {
-						start: (message: Message) => LOCALE(message.guild!).COMMANDS.TAGS.INFO.PROMPT.START(message.author),
-						retry: (message: Message, { failure }: { failure: { value: string } }) => LOCALE(message.guild!).COMMANDS.TAGS.INFO.PROMPT.RETRY(message.author, failure.value),
+						start: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.TAGS.INFO.PROMPT.START(message.author),
+						retry: (message: Message, { failure }: { failure: { value: string } }) => this.client.LOCALE(message.guild!).COMMANDS.TAGS.INFO.PROMPT.RETRY(message.author, failure.value),
 					},
 				},
 			],
@@ -50,19 +50,16 @@ export default class TagInfoCommand extends Command {
 				'ﾅ Aliases',
 				tag.aliases.length
 					? tag.aliases
-						.map((t: any) => `\`${t}\``)
-						.sort()
-						.join(', ')
-					: 'No aliases.',
+							.map((t: any) => `\`${t}\``)
+							.sort()
+							.join(', ')
+					: 'No aliases.'
 			)
 			.addField('ﾅ Uses', tag.uses)
 			.addField('ﾅ Created at', moment.utc(tag.createdAt).format('YYYY/MM/DD hh:mm:ss'))
 			.addField('ﾅ Modified at', moment.utc(tag.updatedAt).format('YYYY/MM/DD hh:mm:ss'));
 		if (lastModifiedBy) {
-			embed.addField(
-				'ﾅ Last modified by',
-				lastModifiedBy ? `${lastModifiedBy.tag} (ID: ${lastModifiedBy.id})` : "Couldn't fetch user.",
-			);
+			embed.addField('ﾅ Last modified by', lastModifiedBy ? `${lastModifiedBy.tag} (ID: ${lastModifiedBy.id})` : "Couldn't fetch user.");
 		}
 
 		return message.util?.send(embed);

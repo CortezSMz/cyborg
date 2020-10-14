@@ -1,4 +1,3 @@
-import * as locale from './locale';
 import { Guild } from 'discord.js';
 import CyborgClient from '../client/CyborgClient';
 
@@ -50,12 +49,6 @@ export interface Settings {
 
 export const isPremium = (guild: Guild) => {
 	return (guild?.client as CyborgClient)?.settings.get(guild, SETTINGS.PREMIUM, false) ?? false;
-};
-
-export const LOCALE = (guild: Guild) => {
-	let lang = (guild?.client as CyborgClient)?.settings.get(guild, SETTINGS.LANGUAGE, process.env.DEFAULT_LANG) ?? process.env.DEFAULT_LANG;
-	// @ts-ignore
-	return locale[lang.replace(/-/g, '')].MESSAGES as Messages;
 };
 
 export interface Messages {

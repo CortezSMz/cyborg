@@ -1,6 +1,6 @@
 import { Command } from 'discord-akairo';
 import { Message, MessageEmbed, Permissions, Util } from 'discord.js';
-import { LOCALE, PRODUCTION, SETTINGS } from '../../util/constants';
+import { PRODUCTION, SETTINGS } from '../../util/constants';
 import { GRAPHQL, graphQLClient } from '../../util/graphQL';
 import { Tags, TagsInsertInput } from '../../util/graphQLTypes';
 
@@ -9,7 +9,7 @@ export default class SearchTagCommand extends Command {
 		super('tag-search', {
 			category: 'tag',
 			description: {
-				content: (message: Message) => LOCALE(message.guild!).COMMANDS.TAGS.SEARCH.DESCRIPTION,
+				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.TAGS.SEARCH.DESCRIPTION,
 				usage: () => '<tag>',
 			},
 			channel: 'guild',
@@ -21,7 +21,7 @@ export default class SearchTagCommand extends Command {
 					match: 'content',
 					type: 'lowercase',
 					prompt: {
-						start: (message: Message) => LOCALE(message.guild!).COMMANDS.TAGS.SEARCH.PROMPT.START(message.author),
+						start: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.TAGS.SEARCH.PROMPT.START(message.author),
 					},
 				},
 			],
@@ -39,19 +39,16 @@ export default class SearchTagCommand extends Command {
 		let tags: Tags[];
 		if (PRODUCTION) tags = data.tags;
 		else tags = data.tagsStaging;
-		tags = tags.filter((t) => t.name.includes(name) || t.aliases.some((a: string | string[]) => a.includes(name)));
-		if (!tags.length) return message.util?.reply(LOCALE(message.guild!).COMMANDS.TAGS.SEARCH.NO_RESULT(name));
+		tags = tags.filter(t => t.name.includes(name) || t.aliases.some((a: string | string[]) => a.includes(name)));
+		if (!tags.length) return message.util?.reply(this.client.LOCALE(message.guild!).COMMANDS.TAGS.SEARCH.NO_RESULT(name));
 		const search = tags
-			.map((tag) => `\`${tag.name}\``)
+			.map(tag => `\`${tag.name}\``)
 			.sort()
 			.join(', ');
 		if (search.length >= 1950) {
-			return message.util?.reply(LOCALE(message.guild!).COMMANDS.TAGS.SEARCH.TOO_BIG);
+			return message.util?.reply(this.client.LOCALE(message.guild!).COMMANDS.TAGS.SEARCH.TOO_BIG);
 		}
-		const embed = new MessageEmbed()
-			.setColor(0x30a9ed)
-			.setAuthor(`${message.author.tag} (${message.author.id})`, message.author.displayAvatarURL())
-			.setDescription(search);
+		const embed = new MessageEmbed().setColor(0x30a9ed).setAuthor(`${message.author.tag} (${message.author.id})`, message.author.displayAvatarURL()).setDescription(search);
 
 		return message.util?.send(embed);
 	}

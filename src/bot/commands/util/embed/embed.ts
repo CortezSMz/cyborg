@@ -1,17 +1,14 @@
 import { Command, Flag } from 'discord-akairo';
 import { Message } from 'discord.js';
-import { LOCALE } from '../../../util/constants';
 
 export default class EmbedCommand extends Command {
 	public constructor() {
 		super('embed', {
 			aliases: ['embed'],
 			description: {
-				content: (message: Message) => LOCALE(message.guild!).COMMANDS.EMBED.DESCRIPTION.CONTENT,
+				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.EMBED.DESCRIPTION.CONTENT,
 				usage: () => '<method> <...arguments>',
-				examples: () => [
-					'show Test',
-				],
+				examples: () => ['show Test'],
 			},
 			category: 'util',
 			ratelimit: 2,

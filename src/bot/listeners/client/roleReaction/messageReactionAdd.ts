@@ -17,12 +17,12 @@ export default class messageReactionAddReactionRole extends Listener {
 		if (user.bot) return;
 		if (reaction.partial || user.partial) {
 			try {
-				await reaction.message.fetch()
-				await user.fetch()
+				await reaction.message.fetch();
+				await user.fetch();
 			} catch (err) {
-				this.client.logger.error(err.message, { topic: TOPICS.DISCORD, event: EVENTS.ERROR })
+				this.client.logger.error(err.message, { topic: TOPICS.DISCORD, event: EVENTS.ERROR });
 			}
-		};
+		}
 
 		if (!reaction.message.guild) return;
 		const { data } = await graphQLClient.mutate<any, ReactionRolesInsertInput>({
@@ -34,13 +34,7 @@ export default class messageReactionAddReactionRole extends Listener {
 			},
 		});
 
-		let reactionRoles;
-		reactionRoles = data.reactionRoles
-
-		if (reaction.emoji.name === '🔁' && user.id === '200502727170588673') {
-			this.client.commandHandler.handleDirectCommand(reaction.message, '', this.client.commandHandler.modules.get('fetchreactions')!);
-			return reaction.remove();
-		}
+		let reactionRoles = data.reactionRoles;
 
 		if (!reactionRoles.length) return;
 		if (!reactionRoles[0].roles[reaction.emoji.name]) return;
@@ -52,10 +46,10 @@ export default class messageReactionAddReactionRole extends Listener {
 			if (!role || !member) return;
 			if (member.roles.cache.has(role.id)) return;
 			await member.roles.add(role, 'Role by reaction');
-			if (member.roles.cache.has('721171992556077117')) await member.roles.remove('721171992556077117');
+
 			this.client.logger.info(`Added a role by reaction on ${member.guild.name} (${member.guild.id})`, { topic: TOPICS.DISCORD, event: 'REACTIONROLE' });
 		} catch (err) {
-			this.client.logger.error(err.message, { topic: TOPICS.DISCORD, event: EVENTS.ERROR })
+			this.client.logger.error(err.message, { topic: TOPICS.DISCORD, event: EVENTS.ERROR });
 		}
 	}
 }

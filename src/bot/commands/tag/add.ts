@@ -1,6 +1,6 @@
 import { Command } from 'discord-akairo';
 import { Message, Util } from 'discord.js';
-import { LOCALE, SETTINGS } from '../../util/constants';
+import { SETTINGS } from '../../util/constants';
 import { GRAPHQL, graphQLClient } from '../../util/graphQL';
 import { TagsInsertInput } from '../../util/graphQLTypes';
 import { interpolateString } from '../../util/template';
@@ -10,7 +10,7 @@ export default class TagAddCommand extends Command {
 		super('tag-add', {
 			category: 'tag',
 			description: {
-				content: (message: Message) => LOCALE(message.guild!).COMMANDS.TAGS.ADD.DESCRIPTION,
+				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.TAGS.ADD.DESCRIPTION,
 				usage: () => '[--hoist/--pin/--template] <tag> <content>',
 				examples: () => ['Test Test', '--hoist "Test 2" Test2', '"Test 3" "Some more text" --hoist'],
 			},
@@ -21,8 +21,8 @@ export default class TagAddCommand extends Command {
 					id: 'name',
 					type: 'existingTag',
 					prompt: {
-						start: (message: Message) => LOCALE(message.guild!).COMMANDS.TAGS.ADD.PROMPT.START(message.author),
-						retry: (message: Message, { failure }: { failure: { value: string } }) => LOCALE(message.guild!).COMMANDS.TAGS.ADD.PROMPT.RETRY(message.author, failure.value),
+						start: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.TAGS.ADD.PROMPT.START(message.author),
+						retry: (message: Message, { failure }: { failure: { value: string } }) => this.client.LOCALE(message.guild!).COMMANDS.TAGS.ADD.PROMPT.RETRY(message.author, failure.value),
 					},
 				},
 				{
@@ -30,7 +30,7 @@ export default class TagAddCommand extends Command {
 					match: 'rest',
 					type: 'string',
 					prompt: {
-						start: (message: Message) => LOCALE(message.guild!).COMMANDS.TAGS.ADD.PROMPT_2.START(message.author),
+						start: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.TAGS.ADD.PROMPT_2.START(message.author),
 					},
 				},
 				{
@@ -47,16 +47,13 @@ export default class TagAddCommand extends Command {
 		});
 	}
 
-	public async exec(
-		message: Message,
-		{ name, content, hoist, template }: { name: string; content: string; hoist: boolean; template: boolean },
-	) {
+	public async exec(message: Message, { name, content, hoist, template }: { name: string; content: string; hoist: boolean; template: boolean }) {
 		name = Util.cleanContent(name.toLowerCase(), message);
 		if (name?.length >= 1900) {
-			return message.util?.reply(LOCALE(message.guild!).COMMANDS.TAGS.ADD.TOO_LONG);
+			return message.util?.reply(this.client.LOCALE(message.guild!).COMMANDS.TAGS.ADD.TOO_LONG);
 		}
 		if (content?.length >= 1950) {
-			return message.util?.reply(LOCALE(message.guild!).COMMANDS.TAGS.ADD.TOO_LONG);
+			return message.util?.reply(this.client.LOCALE(message.guild!).COMMANDS.TAGS.ADD.TOO_LONG);
 		}
 		const staff = message.member?.permissions.has(['MANAGE_MESSAGES']);
 		if (!staff || !template) {
@@ -88,6 +85,6 @@ export default class TagAddCommand extends Command {
 			},
 		});
 
-		return message.util?.reply(LOCALE(message.guild!).COMMANDS.TAGS.ADD.REPLY(name.substring(0, 1900)));
+		return message.util?.reply(this.client.LOCALE(message.guild!).COMMANDS.TAGS.ADD.REPLY(name.substring(0, 1900)));
 	}
 }

@@ -41,7 +41,12 @@ export default class BlackJackCommand extends Command {
 		super('blackjack', {
 			aliases: ['blackjack'],
 			description: {
-				content: () => 'Type `h` to `hit` or type `s` to `stand`.\n\nType `${msg.util?.parsed?.prefix}blackjack join @${msg.author.username}` to join a on-going game.\n\nJ, Q and K = 10       A = 11 or 1',
+				content: (msg: Message) => stripIndents`
+				Type \`h\` to \`hit\` or type \`s\` to \`stand\`.
+
+				Type \`${msg.util?.parsed?.prefix}blackjack join @${msg.author.username} \` to join a on-going game.
+
+				\`Jack\`, \`Queen\` and \`King\` = \`10\`       \`Ace\` = \`11\` or \`1\``,
 				usage: () => '',
 				examples: () => ['join @Cosmzs'],
 			},
@@ -248,23 +253,17 @@ export default class BlackJackCommand extends Command {
 		const highestScore = instance.players
 			.map((p: Player) => (this.getScore(p) <= 21 ? this.getScore(p) : 0))
 			.sort((a, b) => a - b)
-			.pop()!;
+			.pop();
 
 		const highestPlayers = instance.players
 			.sort((p1: Player, p2: Player) => this.getScore(p1) - this.getScore(p2))
-			.filter((p: Player, _, arr: Player[]) => {
+			.filter((p: Player) => {
 				return this.getScore(p) === highestScore && this.getScore(p) <= 21;
 			});
 
 		this.setWinner(user, { players: highestPlayers, tie: highestPlayers.length > 1 });
 
-		result = {
-			...result,
-			player: highestPlayers,
-			natural: result.natural,
-		};
-
-		return result;
+		return (result = { player: highestPlayers, natural: result.natural });
 	}
 
 	private setWinner(user: User, { players, tie }: { players: Player[]; tie: boolean }): void {
@@ -277,7 +276,7 @@ export default class BlackJackCommand extends Command {
 
 	public *args(msg: Message) {
 		const join: User | undefined = yield {
-			type: Argument.compose([['join']], (msg: Message, _) => {
+			type: Argument.compose([['join']], (msg: Message) => {
 				return msg.util?.parsed?.content
 					?.split(/ +/g)
 					.map((str: string) => this.handler.resolver.type('user')(msg, str))

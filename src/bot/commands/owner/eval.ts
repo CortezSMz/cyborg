@@ -2,7 +2,6 @@ import { stripIndents } from 'common-tags';
 import { Command } from 'discord-akairo';
 import { Message, Util } from 'discord.js';
 import * as util from 'util';
-import { LOCALE } from '../../util/constants';
 
 const NL = '!!NL!!';
 const NL_PATTERN = new RegExp(NL, 'g');
@@ -20,7 +19,7 @@ export default class EvalCommand extends Command {
 		super('eval', {
 			aliases: ['eval'],
 			description: {
-				content: (message: Message) => LOCALE(message.guild!).COMMANDS.OWNER.EVAL.DESCRIPTION,
+				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.OWNER.EVAL.DESCRIPTION,
 				usage: () => '<code>',
 				examples: () => null,
 			},
@@ -33,7 +32,7 @@ export default class EvalCommand extends Command {
 					match: 'content',
 					type: 'string',
 					prompt: {
-						start: (message: Message) => LOCALE(message.guild!).COMMANDS.OWNER.EVAL.PROMPT.START(message.author),
+						start: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.OWNER.EVAL.PROMPT.START(message.author),
 					},
 				},
 			],
@@ -66,7 +65,7 @@ export default class EvalCommand extends Command {
 		this.hrStart = process.hrtime();
 		const result = this._result(this.lastResult ?? '', hrDiff, code);
 		// @ts-ignore
-		if (Array.isArray(result)) return result.map(async (res) => message.util?.send(res));
+		if (Array.isArray(result)) return result.map(async res => message.util?.send(res));
 		return message.util?.send(result);
 	}
 
@@ -78,10 +77,7 @@ export default class EvalCommand extends Command {
 		const split = inspected.split('\n');
 		const last = inspected.length - 1;
 		const prependPart = inspected[0] !== '{' && inspected[0] !== '[' && inspected[0] !== "'" ? split[0] : inspected[0];
-		const appendPart =
-			inspected[last] !== '}' && inspected[last] !== ']' && inspected[last] !== "'"
-				? split[split.length - 1]
-				: inspected[last];
+		const appendPart = inspected[last] !== '}' && inspected[last] !== ']' && inspected[last] !== "'" ? split[split.length - 1] : inspected[last];
 		const prepend = `\`\`\`javascript\n${prependPart}\n`;
 		const append = `\n${appendPart}\n\`\`\``;
 		if (input) {
@@ -92,7 +88,7 @@ export default class EvalCommand extends Command {
 				${inspected}
 				\`\`\`
 			`,
-				{ maxLength: 1900, prepend, append },
+				{ maxLength: 1900, prepend, append }
 			);
 		}
 
@@ -103,7 +99,7 @@ export default class EvalCommand extends Command {
 			${inspected}
 			\`\`\`
 		`,
-			{ maxLength: 1900, prepend, append },
+			{ maxLength: 1900, prepend, append }
 		);
 	}
 

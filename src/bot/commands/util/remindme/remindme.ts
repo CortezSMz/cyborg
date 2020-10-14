@@ -1,6 +1,6 @@
 import { Command, Flag } from 'discord-akairo';
 import { Message, Permissions } from 'discord.js';
-import { LOCALE } from '../../../util/constants';
+
 import { Argument } from 'discord-akairo';
 import { PrefixSupplier } from 'discord-akairo';
 
@@ -10,7 +10,7 @@ export default class RemindmeCommand extends Command {
 			aliases: ['reminder', 'remindme', 'remind'],
 			category: 'util',
 			description: {
-				content: (message: Message) => LOCALE(message.guild!).COMMANDS.UTIL.REMINDME.DESCRIPTION.replace(/\$\(prefix\)/g, (this.handler.prefix as PrefixSupplier)(message) as string),
+				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.UTIL.REMINDME.DESCRIPTION.replace(/\$\(prefix\)/g, (this.handler.prefix as PrefixSupplier)(message) as string),
 				usage: () => '<when> <...text>',
 				examples: () => [
 					"1s i'm lonely",
@@ -30,7 +30,7 @@ export default class RemindmeCommand extends Command {
 		});
 	}
 
-	public * args() {
+	public *args() {
 		const methodOrArg = yield {
 			type: Argument.union('duration', [
 				['remindme-add', 'add'],
@@ -39,9 +39,11 @@ export default class RemindmeCommand extends Command {
 				['remindme-clear', 'clear'],
 			]),
 			prompt: {
-				start: (message: Message) => LOCALE(message.guild!).COMMANDS.UTIL.REMINDME.ADD.PROMPT_TIME.START(message.author),
+				start: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.UTIL.REMINDME.ADD.PROMPT_TIME.START(message.author),
 				retry: (message: Message) =>
-					LOCALE(message.guild!).COMMANDS.UTIL.REMINDME.ADD.PROMPT_TIME.RETRY(message.author)
+					this.client
+						.LOCALE(message.guild!)
+						.COMMANDS.UTIL.REMINDME.ADD.PROMPT_TIME.RETRY(message.author)
 						.replace('$(prefix)', (this.handler.prefix as PrefixSupplier)(message) as string),
 			},
 		};
@@ -53,19 +55,19 @@ export default class RemindmeCommand extends Command {
 				match: 'rest',
 				type: 'string',
 				prompt: {
-					start: (message: Message) => LOCALE(message.guild!).COMMANDS.UTIL.REMINDME.ADD.PROMPT_TEXT.START(message.author),
+					start: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.UTIL.REMINDME.ADD.PROMPT_TEXT.START(message.author),
 				},
-			}
+			};
 			return {
 				time: methodOrArg,
 				text,
 			};
-		};
+		}
 	}
 
 	public exec(message: Message, { time, text }: { time: number; text: string }) {
 		if (text.length >= 1950) {
-			return message.util?.reply(LOCALE(message.guild!).COMMANDS.UTIL.REMINDME.ADD.TOO_LONG);
+			return message.util?.reply(this.client.LOCALE(message.guild!).COMMANDS.UTIL.REMINDME.ADD.TOO_LONG);
 		}
 		this.client.remindmeScheduler.add(
 			{
@@ -76,7 +78,7 @@ export default class RemindmeCommand extends Command {
 				text,
 				createdAt: new Date().toISOString(),
 			},
-			time,
+			time
 		);
 	}
 }

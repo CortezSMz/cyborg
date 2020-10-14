@@ -1,6 +1,6 @@
 import { Command } from 'discord-akairo';
 import { Message } from 'discord.js';
-import { LOCALE } from '../../../util/constants';
+
 import { Argument } from 'discord-akairo';
 import { Flag } from 'discord-akairo';
 import { PrefixSupplier } from 'discord-akairo';
@@ -10,13 +10,13 @@ export default class EmbedEditCommand extends Command {
 		super('embed-edit', {
 			category: 'util',
 			description: {
-				content: (message: Message) => LOCALE(message.guild!).COMMANDS.EMBED.EDIT.DESCRIPTION.CONTENT,
+				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.EMBED.EDIT.DESCRIPTION.CONTENT,
 				usage: () => '<embed> [--hoist/--unhoist/--pin/--unpin/--template/--untemplate] <content>',
 				examples: () => ['Test Some new content', '"Test 1" Some more new content', 'Test --hoist', '"Test 1" --unpin'],
 			},
 			channel: 'guild',
 			ratelimit: 2,
-			flags: ['--clear']
+			flags: ['--clear'],
 		});
 	}
 
@@ -37,67 +37,42 @@ export default class EmbedEditCommand extends Command {
 					if (failure.value === '!me') return `${str}\n\nI can only edit my own message.`;
 					if (failure.value === '!embed') return `${str}\n\nThere's no embed on this message.\nUse \`${(this.handler.prefix as PrefixSupplier)(msg)}embed send\` to create one.`;
 					return str;
-				}
-			}
+				},
+			},
 		};
 
 		const option = yield {
-			type: Argument.validate([
-				['author'],
-				['author:icon'],
-				['author:url'],
-				['color'],
-				['field'],
-				['description'],
-				['footer'],
-				['footer:icon'],
-				['image'],
-				['thumbnail'],
-				['timestamp'],
-				['title'],
-				['url'],
-			],
+			type: Argument.validate(
+				[['author'], ['author:icon'], ['author:url'], ['color'], ['field'], ['description'], ['footer'], ['footer:icon'], ['image'], ['thumbnail'], ['timestamp'], ['title'], ['url']],
 				(msg, phrase, value) => {
 					let athr = true;
 					let fter = true;
 					if (['author:icon', 'author:url'].includes(value)) athr = Boolean(embedMsg.embeds[0].author.name);
 					if (['footer:icon'].includes(value)) fter = Boolean(embedMsg.embeds[0].footer.text);
-					return fter && athr && [
-						'author',
-						'author:icon',
-						'author:url',
-						'color',
-						'field',
-						'description',
-						'footer',
-						'footer:icon',
-						'image',
-						'thumbnail',
-						'timestamp',
-						'title',
-						'url',
-					].includes(value);
+					return fter && athr && ['author', 'author:icon', 'author:url', 'color', 'field', 'description', 'footer', 'footer:icon', 'image', 'thumbnail', 'timestamp', 'title', 'url'].includes(value);
 				}
 			),
 			prompt: {
 				start: 'What part of the embed do you want to edit?',
 				retry: 'What part of the embed do you want to edit?',
-			}
-		}
+			},
+		};
 
 		const clear = yield {
 			match: 'flag',
-			flag: ['--clear']
+			flag: ['--clear'],
 		};
 
-		const action = clear ? '' : yield {
-			type: option === 'color' ? 'color' : 'string',
-			match: 'rest',
-			prompt: {
-				start: 'Type the text to replace',
-				retry: 'Type the text to replace',
-			}
-		};
+		const action = clear
+			? ''
+			: yield {
+					type: option === 'color' ? 'color' : 'string',
+					match: 'rest',
+					prompt: {
+						start: 'Type the text to replace',
+						retry: 'Type the text to replace',
+					},
+			  };
 
 		return { embedMsg, option, action };
 	}
@@ -122,8 +97,8 @@ export default class EmbedEditCommand extends Command {
 				case 'field':
 					const separated = (action as string).split(',');
 					if (separated[0] && separated[1]) {
-						embed.addField(separated[0], separated[1], separated[2] === 'true' ? true : false)
-					};
+						embed.addField(separated[0], separated[1], separated[2] === 'true' ? true : false);
+					}
 
 					if (!action) {
 						embed.spliceFields(embed.fields.length - 1, 1);

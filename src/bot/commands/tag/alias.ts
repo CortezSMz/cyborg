@@ -1,6 +1,6 @@
 import { Command } from 'discord-akairo';
 import { Message } from 'discord.js';
-import { LOCALE, SETTINGS } from '../../util/constants';
+import { SETTINGS } from '../../util/constants';
 import { GRAPHQL, graphQLClient } from '../../util/graphQL';
 import { Tags } from '../../util/graphQLTypes';
 
@@ -9,7 +9,7 @@ export default class TagAliasCommand extends Command {
 		super('tag-alias', {
 			category: 'tag',
 			description: {
-				content: (message: Message) => LOCALE(message.guild!).COMMANDS.TAGS.ALIAS.DESCRIPTION,
+				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.TAGS.ALIAS.DESCRIPTION,
 				usage: () => '<--add/--del> <tag> <tagalias>',
 				examples: () => ['--add Test1 Test2', '--del "Test 2" "Test 3"', '"Test 3" "Test 4" --add'],
 			},
@@ -23,8 +23,8 @@ export default class TagAliasCommand extends Command {
 		const first = yield {
 			type: 'tag',
 			prompt: {
-				start: (message: Message) => LOCALE(message.guild!).COMMANDS.TAGS.ALIAS.PROMPT.START(message.author),
-				retry: (message: Message, { failure }: { failure: { value: string } }) => LOCALE(message.guild!).COMMANDS.TAGS.ALIAS.PROMPT.RETRY(message.author, failure.value),
+				start: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.TAGS.ALIAS.PROMPT.START(message.author),
+				retry: (message: Message, { failure }: { failure: { value: string } }) => this.client.LOCALE(message.guild!).COMMANDS.TAGS.ALIAS.PROMPT.RETRY(message.author, failure.value),
 			},
 		};
 
@@ -40,38 +40,35 @@ export default class TagAliasCommand extends Command {
 
 		const second = yield add
 			? {
-				match: 'rest',
-				type: 'existingTag',
-				prompt: {
-					start: (message: Message) => LOCALE(message.guild!).COMMANDS.TAGS.ALIAS.PROMPT_2.START(message.author),
-					retry: (message: Message, { failure }: { failure: { value: string } }) => LOCALE(message.guild!).COMMANDS.TAGS.ALIAS.PROMPT_2.RETRY(message.author, failure.value),
-				},
-			}
+					match: 'rest',
+					type: 'existingTag',
+					prompt: {
+						start: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.TAGS.ALIAS.PROMPT_2.START(message.author),
+						retry: (message: Message, { failure }: { failure: { value: string } }) => this.client.LOCALE(message.guild!).COMMANDS.TAGS.ALIAS.PROMPT_2.RETRY(message.author, failure.value),
+					},
+			  }
 			: {
-				match: 'rest',
-				type: 'string',
-				prompt: {
-					start: (message: Message) => LOCALE(message.guild!).COMMANDS.TAGS.ALIAS.PROMPT_3.START(message.author),
-					retry: (message: Message, { failure }: { failure: { value: string } }) => LOCALE(message.guild!).COMMANDS.TAGS.ALIAS.PROMPT_3.RETRY(message.author, failure.value),
-				},
-			};
+					match: 'rest',
+					type: 'string',
+					prompt: {
+						start: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.TAGS.ALIAS.PROMPT_3.START(message.author),
+						retry: (message: Message, { failure }: { failure: { value: string } }) => this.client.LOCALE(message.guild!).COMMANDS.TAGS.ALIAS.PROMPT_3.RETRY(message.author, failure.value),
+					},
+			  };
 
 		return { first, second, add, del };
 	}
 
-	public async exec(
-		message: Message,
-		{ first, second, add, del }: { first: Tags; second: string; add: boolean; del: boolean },
-	) {
+	public async exec(message: Message, { first, second, add, del }: { first: Tags; second: string; add: boolean; del: boolean }) {
 		const secondArr = second.split(',');
-		secondArr.forEach((s) => s.trim());
+		secondArr.forEach(s => s.trim());
 		if (add) {
-			if (secondArr.length && secondArr.some((s) => s.length >= 1900)) {
-				return message.util?.reply(LOCALE(message.guild!).COMMANDS.TAGS.ALIAS.TOO_LONG);
+			if (secondArr.length && secondArr.some(s => s.length >= 1900)) {
+				return message.util?.reply(this.client.LOCALE(message.guild!).COMMANDS.TAGS.ALIAS.TOO_LONG);
 			}
 			first.aliases.push(...secondArr);
 		} else if (del) {
-			secondArr.forEach((s) => {
+			secondArr.forEach(s => {
 				const index = first.aliases.indexOf(s);
 				first.aliases.splice(index, 1);
 			});
@@ -87,6 +84,6 @@ export default class TagAliasCommand extends Command {
 			},
 		});
 
-		return message.util?.reply(LOCALE(message.guild!).COMMANDS.TAGS.ALIAS.REPLY(first.name, secondArr.join(',').substring(0, 1900), add));
+		return message.util?.reply(this.client.LOCALE(message.guild!).COMMANDS.TAGS.ALIAS.REPLY(first.name, secondArr.join(',').substring(0, 1900), add));
 	}
 }

@@ -3,14 +3,14 @@ import { Command } from 'discord-akairo';
 import { GuildMember, Message, MessageEmbed, Permissions } from 'discord.js';
 import * as moment from 'moment';
 import 'moment-duration-format';
-import { LOCALE, COLORS } from '../../util/constants';
+import { COLORS } from '../../util/constants';
 
 export default class UserInfoCommand extends Command {
 	public constructor() {
 		super('user', {
 			aliases: ['user', 'member', 'user-info'],
 			description: {
-				content: (message: Message) => LOCALE(message.guild!).COMMANDS.INFO.USER.DESCRIPTION,
+				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.INFO.USER.DESCRIPTION,
 				usage: () => '[member]',
 				examples: () => ['Cosmzs', '@Cosmzs', '200502727170588673'],
 			},
@@ -38,9 +38,9 @@ export default class UserInfoCommand extends Command {
 				'ﾅ Member Details',
 				stripIndents`
 				${member.nickname == undefined /* eslint-disable-line */ ? '• No nickname' : ` • Nickname: ${member.nickname}`}
-				• Roles: ${member.roles.cache.map((roles) => `\`${roles.name}\``).join(' ')}
+				• Roles: ${member.roles.cache.map(roles => `\`${roles.name}\``).join(' ')}
 				• Joined at: ${moment.utc(member.joinedAt ?? 0).format('YYYY/MM/DD hh:mm:ss')}
-			`,
+			`
 			)
 			.addField(
 				'ﾅ User Details',
@@ -50,7 +50,7 @@ export default class UserInfoCommand extends Command {
 				• Created at: ${moment.utc(user.createdAt).format('YYYY/MM/DD hh:mm:ss')}${user.bot ? '\n• Is a bot account' : ''}
 				• Status: ${user.presence.status.toUpperCase()}
 				• Activity: ${user.presence.activities?.[0]?.name ?? 'None'}
-			`,
+			`
 			)
 			.setThumbnail(user.displayAvatarURL());
 

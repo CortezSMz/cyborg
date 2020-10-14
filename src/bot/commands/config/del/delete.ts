@@ -1,13 +1,12 @@
 import { Command, Flag, PrefixSupplier } from 'discord-akairo';
 import { Message, Permissions } from 'discord.js';
-import { LOCALE } from '../../../util/constants';
 
 export default class DeleteConfigCommand extends Command {
 	public constructor() {
 		super('config-delete', {
 			description: {
-				content: (message: Message) => LOCALE(message.guild!).COMMANDS.CONFIG.DELETE.DESCRIPTION.CONTENT,
-				usage: (message: Message) => LOCALE(message.guild!).COMMANDS.CONFIG.DELETE.DESCRIPTION.USAGE,
+				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.CONFIG.DELETE.DESCRIPTION.CONTENT,
+				usage: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.CONFIG.DELETE.DESCRIPTION.USAGE,
 				examples: () => null,
 			},
 			category: 'config',
@@ -25,7 +24,7 @@ export default class DeleteConfigCommand extends Command {
 			],
 			otherwise: (msg: Message): string => {
 				const prefix = (this.handler.prefix as PrefixSupplier)(msg);
-				return LOCALE(msg.guild!).COMMANDS.CONFIG.DELETE.REPLY(prefix);
+				return this.client.LOCALE(msg.guild!).COMMANDS.CONFIG.DELETE.REPLY(prefix);
 			},
 		};
 

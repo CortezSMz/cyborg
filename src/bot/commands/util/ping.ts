@@ -1,13 +1,13 @@
 import { Command } from 'discord-akairo';
 import { Message } from 'discord.js';
-import { LOCALE, Messages } from '../../util/constants';
+import { Messages } from '../../util/constants';
 
 export default class PingCommand extends Command {
 	public constructor() {
 		super('ping', {
 			aliases: ['ping'],
 			description: {
-				content: (message: Message) => LOCALE(message.guild!).COMMANDS.UTIL.PING.DESCRIPTION,
+				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.UTIL.PING.DESCRIPTION,
 				usage: () => null,
 				examples: () => null,
 			},
@@ -23,7 +23,7 @@ export default class PingCommand extends Command {
 		interface responses {
 			chance: number;
 			response: string;
-		};
+		}
 
 		function randomResponse(response: responses[]) {
 			var rnd = Math.random();
@@ -36,14 +36,9 @@ export default class PingCommand extends Command {
 		}
 
 		return message.util?.send(
-			randomResponse(LOCALE(message.guild!).COMMANDS.UTIL.PING.RESPONSES)
-				.replace(
-					'$(ping)',
-					(
-						(msg.editedTimestamp || msg.createdTimestamp) - (message.editedTimestamp || message.createdTimestamp)
-					).toString(),
-				)
-				.replace('$(heartbeat)', Math.round(this.client.ws.ping).toString()),
+			randomResponse(this.client.LOCALE(message.guild!).COMMANDS.UTIL.PING.RESPONSES)
+				.replace('$(ping)', ((msg.editedTimestamp || msg.createdTimestamp) - (message.editedTimestamp || message.createdTimestamp)).toString())
+				.replace('$(heartbeat)', Math.round(this.client.ws.ping).toString())
 		);
 	}
 }

@@ -1,6 +1,6 @@
 import { Command, PrefixSupplier } from 'discord-akairo';
 import { Message, MessageEmbed, Permissions } from 'discord.js';
-import { LOCALE, COLORS } from '../../util/constants';
+import { COLORS } from '../../util/constants';
 import { graphQLClient, GRAPHQL } from '../../util/graphQL';
 import { TagsInsertInput, Tags } from '../../util/graphQLTypes';
 
@@ -9,8 +9,8 @@ export default class HelpCommand extends Command {
 		super('help', {
 			aliases: ['help'],
 			description: {
-				content: (message: Message) => LOCALE(message.guild!).COMMANDS.UTIL.HELP.DESCRIPTION.CONTENT((this.handler.prefix as PrefixSupplier)(message)),
-				usage: (message: Message) => LOCALE(message.guild!).COMMANDS.UTIL.HELP.DESCRIPTION.USAGE,
+				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.UTIL.HELP.DESCRIPTION.CONTENT((this.handler.prefix as PrefixSupplier)(message)),
+				usage: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.UTIL.HELP.DESCRIPTION.USAGE,
 				examples: () => null,
 			},
 			category: 'util',
@@ -24,12 +24,12 @@ export default class HelpCommand extends Command {
 				{
 					id: 'filterByPerms',
 					match: 'flag',
-					flag: ['--perm']
+					flag: ['--perm'],
 				},
 				{
 					id: 'filterByDm',
 					match: 'flag',
-					flag: ['--dm']
+					flag: ['--dm'],
 				},
 			],
 		});
@@ -40,21 +40,21 @@ export default class HelpCommand extends Command {
 		if (!command) {
 			const embed = new MessageEmbed()
 				.setColor(COLORS.EMBED)
-				.addField(`ﾅ ${LOCALE(message.guild!).COMMANDS.UTIL.HELP.EMBED.FIELD_COMMANDS} `, LOCALE(message.guild!).COMMANDS.UTIL.HELP.REPLY(prefix, message));
+				.addField(`ﾅ ${this.client.LOCALE(message.guild!).COMMANDS.UTIL.HELP.EMBED.FIELD_COMMANDS} `, this.client.LOCALE(message.guild!).COMMANDS.UTIL.HELP.REPLY(prefix, message));
 
 			for (const category of this.handler.categories.sort().values()) {
 				if (category.id === 'owner' && message.author.id !== this.client.config.owner) continue;
 				embed.addField(
-					`ﾅ ${LOCALE(message.guild!).COMMANDS.CATEGORIES[category.id.toUpperCase()]}`,
+					`ﾅ ${this.client.LOCALE(message.guild!).COMMANDS.CATEGORIES[category.id.toUpperCase()]}`,
 					`${category
-						.filter((cmd) => cmd.aliases.length > 0) // (filterByDm && cmd.channel !== 'guild')
-						.map((cmd) => {
+						.filter(cmd => cmd.aliases.length > 0 && cmd.aliases[0] !== 'jackblack') // (filterByDm && cmd.channel !== 'guild')
+						.map(cmd => {
 							// @ts-ignore
-							if (filterByPerms && message.guild && !message.member?.permissions.has(cmd.userPermissions)) return `||_\`${cmd.aliases[0]}\`_||`
-							else if (filterByDm && cmd.channel === 'guild') return `||_\`${cmd.aliases[0]}\`_||`
-							else return `**\`${cmd.aliases[0]}\`**`
+							if (filterByPerms && message.guild && !message.member?.permissions.has(cmd.userPermissions)) return `||_\`${cmd.aliases[0]}\`_||`;
+							else if (filterByDm && cmd.channel === 'guild') return `||_\`${cmd.aliases[0]}\`_||`;
+							else return `**\`${cmd.aliases[0]}\`**`;
 						})
-						.join(' ')}\u200b`,
+						.join(' ')}\u200b`
 				);
 				if (category.id === 'tag' && message.guild) {
 					const { data } = await graphQLClient.query<any, TagsInsertInput>({
@@ -65,12 +65,13 @@ export default class HelpCommand extends Command {
 					});
 					let tags: Tags[];
 					tags = data.tags;
-					let hoistedTags = tags.filter((tag) => tag.hoisted).map((tag) => `\`${tag.name}\``).sort().join(', ');
+					let hoistedTags = tags
+						.filter(tag => tag.hoisted)
+						.map(tag => `\`${tag.name}\``)
+						.sort()
+						.join(', ');
 					if (hoistedTags) {
-						embed.addField(
-							`ﾅ ${message.guild.name} ${LOCALE(message.guild!).COMMANDS.CATEGORIES[category.id.toUpperCase()]}`,
-							hoistedTags
-						);
+						embed.addField(`ﾅ ${message.guild.name} ${this.client.LOCALE(message.guild!).COMMANDS.CATEGORIES[category.id.toUpperCase()]}`, hoistedTags);
 					}
 				}
 			}
@@ -81,13 +82,14 @@ export default class HelpCommand extends Command {
 		const embed = new MessageEmbed()
 			.setColor(COLORS.EMBED)
 			.setTitle(`\`${prefix}${command.aliases[0]} ${command.description.usage(message) || ''}\``)
-			.addField(`ﾅ ${LOCALE(message.guild!).COMMANDS.UTIL.HELP.EMBED.FIELD_DESCRIPTION} `, command.description.content(message) || '\u200b');
+			.addField(`ﾅ ${this.client.LOCALE(message.guild!).COMMANDS.UTIL.HELP.EMBED.FIELD_DESCRIPTION} `, command.description.content(message) || '\u200b');
 
-		if (command.aliases.length > 1) embed.addField(`ﾅ ${LOCALE(message.guild!).COMMANDS.UTIL.HELP.EMBED.FIELD_ALIASES} `, `\`${command.aliases.join('` `')}\``, true);
+		if (command.aliases.length > 1) embed.addField(`ﾅ ${this.client.LOCALE(message.guild!).COMMANDS.UTIL.HELP.EMBED.FIELD_ALIASES} `, `\`${command.aliases.join('` `')}\``, true);
 		if (command.description.examples(message)?.length)
-			embed.addField(`ﾅ ${LOCALE(message.guild!).COMMANDS.UTIL.HELP.EMBED.FIELD_EXAMPLES} `,
+			embed.addField(
+				`ﾅ ${this.client.LOCALE(message.guild!).COMMANDS.UTIL.HELP.EMBED.FIELD_EXAMPLES} `,
 				`\`${prefix}${command.aliases[0]} ${command.description.examples(message).join(`\`\n\`${prefix}${command.aliases[0]} `)}\``,
-				true,
+				true
 			);
 
 		return message.util?.send(embed);
