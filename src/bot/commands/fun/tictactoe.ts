@@ -1,6 +1,6 @@
 import { stripIndents } from 'common-tags';
 import { Command, Flag } from 'discord-akairo';
-import { Collection, Message, MessageEmbed, MessageReaction, Snowflake, TextChannel, User } from 'discord.js';
+import { Collection, Message, MessageEmbed, MessageReaction, Snowflake, TextChannel, User, Permissions } from 'discord.js';
 import { COLORS } from '../../util/constants';
 
 export enum Symbol {
@@ -11,7 +11,7 @@ export enum Symbol {
 export interface Player {
 	user: User;
 	turn: boolean;
-	symbol: Symbol;
+	symbol: Symbol.O | Symbol.X;
 }
 
 export interface GameInstance {
@@ -27,9 +27,9 @@ export default class TicTacToeCommand extends Command {
 	private instances: Collection<Snowflake, GameInstance> = new Collection();
 	private constructor() {
 		super('tictactoe', {
-			aliases: ['jogodavelha', 'ttt', 'velha', 'tictactoe'],
+			aliases: ['ttt', 'velha', 'tictactoe', 'jogodavelha'],
 			description: {
-				content: () => `Reaja com o número lugar onde quer colocar seu ${Symbol['O']} ou ${Symbol['X']}`,
+				content: () => `Reaja com o número lugar onde quer colocar seu ${Symbol.O} ou ${Symbol.X}`,
 				usage: () => '',
 				examples: () => [''],
 			},
@@ -37,6 +37,9 @@ export default class TicTacToeCommand extends Command {
 				if (this.getInstance(msg.author)) this.getInstance(msg.author)?.delete();
 			},
 			channel: 'guild',
+			clientPermissions: [Permissions.FLAGS.MANAGE_MESSAGES],
+			category: 'fun',
+			ratelimit: 2,
 		});
 	}
 
@@ -48,7 +51,7 @@ export default class TicTacToeCommand extends Command {
 		const player: Player = {
 			user,
 			turn: second ? false : true,
-			symbol: second ? Symbol['O'] : Symbol['X'],
+			symbol: second ? Symbol.O : Symbol.X,
 		};
 		return player;
 	}
@@ -136,8 +139,8 @@ export default class TicTacToeCommand extends Command {
 					reaction.first()?.remove();
 					msg.util?.send({
 						embed: embed.setDescription(stripIndents`
-						${msg.author} entrou no jogo como ${Symbol['X']}
-						${user} entrou no jogo como ${Symbol['O']}
+						${msg.author} entrou no jogo como ${Symbol.X}
+						${user} entrou no jogo como ${Symbol.O}
 						
 						${this.client.emojis.cache.get('709533456866213930')} Carregando...
 						`),

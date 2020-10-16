@@ -1,5 +1,5 @@
 import { Flag, Command } from 'discord-akairo';
-import { MessageReaction, Message, User, Collection, MessageEmbed, Snowflake } from 'discord.js';
+import { MessageReaction, Message, User, Collection, MessageEmbed, Snowflake, Permissions } from 'discord.js';
 import { COLORS } from '../../util/constants';
 
 export enum SlotsIcons {
@@ -21,8 +21,10 @@ export default class SlotsCommand extends Command {
 	private instances: Collection<Snowflake, GameInstance> = new Collection();
 	public constructor() {
 		super('slots', {
-			aliases: ['slotsmachine', 'slots'],
-			clientPermissions: ['USE_EXTERNAL_EMOJIS'],
+			aliases: ['slotmachine', 'slots'],
+			clientPermissions: [Permissions.FLAGS.USE_EXTERNAL_EMOJIS],
+			category: 'fun',
+			ratelimit: 2,
 		});
 	}
 

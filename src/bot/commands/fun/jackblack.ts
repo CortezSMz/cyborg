@@ -5,6 +5,7 @@ export default class JackblackCommand extends Command {
 	public constructor() {
 		super('jackblack', {
 			aliases: ['jackblack'],
+			category: 'fun',
 		});
 	}
 
