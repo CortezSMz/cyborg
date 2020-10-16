@@ -25,7 +25,7 @@ export interface GameInstance {
 	delete(): boolean;
 	players: Player[];
 	channel: TextChannel;
-	board: string[][];
+	board: Symbol[][];
 	embed: MessageEmbed;
 }
 
@@ -103,88 +103,75 @@ export default class ConnectFourCommand extends Command {
 		instance.players.forEach((p: Player) => (p.turn = !p.turn));
 	}
 
-	private check4(one: string, two: string, three: string, four: string): string | null {
-		const set = new Set([one, two, three, four]);
-		return set.size === 1 ? Array.from(set.values())[0] : null;
-	}
-
 	private check(user: User): User | null {
 		const instance = this.getInstance(user)!;
 		const b = instance.board;
-		const ayy =
-			// first line
-			this.check4(b[0][0], b[0][1], b[0][2], b[0][3]) ||
-			this.check4(b[0][1], b[0][2], b[0][3], b[0][4]) ||
-			this.check4(b[0][2], b[0][3], b[0][4], b[0][5]) ||
-			this.check4(b[0][3], b[0][4], b[0][5], b[0][6]) ||
-			// second line
-			this.check4(b[1][0], b[1][1], b[1][2], b[1][3]) ||
-			this.check4(b[1][1], b[1][2], b[1][3], b[1][4]) ||
-			this.check4(b[1][2], b[1][3], b[1][4], b[1][5]) ||
-			this.check4(b[1][3], b[1][4], b[1][5], b[1][6]) ||
-			// third line
-			this.check4(b[2][0], b[2][1], b[2][2], b[2][3]) ||
-			this.check4(b[2][1], b[2][2], b[2][3], b[2][4]) ||
-			this.check4(b[2][2], b[2][3], b[2][4], b[2][5]) ||
-			this.check4(b[2][3], b[2][4], b[2][5], b[2][6]) ||
-			// fourth line
-			this.check4(b[3][0], b[3][1], b[3][2], b[3][3]) ||
-			this.check4(b[3][1], b[3][2], b[3][3], b[3][4]) ||
-			this.check4(b[3][2], b[3][3], b[3][4], b[3][5]) ||
-			this.check4(b[3][3], b[3][4], b[3][5], b[3][6]) ||
-			// fifth line
-			this.check4(b[4][0], b[4][1], b[4][2], b[4][3]) ||
-			this.check4(b[4][1], b[4][2], b[4][3], b[4][4]) ||
-			this.check4(b[4][2], b[4][3], b[4][4], b[4][5]) ||
-			this.check4(b[4][3], b[4][4], b[4][5], b[4][6]) ||
-			// sixth line
-			this.check4(b[5][0], b[5][1], b[5][2], b[5][3]) ||
-			this.check4(b[5][1], b[5][2], b[5][3], b[5][4]) ||
-			this.check4(b[5][2], b[5][3], b[5][4], b[5][5]) ||
-			this.check4(b[5][3], b[5][4], b[5][5], b[5][6]) ||
-			// first column
-			this.check4(b[0][0], b[1][0], b[2][0], b[3][0]) ||
-			this.check4(b[1][0], b[2][0], b[3][0], b[4][0]) ||
-			this.check4(b[2][0], b[3][0], b[4][0], b[5][0]) ||
-			// second column
-			this.check4(b[0][1], b[1][1], b[2][1], b[3][1]) ||
-			this.check4(b[1][1], b[2][1], b[3][1], b[4][1]) ||
-			this.check4(b[2][1], b[3][1], b[4][1], b[5][1]) ||
-			// third column
-			this.check4(b[0][2], b[1][2], b[2][2], b[3][2]) ||
-			this.check4(b[1][2], b[2][2], b[3][2], b[4][2]) ||
-			this.check4(b[2][2], b[3][2], b[4][2], b[5][2]) ||
-			// fourth column
-			this.check4(b[0][3], b[1][3], b[2][3], b[3][3]) ||
-			this.check4(b[1][3], b[2][3], b[3][3], b[4][3]) ||
-			this.check4(b[2][3], b[3][3], b[4][3], b[5][3]) ||
-			// fifth column
-			this.check4(b[0][4], b[1][4], b[2][4], b[3][4]) ||
-			this.check4(b[1][4], b[2][4], b[3][4], b[4][4]) ||
-			this.check4(b[2][4], b[3][4], b[4][4], b[5][4]) ||
-			// sixth column
-			this.check4(b[0][5], b[1][5], b[2][5], b[3][5]) ||
-			this.check4(b[1][5], b[2][5], b[3][5], b[4][5]) ||
-			this.check4(b[2][5], b[3][5], b[4][5], b[5][5]) ||
-			// seventh column
-			this.check4(b[0][6], b[1][6], b[2][6], b[3][6]) ||
-			this.check4(b[1][6], b[2][6], b[3][6], b[4][6]) ||
-			this.check4(b[2][6], b[3][6], b[4][6], b[5][6]) ||
-			// diagonals
-			this.check4(b[2][0], b[3][1], b[4][2], b[5][3]) ||
-			this.check4(b[2][1], b[3][2], b[4][3], b[5][4]) ||
-			this.check4(b[1][0], b[2][1], b[3][2], b[4][3]) ||
-			this.check4(b[2][2], b[3][3], b[4][4], b[5][5]) ||
-			this.check4(b[1][1], b[2][2], b[3][3], b[4][4]) ||
-			this.check4(b[0][0], b[1][1], b[2][2], b[3][3]) ||
-			this.check4(b[2][3], b[3][4], b[4][5], b[5][6]) ||
-			this.check4(b[1][2], b[2][3], b[3][4], b[4][5]) ||
-			this.check4(b[0][1], b[1][2], b[2][3], b[3][4]) ||
-			this.check4(b[1][3], b[2][4], b[3][5], b[4][6]) ||
-			this.check4(b[0][2], b[1][3], b[2][4], b[3][5]) ||
-			this.check4(b[0][3], b[1][4], b[2][5], b[3][6]) ||
-			null;
-		return instance.players.find((p: Player) => p.symbol === ayy)?.user || null;
+		const winning = [
+			[b[0][0], b[0][1], b[0][2], b[0][3]],
+			[b[0][1], b[0][2], b[0][3], b[0][4]],
+			[b[0][2], b[0][3], b[0][4], b[0][5]],
+			[b[0][3], b[0][4], b[0][5], b[0][6]],
+			[b[1][0], b[1][1], b[1][2], b[1][3]],
+			[b[1][1], b[1][2], b[1][3], b[1][4]],
+			[b[1][2], b[1][3], b[1][4], b[1][5]],
+			[b[1][3], b[1][4], b[1][5], b[1][6]],
+			[b[2][0], b[2][1], b[2][2], b[2][3]],
+			[b[2][1], b[2][2], b[2][3], b[2][4]],
+			[b[2][2], b[2][3], b[2][4], b[2][5]],
+			[b[2][3], b[2][4], b[2][5], b[2][6]],
+			[b[3][0], b[3][1], b[3][2], b[3][3]],
+			[b[3][1], b[3][2], b[3][3], b[3][4]],
+			[b[3][2], b[3][3], b[3][4], b[3][5]],
+			[b[3][3], b[3][4], b[3][5], b[3][6]],
+			[b[4][0], b[4][1], b[4][2], b[4][3]],
+			[b[4][1], b[4][2], b[4][3], b[4][4]],
+			[b[4][2], b[4][3], b[4][4], b[4][5]],
+			[b[4][3], b[4][4], b[4][5], b[4][6]],
+			[b[5][0], b[5][1], b[5][2], b[5][3]],
+			[b[5][1], b[5][2], b[5][3], b[5][4]],
+			[b[5][2], b[5][3], b[5][4], b[5][5]],
+			[b[5][3], b[5][4], b[5][5], b[5][6]],
+			[b[0][0], b[1][0], b[2][0], b[3][0]],
+			[b[1][0], b[2][0], b[3][0], b[4][0]],
+			[b[2][0], b[3][0], b[4][0], b[5][0]],
+			[b[0][1], b[1][1], b[2][1], b[3][1]],
+			[b[1][1], b[2][1], b[3][1], b[4][1]],
+			[b[2][1], b[3][1], b[4][1], b[5][1]],
+			[b[0][2], b[1][2], b[2][2], b[3][2]],
+			[b[1][2], b[2][2], b[3][2], b[4][2]],
+			[b[2][2], b[3][2], b[4][2], b[5][2]],
+			[b[0][3], b[1][3], b[2][3], b[3][3]],
+			[b[1][3], b[2][3], b[3][3], b[4][3]],
+			[b[2][3], b[3][3], b[4][3], b[5][3]],
+			[b[0][4], b[1][4], b[2][4], b[3][4]],
+			[b[1][4], b[2][4], b[3][4], b[4][4]],
+			[b[2][4], b[3][4], b[4][4], b[5][4]],
+			[b[0][5], b[1][5], b[2][5], b[3][5]],
+			[b[1][5], b[2][5], b[3][5], b[4][5]],
+			[b[2][5], b[3][5], b[4][5], b[5][5]],
+			[b[0][6], b[1][6], b[2][6], b[3][6]],
+			[b[1][6], b[2][6], b[3][6], b[4][6]],
+			[b[2][6], b[3][6], b[4][6], b[5][6]],
+			[b[2][0], b[3][1], b[4][2], b[5][3]],
+			[b[2][1], b[3][2], b[4][3], b[5][4]],
+			[b[1][0], b[2][1], b[3][2], b[4][3]],
+			[b[2][2], b[3][3], b[4][4], b[5][5]],
+			[b[1][1], b[2][2], b[3][3], b[4][4]],
+			[b[0][0], b[1][1], b[2][2], b[3][3]],
+			[b[2][3], b[3][4], b[4][5], b[5][6]],
+			[b[1][2], b[2][3], b[3][4], b[4][5]],
+			[b[0][1], b[1][2], b[2][3], b[3][4]],
+			[b[1][3], b[2][4], b[3][5], b[4][6]],
+			[b[0][2], b[1][3], b[2][4], b[3][5]],
+			[b[0][3], b[1][4], b[2][5], b[3][6]],
+		];
+
+		for (const win of winning) {
+			if (win[0] === win[1] && win[0] === win[2] && win[0] === win[3] && win[0] !== Symbol.EMPTY) {
+				return instance.players.find((p: Player) => p.symbol === win[0])?.user!;
+			} else continue;
+		}
+		return null;
 	}
 
 	public *args(msg: Message) {
