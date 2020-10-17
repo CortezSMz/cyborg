@@ -22,6 +22,11 @@ export default class SlotsCommand extends Command {
 	public constructor() {
 		super('slots', {
 			aliases: ['slotmachine', 'slots'],
+			description: {
+				content: () => `Puxe a alavanca e aguarde para ver o resultado.`,
+				usage: () => '',
+				examples: () => [''],
+			},
 			clientPermissions: [Permissions.FLAGS.USE_EXTERNAL_EMOJIS],
 			category: 'fun',
 			ratelimit: 2,

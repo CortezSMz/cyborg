@@ -30,37 +30,56 @@ function tokenize(str: string) {
 
 function convert(num: number, type: string) {
 	switch (type) {
+		case 'anos':
+		case 'ano':
+		case 'a':
 		case 'years':
 		case 'year':
 		case 'yrs':
 		case 'yr':
 		case 'y':
 			return moment.duration({ year: num }).asMilliseconds();
+		case 'meses':
+		case 'mêses':
+		case 'mês':
+		case 'mes':
 		case 'months':
 		case 'month':
 		case 'mts':
 		case 'mt':
 			return moment.duration({ month: num }).asMilliseconds();
+		case 'semanas':
+		case 'semana':
 		case 'weeks':
 		case 'week':
 		case 'w':
 			return moment.duration({ week: num }).asMilliseconds();
+		case 'dias':
+		case 'dia':
 		case 'days':
 		case 'day':
 		case 'd':
 			return moment.duration({ day: num }).asMilliseconds();
+		case 'horas':
+		case 'hora':
 		case 'hours':
 		case 'hour':
 		case 'hrs':
 		case 'hr':
 		case 'h':
 			return moment.duration({ hour: num }).asMilliseconds();
+		case 'minutos':
+		case 'minuto':
 		case 'minutes':
 		case 'minute':
 		case 'mins':
 		case 'min':
 		case 'm':
 			return moment.duration({ minute: num }).asMilliseconds();
+		case 'segundos':
+		case 'segundo':
+		case 'segs':
+		case 'seg':
 		case 'seconds':
 		case 'second':
 		case 'secs':

@@ -1,15 +1,7 @@
+import { Argument, Flag, Command, PrefixSupplier } from 'discord-akairo';
+import { Permissions, User, MessageEmbed, Message, Snowflake, Collection, TextChannel, Guild } from 'discord.js';
 import { stripIndents } from 'common-tags';
-import { Argument, Flag, Command } from 'discord-akairo';
-import { Permissions, User, MessageEmbed, Message, Snowflake, Collection, TextChannel } from 'discord.js';
 import { COLORS } from '../../util/constants';
-
-export enum PlayerStatus {
-	STANDING = 'Waiting...',
-	DRAWING = 'Drawing cards...',
-	WON = 'Won!',
-	LOST = 'Lost...',
-	TIE = 'Tie!',
-}
 
 export interface Card {
 	value: string;
@@ -20,7 +12,7 @@ export interface Card {
 export interface Player {
 	user: User;
 	hand: Array<Card>;
-	status: PlayerStatus;
+	status: string;
 }
 
 export interface GameInstance {
@@ -41,14 +33,9 @@ export default class BlackJackCommand extends Command {
 		super('blackjack', {
 			aliases: ['blackjack'],
 			description: {
-				content: (msg: Message) => stripIndents`
-				Type \`h\` to \`hit\` or type \`s\` to \`stand\`.
-
-				Type \`${msg.util?.parsed?.prefix}blackjack join @${msg.author.username} \` to join a on-going game.
-
-				\`Jack\`, \`Queen\` and \`King\` = \`10\`       \`Ace\` = \`11\` or \`1\``,
+				content: (msg: Message) => this.client.LOCALE(msg.guild).COMMANDS.FUN.BLACKJACK.DESCRIPTION.CONTENT((this.handler.prefix as PrefixSupplier)(msg), msg.author.username),
 				usage: () => '',
-				examples: () => ['join @Cosmzs'],
+				examples: (msg: Message) => this.client.LOCALE(msg.guild).COMMANDS.FUN.BLACKJACK.DESCRIPTION.EXAMPLES,
 			},
 			// userPermissions: (msg: Message) => {
 			//	if (this.getInstance(msg.author)) return "You're already on a blackjack game.";
@@ -104,12 +91,12 @@ export default class BlackJackCommand extends Command {
 		}
 	};
 
-	private createPlayer(author: User): Player {
+	private createPlayer(author: User, guild: Guild): Player {
 		const hand: Array<Card> = [];
 		const player: Player = {
 			user: author,
 			hand,
-			status: PlayerStatus.DRAWING,
+			status: this.client.LOCALE(guild).COMMANDS.FUN.BLACKJACK.PLAYERSTATUS.DRAWING,
 		};
 		return player;
 	}
@@ -187,11 +174,12 @@ export default class BlackJackCommand extends Command {
 		return false;
 	};
 
-	private check(user: User, { natural = false, phrase = '' }: { natural?: boolean; phrase?: string } = {}) {
+	private check(user: User, guild: Guild, { natural = false, phrase = '' }: { natural?: boolean; phrase?: string } = {}) {
 		const instance = this.getInstance(user)!;
 		const bot = instance.players.find((p: Player) => p.user.bot)!;
 		const player = instance.players.find((p: Player) => p.user.id === user.id)!;
 		const playerScore = this.getScore(player);
+		const PlayerStatus = this.client.LOCALE(guild).COMMANDS.FUN.BLACKJACK.PLAYERSTATUS;
 		let playerEnded: boolean = false;
 
 		if (natural) {
@@ -204,7 +192,7 @@ export default class BlackJackCommand extends Command {
 			instance.ended = instance.players.filter((p: Player) => p.status !== PlayerStatus.DRAWING && !p.user.bot).length === instance.players.filter((p: Player) => !p.user.bot).length;
 		}
 
-		if (playerScore === 21 || phrase === 'stand') {
+		if (playerScore === 21 || phrase === this.client.LOCALE(guild).COMMANDS.FUN.BLACKJACK.PROMPT.PLAYS[1][0]) {
 			playerEnded = true;
 			player.status = PlayerStatus.STANDING;
 			instance.ended = instance.players.filter((p: Player) => p.status !== PlayerStatus.DRAWING && !p.user.bot).length === instance.players.filter((p: Player) => !p.user.bot).length;
@@ -218,11 +206,12 @@ export default class BlackJackCommand extends Command {
 			natural: { h: botNatural, p: playerNatural },
 		};
 
-		return instance.ended ? this.end(user, result) : playerEnded ? result : Flag.fail(phrase);
+		return instance.ended ? this.end(user, guild, result) : playerEnded ? result : Flag.fail(phrase);
 	}
 
 	private end(
 		user: User,
+		guild: Guild,
 		result: {
 			player: Player[] | null;
 			natural: { h: boolean; p: boolean };
@@ -230,10 +219,9 @@ export default class BlackJackCommand extends Command {
 	): { player: Player[] | null; natural: { h: boolean; p: boolean } } {
 		const instance = this.getInstance(user)!;
 		const bot = instance.players.find((p: Player) => p.user.bot)!;
-		const player = instance.players.find((p: Player) => p.user.id === user.id)!;
 
 		if (result.natural.p || result.natural.h) {
-			this.setWinner(user, {
+			this.setWinner(user, guild, {
 				players: instance.players.filter((p: Player) => this.getScore(p) === 21 && p.hand.length === 2),
 				tie: instance.players.filter((p: Player) => this.getScore(p) === 21 && p.hand.length === 2).length > 1,
 			});
@@ -261,13 +249,14 @@ export default class BlackJackCommand extends Command {
 				return this.getScore(p) === highestScore && this.getScore(p) <= 21;
 			});
 
-		this.setWinner(user, { players: highestPlayers, tie: highestPlayers.length > 1 });
+		this.setWinner(user, guild, { players: highestPlayers, tie: highestPlayers.length > 1 });
 
 		return (result = { player: highestPlayers, natural: result.natural });
 	}
 
-	private setWinner(user: User, { players, tie }: { players: Player[]; tie: boolean }): void {
+	private setWinner(user: User, guild: Guild, { players, tie }: { players: Player[]; tie: boolean }): void {
 		const instance = this.getInstance(user)!;
+		const PlayerStatus = this.client.LOCALE(guild).COMMANDS.FUN.BLACKJACK.PLAYERSTATUS;
 		for (const player of instance.players) {
 			if (players.some((p: Player) => player.user.id === p.user.id)) player.status = tie ? PlayerStatus.TIE : PlayerStatus.WON;
 			else player.status = PlayerStatus.LOST;
@@ -289,11 +278,11 @@ export default class BlackJackCommand extends Command {
 
 		if (join) {
 			const instance = this.getInstance(join)!;
-			instance.players = [...instance.players, this.createPlayer(msg.author)];
+			instance.players = [...instance.players, this.createPlayer(msg.author, msg.guild!)];
 		} else {
 			this.instances.set(msg.author.id, {
 				delete: () => this.instances.delete(msg.author.id),
-				players: [this.createPlayer(this.client.user!), this.createPlayer(msg.author)],
+				players: [this.createPlayer(this.client.user!, msg.guild!), this.createPlayer(msg.author, msg.guild!)],
 				channel: msg.channel as TextChannel,
 				deck: this.createDeck(),
 				embed: new MessageEmbed(),
@@ -305,35 +294,29 @@ export default class BlackJackCommand extends Command {
 		this.updateEmbed(msg.author);
 
 		if (this.getInstance(msg.author)?.players.some((p: Player) => this.checkNatural(p))) {
-			return this.check(msg.author, { natural: true });
+			return this.check(msg.author, msg.guild!, { natural: true });
 		}
 
 		const result: {
 			player: Player[] | null;
 			natural: { h: boolean; p: boolean };
 		} = yield {
-			type: Argument.compose(
-				[
-					['hit', 'h', 'draw', 'd'],
-					['stand', 's', 'stay', 'leave', 'l', 'stop'],
-				],
-				(msg: Message, phrase: string) => {
-					if (phrase === 'hit') this.hit(msg.author);
+			type: Argument.compose(this.client.LOCALE(msg.guild).COMMANDS.FUN.BLACKJACK.PROMPT.PLAYS, (msg: Message, phrase: string) => {
+				if (phrase === this.client.LOCALE(msg.guild).COMMANDS.FUN.BLACKJACK.PROMPT.PLAYS[0][0]) this.hit(msg.author);
 
-					this.updateEmbed(msg.author);
+				this.updateEmbed(msg.author);
 
-					return this.check(msg.author, { phrase });
-				}
-			),
+				return this.check(msg.author, msg.guild!, { phrase });
+			}),
 			prompt: {
 				time: 300000,
 				retries: Infinity,
 				start: {
-					content: 'Type `h` to `hit` or `s` to `stand`.',
+					content: this.client.LOCALE(msg.guild).COMMANDS.FUN.BLACKJACK.PROMPT.CONTENT,
 					embed: this.getInstance(msg.author)!.embed,
 				},
 				retry: {
-					content: 'Type `h` to `hit` or `s` to `stand`.',
+					content: this.client.LOCALE(msg.guild).COMMANDS.FUN.BLACKJACK.PROMPT.CONTENT,
 					embed: this.getInstance(msg.author)!.embed,
 				},
 			},
@@ -349,9 +332,12 @@ export default class BlackJackCommand extends Command {
 		let string: string = '';
 
 		if (natural.h || natural.p) string = 'Blackjack! ';
-		if (instance.ended && player?.length) string += `${player.map((p: Player) => p.user).join(' & ')} ${player.length > 1 ? 'tied' : 'won'} the game!`;
-		else if (instance.ended) string += ` The game has ended.`;
-		else string = 'Waiting for everyone to finish...';
+		if (instance.ended && player?.length)
+			string +=
+				`${player.map((p: Player) => p.user).join(' & ')} ${player.length > 1 ? this.client.LOCALE(message.guild).COMMANDS.FUN.BLACKJACK.TIED : this.client.LOCALE(message.guild).COMMANDS.FUN.BLACKJACK.WON} ` +
+				this.client.LOCALE(message.guild).COMMANDS.FUN.BLACKJACK.THE_GAME;
+		else if (instance.ended) string += ' ' + this.client.LOCALE(message.guild).COMMANDS.FUN.BLACKJACK.ENDED;
+		else string = this.client.LOCALE(message.guild).COMMANDS.FUN.BLACKJACK.WAITING;
 
 		message.channel.send(string, {
 			embed: instance.embed.setColor(!instance.ended ? COLORS.EMBED : '#e6101b'),

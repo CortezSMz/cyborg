@@ -1,5 +1,6 @@
-import { Guild } from 'discord.js';
+import { User, TextChannel, GuildEmoji, MessageEmbed, Guild, Message } from 'discord.js';
 import CyborgClient from '../client/CyborgClient';
+import * as emojis from 'node-emoji';
 
 export const PRODUCTION = process.env.NODE_ENV === 'production';
 
@@ -54,8 +55,22 @@ export const isPremium = (guild: Guild) => {
 export interface Messages {
 	COMMAND_HANDLER: {
 		PROMPT: {
-			MODIFY_START: Function;
-			MODIFY_RETRY: Function;
+			MODIFY_START(
+				str: string | { content: string; embed: MessageEmbed }
+			):
+				| string
+				| {
+						content: string;
+						embed: MessageEmbed;
+				  };
+			MODIFY_RETRY(
+				str: string | { content: string; embed: MessageEmbed }
+			):
+				| string
+				| {
+						content: string;
+						embed: MessageEmbed;
+				  };
 			CANCEL_WORD: string;
 			STOP_WORD: string;
 			TIMEOUT: string;
@@ -70,12 +85,52 @@ export interface Messages {
 		COMMAND_HANDLER: {
 			MISSING_PERMISSIONS: {
 				CLIENT: string;
-				USER: Function;
+				USER(user: User): string;
 			};
 		};
 	};
 
 	COMMANDS: {
+		CATEGORIES: {
+			[category: string]: string;
+			FUN: string;
+			CONFIG: string;
+			INFO: string;
+			OWNER: string;
+			REACTIONROLE: string;
+			TAG: string;
+			UTIL: string;
+			TWITCH: string;
+		};
+
+		FUN: {
+			BLACKJACK: {
+				DESCRIPTION: {
+					CONTENT(prefix: string | string[] | Promise<string | string[]>, user: string): string;
+					EXAMPLES: string[];
+				};
+				PLAYERSTATUS: {
+					STANDING: string;
+					DRAWING: string;
+					WON: string;
+					LOST: string;
+					TIE: string;
+				};
+				PROMPT: {
+					PLAYS: string[][];
+					CONTENT: string;
+				};
+				ENDED: string;
+				WAITING: string;
+				TIED: string;
+				WON: string;
+				THE_GAME: string;
+			};
+			CONNECTFOUR: {};
+			SLOTS: {};
+			TICTACTOE: {};
+		};
+
 		EMBED: {
 			DESCRIPTION: {
 				CONTENT: string;
@@ -106,7 +161,7 @@ export interface Messages {
 					CONTENT: string;
 					USAGE: string;
 				};
-				REPLY: Function;
+				REPLY(prefix: string | string[] | Promise<string | string[]>): string;
 				ROLE_STATE: {
 					DESCRIPTION: {
 						CONTENT: string;
@@ -121,14 +176,14 @@ export interface Messages {
 					CONTENT: string;
 					USAGE: string;
 				};
-				REPLY: Function;
+				REPLY(prefix: string | string[] | Promise<string | string[]>): string;
 				MEMBER_LOG: {
 					DESCRIPTION: {
 						CONTENT: string;
 						USAGE: string;
 						EXAMPLES: string[];
 					};
-					REPLY: Function;
+					REPLY(channel: string): string;
 				};
 
 				AUTO_ROLE: {
@@ -137,7 +192,7 @@ export interface Messages {
 						USAGE: string;
 						EXAMPLES: string[];
 					};
-					REPLY: Function;
+					REPLY(channel: string): string;
 				};
 			};
 
@@ -146,7 +201,7 @@ export interface Messages {
 					CONTENT: string;
 					USAGE: string;
 				};
-				REPLY: Function;
+				REPLY(prefix: string | string[] | Promise<string | string[]>): string;
 				MEMBER_LOG: {
 					DESCRIPTION: {
 						CONTENT: string;
@@ -176,24 +231,12 @@ export interface Messages {
 			};
 		};
 
-		CATEGORIES: {
-			[category: string]: string;
-			FUN: string;
-			CONFIG: string;
-			INFO: string;
-			OWNER: string;
-			REACTIONROLE: string;
-			TAG: string;
-			UTIL: string;
-			TWITCH: string;
-		};
-
 		REACTIONROLE: {
 			CREATE: {
 				DESCRIPTION: string;
 				PROMPT: {
-					START_TITLE: Function;
-					RETRY_TITLE: Function;
+					START_TITLE(author: User): string;
+					RETRY_TITLE(author: User): string;
 				};
 			};
 		};
@@ -201,24 +244,24 @@ export interface Messages {
 		OWNER: {
 			RELOAD: {
 				PROMPT: {
-					START: Function;
-					RETRY: Function;
+					START(author: User): string;
+					RETRY(author: User): string;
 				};
 			};
 
 			BLACKLIST: {
 				DESCRIPTION: string;
 				PROMPT: {
-					START: Function;
+					START(author: User): string;
 				};
-				REPLY: Function;
-				REPLY_2: Function;
+				REPLY(user: string): string;
+				REPLY_2(user: string): string;
 			};
 
 			EVAL: {
 				DESCRIPTION: string;
 				PROMPT: {
-					START: Function;
+					START(author: User): string;
 				};
 			};
 		};
@@ -231,10 +274,10 @@ export interface Messages {
 					EXAMPLES: string[];
 				};
 				EMBED: {
-					DESCRIPTION: Function;
+					DESCRIPTION(channel: TextChannel): string;
 					FIELD_INFO: {
 						NAME: string;
-						VALUE: Function;
+						VALUE(channel: TextChannel): string;
 					};
 				};
 			};
@@ -244,19 +287,19 @@ export interface Messages {
 					CONTENT: string;
 				};
 				PROMPT: {
-					START: Function;
-					RETRY: Function;
+					START(author: User): string;
+					RETRY(author: User): string;
 				};
 				EMBED: {
 					DESCRIPTION: {
-						GUILDEMOJI: Function;
-						EMOJI: Function;
+						GUILDEMOJI(emoji: GuildEmoji): string;
+						EMOJI(emoji: emojis.Emoji): string;
 					};
 					FIELD_INFO: {
 						NAME: string;
 						VALUE: {
-							GUILDEMOJI: Function;
-							EMOJI: Function;
+							GUILDEMOJI(emoji: GuildEmoji): string;
+							EMOJI(emoji: emojis.Emoji): string;
 						};
 					};
 				};
@@ -276,47 +319,51 @@ export interface Messages {
 		};
 
 		TAGS: {
-			DESCRIPTION: string;
+			DESCRIPTION: {
+				CONTENT: string;
+				USAGE: string;
+				EXAMPLES: string[];
+			};
 
 			ADD: {
 				DESCRIPTION: string;
 				PROMPT: {
-					START: Function;
-					RETRY: Function;
+					START(author: User | null): string;
+					RETRY(author: User | null, val: string): string;
 				};
 				PROMPT_2: {
-					START: Function;
+					START(author: User | null): string;
 				};
 				TOO_LONG: string;
-				REPLY: Function;
+				REPLY(name: string): string;
 			};
 
 			ALIAS: {
 				DESCRIPTION: string;
 				PROMPT: {
-					START: Function;
-					RETRY: Function;
+					START(author: User): string;
+					RETRY(author: User, val: string): string;
 				};
 				PROMPT_2: {
-					START: Function;
-					RETRY: Function;
+					START(author: User): string;
+					RETRY(author: User, val: string): string;
 				};
 				PROMPT_3: {
-					START: Function;
-					RETRY: Function;
+					START(author: User): string;
+					RETRY(author: User, val: string): string;
 				};
 				TOO_LONG: string;
-				REPLY: Function;
+				REPLY(first: string, second: string, add: boolean): string;
 			};
 
 			DELETE: {
 				DESCRIPTION: string;
 				PROMPT: {
-					START: Function;
-					RETRY: Function;
+					START(author: User): string;
+					RETRY(author: User, val: string): string;
 				};
 				OWN_TAG: string;
-				REPLY: Function;
+				REPLY(tag: string): string;
 			};
 
 			DOWNLOAD: {
@@ -327,52 +374,52 @@ export interface Messages {
 			EDIT: {
 				DESCRIPTION: string;
 				PROMPT: {
-					START: Function;
-					RETRY: Function;
+					START(author: User): string;
+					RETRY(author: User, val: string): string;
 				};
 				PROMPT_2: {
-					START: Function;
+					START(author: User): string;
 				};
 				OWN_TAG: string;
 				TOO_LONG: string;
-				REPLY: Function;
+				REPLY(tag: string, hoist: boolean, template: boolean): string;
 			};
 
 			INFO: {
 				DESCRIPTION: string;
 				PROMPT: {
-					START: Function;
-					RETRY: Function;
+					START(author: User): string;
+					RETRY(author: User, val: string): string;
 				};
 			};
 
 			LIST: {
 				DESCRIPTION: string;
-				NO_TAGS: Function;
-				GUILD_NO_TAGS: Function;
+				NO_TAGS(member?: string): string;
+				GUILD_NO_TAGS(guild: string): string;
 			};
 
 			SEARCH: {
 				DESCRIPTION: string;
 				PROMPT: {
-					START: Function;
+					START(author: User): string;
 				};
-				NO_RESULT: Function;
+				NO_RESULT(query: string): string;
 				TOO_BIG: string;
 			};
 
 			SHOW: {
 				DESCRIPTION: string;
 				PROMPT: {
-					START: Function;
+					START(author: User): string;
 				};
 			};
 
 			SOURCE: {
 				DESCRIPTION: string;
 				PROMPT: {
-					START: Function;
-					RETRY: Function;
+					START(author: User): string;
+					RETRY(author: User, val: string): string;
 				};
 			};
 		};
@@ -404,17 +451,17 @@ export interface Messages {
 				};
 
 				PROMPT: {
-					START: Function;
-					RETRY: Function;
+					START(author: User): string;
+					RETRY(author: User): string;
 				};
 			};
 
 			HELP: {
 				DESCRIPTION: {
-					CONTENT: Function;
+					CONTENT(prefix: string | string[] | Promise<string | string[]>): string;
 					USAGE: string;
 				};
-				REPLY: Function;
+				REPLY(prefix: string | string[] | Promise<string | string[]>, msg: Message): string;
 				EMBED: {
 					FIELD_COMMANDS: string;
 					FIELD_DESCRIPTION: string;
@@ -427,9 +474,9 @@ export interface Messages {
 
 			LANGUAGE: {
 				DESCRIPTION: string;
-				REPLY: Function;
-				REPLY_2: Function;
-				REPLY_3: Function;
+				REPLY(language: string): string;
+				REPLY_2(language: string): string;
+				REPLY_3(language: string): string;
 			};
 
 			PING: {
@@ -442,9 +489,9 @@ export interface Messages {
 
 			PREFIX: {
 				DESCRIPTION: string;
-				REPLY: Function;
-				REPLY_2: Function;
-				REPLY_3: Function;
+				REPLY(prefix: string | string[] | Promise<string | string[]>): string;
+				REPLY_2(prefix: string): string;
+				REPLY_3(prefix: string): string;
 			};
 
 			REMINDME: {
@@ -452,11 +499,11 @@ export interface Messages {
 				ADD: {
 					TOO_LONG: string;
 					PROMPT_TIME: {
-						START: Function;
-						RETRY: Function;
+						START(author: User): string;
+						RETRY(author: User): string;
 					};
 					PROMPT_TEXT: {
-						START: Function;
+						START(author: User): string;
 					};
 				};
 				LIST: {
@@ -473,8 +520,8 @@ export interface Messages {
 				};
 				DEL: {
 					PROMPT: {
-						START: Function;
-						RETRY: Function;
+						START(author: User): string;
+						RETRY(author: User): string;
 					};
 					ERROR: string;
 					REPLY: string;

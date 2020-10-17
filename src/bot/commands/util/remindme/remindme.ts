@@ -33,10 +33,10 @@ export default class RemindmeCommand extends Command {
 	public *args() {
 		const methodOrArg = yield {
 			type: Argument.union('duration', [
-				['remindme-add', 'add'],
-				['remindme-list', 'list', 'show'],
-				['remindme-del', 'del', 'delete', 'remove', 'rmv', 'rm'],
-				['remindme-clear', 'clear'],
+				['remindme-add', 'add', 'adicionar'],
+				['remindme-list', 'list', 'show', 'listar', 'lista'],
+				['remindme-del', 'del', 'delete', 'remove', 'rmv', 'rm', 'deletar', 'remover'],
+				['remindme-clear', 'clear', 'limpar'],
 			]),
 			prompt: {
 				start: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.UTIL.REMINDME.ADD.PROMPT_TIME.START(message.author),

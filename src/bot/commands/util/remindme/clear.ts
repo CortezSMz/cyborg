@@ -42,7 +42,7 @@ export default class RemindmeCommand extends Command {
 		}
 		const response = responses.first();
 
-		if (/^y(?:e(?:a|s)?)?$/i.test(response?.content ?? '')) {
+		if (/^y(?:e(?:a|s)?s?)?$|^s(?:i(?:m)?)?$/i.test(response?.content ?? '')) {
 			const { data } = await graphQLClient.query<any, RemindmesInsertInput>({
 				query: GRAPHQL.QUERY.REMINDMES_CLEAR_AUTHOR,
 				variables: {

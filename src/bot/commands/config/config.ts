@@ -20,11 +20,11 @@ export default class ConfigCommand extends Command {
 	public *args() {
 		const method = yield {
 			type: [
-				['config-check', 'check'],
-				['config-set', 'set'],
-				['config-delete', 'delete', 'del', 'remove', 'rm'],
-				['config-clear', 'clear'],
-				['config-toggle', 'toggle'],
+				['config-check', 'check', 'checar'],
+				['config-set', 'set', ''],
+				['config-delete', 'delete', 'del', 'remove', 'rm', 'remover', 'deletar'],
+				['config-clear', 'clear', 'limpar'],
+				['config-toggle', 'toggle', 'alternar'],
 			],
 			otherwise: (msg: Message) => {
 				this.client.commandHandler.handleDirectCommand(msg, 'config', this.client.commandHandler.modules.get('help')!);

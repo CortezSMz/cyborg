@@ -7,7 +7,7 @@ import { TagsInsertInput, Tags } from '../../util/graphQLTypes';
 export default class HelpCommand extends Command {
 	public constructor() {
 		super('help', {
-			aliases: ['help'],
+			aliases: ['help', 'h', 'ajuda'],
 			description: {
 				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.UTIL.HELP.DESCRIPTION.CONTENT((this.handler.prefix as PrefixSupplier)(message)),
 				usage: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.UTIL.HELP.DESCRIPTION.USAGE,

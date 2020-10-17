@@ -21,7 +21,7 @@ declare module 'discord-akairo' {
 		config: CyborgOptions;
 		remindmeScheduler: RemindmeScheduler;
 		twitchScheduler: TwitchScheduler;
-		LOCALE: (guild: Guild) => Messages;
+		LOCALE: (guild: Guild | null) => Messages;
 	}
 }
 
@@ -38,7 +38,7 @@ export default class CyborgClient extends AkairoClient {
 
 	public settings = new HasuraProvider();
 
-	public LOCALE: (guild: Guild) => Messages;
+	public LOCALE: (guild: Guild | null) => Messages;
 
 	public commandHandler: CommandHandler = new CommandHandler(this, {
 		directory: join(__dirname, '..', 'commands'),
@@ -103,8 +103,8 @@ export default class CyborgClient extends AkairoClient {
 
 		this.root = config.root;
 
-		this.LOCALE = (guild: Guild): Messages => {
-			let lang = this.settings.get(guild ?? null, SETTINGS.LANGUAGE, process.env.DEFAULT_LANG);
+		this.LOCALE = (guild: Guild | null): Messages => {
+			let lang = this.settings.get(guild ?? '', SETTINGS.LANGUAGE, process.env.DEFAULT_LANG);
 			// @ts-ignore
 			return locale[lang.replace(/-/g, '')].MESSAGES as Messages;
 		};

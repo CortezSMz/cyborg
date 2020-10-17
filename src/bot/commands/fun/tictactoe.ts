@@ -27,7 +27,7 @@ export default class TicTacToeCommand extends Command {
 	private instances: Collection<Snowflake, GameInstance> = new Collection();
 	private constructor() {
 		super('tictactoe', {
-			aliases: ['ttt', 'velha', 'tictactoe', 'jogodavelha'],
+			aliases: ['tictactoe', 'ttt', 'jogodavelha', 'velha'],
 			description: {
 				content: () => `Reaja com o número lugar onde quer colocar seu ${Symbol.O} ou ${Symbol.X}`,
 				usage: () => '',
@@ -68,18 +68,17 @@ export default class TicTacToeCommand extends Command {
 		return board;
 	}
 
-	private updateEmbed(msg: Message) {
+	private updateEmbed(msg: Message, finished: boolean = false) {
 		const instance = this.getInstance(msg.author)!;
-		instance.embed.setAuthor('Jogo da Velha').setColor(COLORS.EMBED).setDescription(stripIndents`
-				${instance.players
-					.map((p: Player) => {
-						if (p.turn) return `**${p.symbol}: ${p.user} <-- \✏️**`;
-						else return `${p.symbol}: ${p.user}...`;
-					})
-					.join('\n')}
+		instance.embed.setAuthor(`${Symbol.X} Jogo da Velha ${Symbol.O}`).setColor(COLORS.EMBED).setDescription(stripIndents`
+			${instance.players
+				.map((p: Player) => {
+					if (p.turn) return `${p.symbol}: ${p.user}${finished ? '' : '**<--**'}`;
+					else return `${p.symbol}: ${p.user}`;
+				})
+				.join('\n')}
 
-				${instance.board.map(sq => sq.map(s => s).join('')).join('\n')}
-				`);
+			${instance.board.map(sq => sq.map(s => s).join('')).join('\n')}`);
 	}
 
 	private turn(reaction: MessageReaction): void {
@@ -97,18 +96,25 @@ export default class TicTacToeCommand extends Command {
 
 	private check(user: User): User | null {
 		const instance = this.getInstance(user)!;
-		const ayy =
-			this.checkRow(instance.board[0][0], instance.board[0][1], instance.board[0][2]) ||
-			this.checkRow(instance.board[1][0], instance.board[1][1], instance.board[1][2]) ||
-			this.checkRow(instance.board[2][0], instance.board[2][1], instance.board[2][2]) ||
-			this.checkRow(instance.board[0][0], instance.board[1][0], instance.board[2][0]) ||
-			this.checkRow(instance.board[0][1], instance.board[1][1], instance.board[2][1]) ||
-			this.checkRow(instance.board[0][2], instance.board[1][2], instance.board[2][2]) ||
-			this.checkRow(instance.board[0][0], instance.board[1][1], instance.board[2][2]) ||
-			this.checkRow(instance.board[0][2], instance.board[1][1], instance.board[2][0]) ||
-			null;
+		const b = instance.board;
+		const conditions = [
+			[b[0][0], b[0][1], b[0][2]],
+			[b[1][0], b[1][1], b[1][2]],
+			[b[2][0], b[2][1], b[2][2]],
+			[b[0][0], b[1][0], b[2][0]],
+			[b[0][1], b[1][1], b[2][1]],
+			[b[0][2], b[1][2], b[2][2]],
+			[b[0][0], b[1][1], b[2][2]],
+			[b[0][2], b[1][1], b[2][0]],
+		];
 
-		return instance.players.find((p: Player) => p.symbol === ayy)?.user || null;
+		for (const win of conditions) {
+			if (win[0] !== Symbol.X && win[0] !== Symbol.O) continue;
+			if (win[0] === win[1] && win[0] === win[2]) {
+				return instance.players.find((p: Player) => p.symbol === win[0])?.user!;
+			}
+		}
+		return null;
 	}
 
 	public *args(msg: Message) {
@@ -163,6 +169,7 @@ export default class TicTacToeCommand extends Command {
 				let reactionMessage: Message = await msg.util?.send({ embed: instance.embed })!;
 
 				const filter = (reaction: MessageReaction, user: User) => {
+					reaction.users.remove(user);
 					return instance.board.some(l => l.some(c => c.includes(reaction.emoji.name))) && this.emojis.includes(reaction.emoji.name) && user.id === instance.players.find((p: Player) => p.turn)?.user.id;
 				};
 
@@ -173,15 +180,10 @@ export default class TicTacToeCommand extends Command {
 						const reaction = await reactionMessage?.awaitReactions(filter, { maxEmojis: 1, time: 30000, errors: ['time'] });
 						this.turn(reaction.first()!);
 
-						if (this.check(msg.author)) {
-							this.updateEmbed(msg);
-							await msg.util?.send({ embed: instance.embed })!;
-							await reactionMessage.reactions.removeAll();
-							return this.check(msg.author);
-						} else Flag.fail('...');
+						if (this.check(msg.author)) return this.check(msg.author);
+						else Flag.fail('...');
 					} catch (error) {
-						reactionMessage.reactions.removeAll();
-						msg.util?.send({ embed: instance.embed.setDescription(`Jogadores demoraram muito para escolher...\n\nO jogo foi cancelado.`) });
+						msg.util?.send({ embed: instance.embed.setDescription(`Jogadores demoraram muito para escolher...\n\nO jogo foi cancelado.`) }).then(msg => msg.reactions.removeAll());
 						return Flag.cancel();
 					}
 				}
@@ -205,11 +207,22 @@ export default class TicTacToeCommand extends Command {
 	}
 
 	public exec(message: Message, { winner }: { winner: User | string }) {
-		message.util?.message.reactions.removeAll();
 		const instance = this.getInstance(message.author)!;
 
-		if (typeof winner === 'string') message.util?.send({ embed: instance.embed.setColor('#38667d').addField(`\u200b`, 'Deu velha!') });
-		else message.util?.send({ embed: instance.embed.setColor('#06b814').addField(`\u200b`, `${winner} ganhou de ${instance.players.find((p: Player) => p.user.id !== winner.id)?.user}! 🥳🥳`) });
+		this.updateEmbed(message, true);
+
+		if (typeof winner === 'string')
+			message.util
+				?.send({
+					embed: instance.embed.setColor('#38667d').addField(`\u200b`, 'Velha!'),
+				})
+				.then(msg => msg.reactions.removeAll());
+		else
+			message.util
+				?.send({
+					embed: instance.embed.setColor('#06b814').addField(`\u200b`, `**🎊 ${winner} venceu a partida!!! 🥳🎉**\nNão foi dessa vez, ${instance.players.find((p: Player) => p.user.id !== winner.id)?.user}...`),
+				})
+				.then(msg => msg.reactions.removeAll());
 
 		instance.delete();
 	}

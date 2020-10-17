@@ -6,7 +6,6 @@ import { MessageReaction } from 'discord.js';
 import { MessageEmbed } from 'discord.js';
 import { Snowflake } from 'discord.js';
 import { Collection } from 'discord.js';
-import { TextChannel } from 'discord.js';
 import { Message } from 'discord.js';
 import { COLORS } from '../../util/constants';
 
@@ -24,7 +23,6 @@ export interface Player {
 export interface GameInstance {
 	delete(): boolean;
 	players: Player[];
-	channel: TextChannel;
 	board: Symbol[][];
 	embed: MessageEmbed;
 }
@@ -72,19 +70,18 @@ export default class ConnectFourCommand extends Command {
 		return board;
 	}
 
-	private updateEmbed(msg: Message): void {
+	private updateEmbed(msg: Message, finished: boolean = false): void {
 		const instance = this.getInstance(msg.author)!;
 		instance.embed.setAuthor(`${Symbol.YELLOW} Connect 4 ${Symbol.RED}`).setColor(COLORS.EMBED).setDescription(stripIndents`
-        ${instance.players
-			.map((p: Player) => {
-				if (p.turn) return `**${p.symbol}: ${p.user} <--️ turn**`;
-				else return `${p.symbol}: ${p.user}...`;
-			})
-			.join('\n')}
-        
-        ${instance.board.map(line => line.map(col => col).join('')).join('\n')}
-            ${this.columns.join('')}
-            `);
+			${instance.players
+				.map((p: Player) => {
+					if (p.turn) return `${p.symbol}: ${p.user}${finished ? '' : ' **<--️ turn**'}`;
+					else return `${p.symbol}: ${p.user}`;
+				})
+				.join('\n')}
+			${finished ? '' : '\nColoque a bolinha e tente conectar 4 antes do seu oponente...\n'}
+			${instance.board.map(line => line.map(col => col).join('')).join('\n')}
+			${this.columns.join('')}`);
 	}
 
 	private drop(reaction: MessageReaction): void {
@@ -106,7 +103,7 @@ export default class ConnectFourCommand extends Command {
 	private check(user: User): User | null {
 		const instance = this.getInstance(user)!;
 		const b = instance.board;
-		const winning = [
+		const conditions = [
 			[b[0][0], b[0][1], b[0][2], b[0][3]],
 			[b[0][1], b[0][2], b[0][3], b[0][4]],
 			[b[0][2], b[0][3], b[0][4], b[0][5]],
@@ -166,10 +163,11 @@ export default class ConnectFourCommand extends Command {
 			[b[0][3], b[1][4], b[2][5], b[3][6]],
 		];
 
-		for (const win of winning) {
-			if (win[0] === win[1] && win[0] === win[2] && win[0] === win[3] && win[0] !== Symbol.EMPTY) {
+		for (const win of conditions) {
+			if (win[0] === Symbol.EMPTY) continue;
+			if (win[0] === win[1] && win[0] === win[2] && win[0] === win[3]) {
 				return instance.players.find((p: Player) => p.symbol === win[0])?.user!;
-			} else continue;
+			}
 		}
 		return null;
 	}
@@ -178,7 +176,6 @@ export default class ConnectFourCommand extends Command {
 		this.instances.set(msg.author.id, {
 			delete: () => this.instances.delete(msg.author.id),
 			players: [this.createPlayer(msg.author)],
-			channel: msg.channel as TextChannel,
 			embed: new MessageEmbed(),
 			board: this.createBoard(),
 		});
@@ -205,8 +202,8 @@ export default class ConnectFourCommand extends Command {
 					reaction.first()?.remove();
 					msg.util?.send({
 						embed: embed.setDescription(stripIndents`
-						${msg.author} entrou no jogo como ${Symbol.RED}
 						${user} entrou no jogo como ${Symbol.YELLOW}
+						${msg.author} entrou no jogo como ${Symbol.RED}
 						
 						${this.client.emojis.cache.get('709533456866213930')} Carregando...
 						`),
@@ -229,6 +226,7 @@ export default class ConnectFourCommand extends Command {
 				let reactionMessage: Message = await msg.util?.send({ embed: instance.embed })!;
 
 				const filter = (reaction: MessageReaction, user: User) => {
+					reaction.users.remove(user);
 					return instance.board[0][this.columns.indexOf(reaction.emoji.name)] === Symbol.EMPTY && this.columns.includes(reaction.emoji.name) && user.id === instance.players.find((p: Player) => p.turn)?.user.id;
 				};
 
@@ -239,21 +237,14 @@ export default class ConnectFourCommand extends Command {
 						const reaction = await reactionMessage?.awaitReactions(filter, { maxEmojis: 1, time: 30000, errors: ['time'] });
 						this.drop(reaction.first()!);
 
-						if (this.check(msg.author)) {
-							this.updateEmbed(msg);
-							await msg.util?.send({ embed: instance.embed })!;
-							await reactionMessage.reactions.removeAll();
-							return this.check(msg.author);
-						} else Flag.fail('...');
+						if (this.check(msg.author)) return this.check(msg.author);
+						else Flag.fail('...');
 					} catch (error) {
-						reactionMessage.reactions.removeAll();
-						msg.util?.send({ embed: instance.embed.setDescription(`Jogadores demoraram muito para escolher...\n\nO jogo foi cancelado.`) });
+						msg.util?.send({ embed: instance.embed.setDescription(`Jogadores demoraram muito para escolher...\n\nO jogo foi cancelado.`) }).then(msg => msg.reactions.removeAll());
 						return Flag.cancel();
 					}
 				}
-				this.updateEmbed(msg);
-				await reactionMessage.reactions.removeAll();
-				return 'empate';
+				return 'tie';
 			},
 			prompt: {
 				time: 300000,
@@ -271,11 +262,22 @@ export default class ConnectFourCommand extends Command {
 	}
 
 	public exec(message: Message, { winner }: { winner: User | string }) {
-		message.util?.message.reactions.removeAll();
 		const instance = this.getInstance(message.author)!;
 
-		if (typeof winner === 'string') message.util?.send({ embed: instance.embed.setColor('#38667d').addField(`\u200b`, 'Empate!') });
-		else message.util?.send({ embed: instance.embed.setColor('#06b814').addField(`\u200b`, `${winner} ganhou de ${instance.players.find((p: Player) => p.user.id !== winner.id)?.user}! 🥳🥳`) });
+		this.updateEmbed(message, true);
+
+		if (typeof winner === 'string')
+			message.util
+				?.send({
+					embed: instance.embed.setColor('#38667d').addField(`\u200b`, 'Empate!'),
+				})
+				.then(msg => msg.reactions.removeAll());
+		else
+			message.util
+				?.send({
+					embed: instance.embed.setColor('#06b814').addField(`\u200b`, `**🎊 ${winner} venceu a partida!!! 🥳🎉**\nNão foi dessa vez, ${instance.players.find((p: Player) => p.user.id !== winner.id)?.user}...`),
+				})
+				.then(msg => msg.reactions.removeAll());
 
 		instance.delete();
 	}

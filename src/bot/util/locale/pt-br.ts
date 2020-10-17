@@ -1,26 +1,27 @@
 import { stripIndents } from 'common-tags';
-import { User, TextChannel, GuildEmoji, MessageEmbed, Util, Message } from 'discord.js';
 import { Messages } from '../constants';
 import moment = require('moment');
 
 const MESSAGES: Messages = {
 	COMMAND_HANDLER: {
 		PROMPT: {
-			MODIFY_START: (str: string | { content: string; embed: MessageEmbed }) => {
+			MODIFY_START: str => {
 				if (typeof str === 'string') return `${str}\n\nDigite \`cancelar\` para cancelar o comando.`;
 				if (typeof str === 'object')
 					return (str = {
 						...str,
 						content: `${str.content ? str.content : ''}\n\nDigite \`cancelar\` para cancelar o comando.`,
 					});
+				return '';
 			},
-			MODIFY_RETRY: (str: string | { content: string; embed: MessageEmbed }) => {
+			MODIFY_RETRY: str => {
 				if (typeof str === 'string') return `${str}\n\nDigite \`cancelar\` para cancelar o comando.`;
 				if (typeof str === 'object')
 					return (str = {
 						...str,
 						content: `${str.content ? str.content : ''}\n\nDigite \`cancelar\` para cancelar o comando.`,
 					});
+				return '';
 			},
 			CANCEL_WORD: 'cancelar',
 			STOP_WORD: 'parar',
@@ -37,7 +38,7 @@ const MESSAGES: Messages = {
 			MISSING_PERMISSIONS: {
 				CLIENT: stripIndents`Humpf. Não posso te ajudar se você não deixar.
                 Eu preciso de **$(perm)** pra usar **$(prefix)$(cmd)**`,
-				USER: (author: User) => stripIndents`Não posso deixar você fazer isso, ${author}.
+				USER: author => stripIndents`Não posso deixar você fazer isso, ${author}.
                 Você precisa de **$(perm)** para usar **$(prefix)$(cmd)**`,
 			},
 		},
@@ -55,139 +56,176 @@ const MESSAGES: Messages = {
 			TWITCH: 'Twitch',
 		},
 
+		FUN: {
+			BLACKJACK: {
+				DESCRIPTION: {
+					CONTENT: (prefix, user) => stripIndents`
+					Digite \`p\` para \`puxar\` ou \`f\` para \`ficar\`.
+	
+					Digite \`${prefix}blackjack join @${user}\` para se juntar a um jogo.
+	
+					\`Valete\`, \`Rainha\` e \`Rei\` = \`10\`       \`Ás\` = \`11\` ou \`1\``,
+					EXAMPLES: ['join @Cosmzs'],
+				},
+				PLAYERSTATUS: {
+					DRAWING: 'Puxando cartas...',
+					LOST: 'Perdeu...',
+					STANDING: 'Esperando...',
+					TIE: 'Empatou!',
+					WON: 'Venceu!!',
+				},
+				PROMPT: {
+					CONTENT: 'Digite `p` para `puxar` ou `f` para `ficar`.',
+					PLAYS: [
+						['puxar', 'p'],
+						['ficar', 'f', 'parar'],
+					],
+				},
+				ENDED: 'O jogo acabou.',
+				WAITING: 'Esperando todo mundo finalizar...',
+				TIED: 'empatou',
+				WON: 'ganhou',
+				THE_GAME: 'o jogo!',
+			},
+
+			CONNECTFOUR: {},
+			SLOTS: {},
+			TICTACTOE: {},
+		},
+
 		EMBED: {
 			DESCRIPTION: {
-				CONTENT: 'Tool to create embeds.',
+				CONTENT: 'Ferramenta para criar embeds.',
 			},
 			EDIT: {
 				DESCRIPTION: {
-					CONTENT: 'Edits and embed',
+					CONTENT: 'Edita um embed',
 				},
 			},
 			SEND: {
 				DESCRIPTION: {
-					CONTENT: 'To send and embed',
+					CONTENT: 'Envia um embed',
 				},
 				PROMPT: {
-					START: 'What embed do you want to send?',
-					RETRY: 'What embed do you want to send?',
+					START: 'Qual embed você quer enviar?',
+					RETRY: 'Qual embed você quer enviar?',
 				},
 			},
 		},
 
 		CONFIG: {
 			DESCRIPTION: {
-				CONTENT: stripIndents`Avaible methods:
-                    • check
-                    • set \`<key> <...arguments>\`
-                    • del \`<key>\`
-                    • toggle \`<key>\`
-                    • clear
-                Available keys:
+				CONTENT: stripIndents`Métodos disponíveis:
+                    • checar
+                    • set \`<opção> <...argumentos>\`
+                    • del \`<opção>\`
+                    • alternar \`<opção>\`
+                    • limpar
+                Opções disponíveis:
                     • memberlog \`<#channel>\`
                     • autorole \`<@role>\`
-                Toggle keys:
+                Opções alternáveis:
                     • rolestate
                 Required: \`<>\` | Optional: \`[]\`
             `,
-				USAGE: '<method> <...arguments>',
+				USAGE: '<método> <...argumentos>',
 			},
 			TOGGLE: {
 				DESCRIPTION: {
-					CONTENT: 'Toggles a value in the config.',
-					USAGE: '<method> <...arguments>',
+					CONTENT: 'Alterna uma opção nas configurações.',
+					USAGE: '<método> <...argumentos>',
 				},
-				REPLY: (prefix: string | string[] | Promise<string | string[]>) => stripIndents`
-                When you beg me so much I just can't not help you~
-                Check \`${prefix}help config\` for more information.
+				REPLY: prefix => stripIndents`
+                Quando você implora tanto eu não consigo deixar de te ajudar~
+                Use \`${prefix}help config\` para mais informações.
             `,
 				ROLE_STATE: {
 					DESCRIPTION: {
-						CONTENT: 'Toggle role state on the server.',
+						CONTENT: 'Ativa ou desativa lembrança de cargos no servidor.',
 					},
-					REPLY_DEACTIVATED: 'successfully removed all the records!',
-					REPLY_ACTIVATED: 'successfully inserted all records!',
+					REPLY_DEACTIVATED: 'removeu todos os dados!',
+					REPLY_ACTIVATED: 'gravou todos os dados!',
 				},
 			},
 
 			SET: {
 				DESCRIPTION: {
-					CONTENT: 'Deletes the restriction roles of the guild.',
-					USAGE: '<method> <...arguments>',
+					CONTENT: 'Adiciona uma opção nas configurações.',
+					USAGE: '<método> <...argumentos>',
 				},
-				REPLY: (prefix: string | string[] | Promise<string | string[]>) => stripIndents`
-                When you beg me so much I just can't not help you~
-                Check \`${prefix}help config\` for more information.
+				REPLY: prefix => stripIndents`
+                Quando você implora tanto eu não consigo deixar de te ajudar~
+                Use \`${prefix}help config\` para mais informações.
             `,
 				MEMBER_LOG: {
 					DESCRIPTION: {
-						CONTENT: 'Sets member log on the server.',
-						USAGE: '<channel>',
-						EXAMPLES: ['#memberlog', 'member-log', '731705121464909824'],
+						CONTENT: 'Configura o canal de registo de membros no servidor.',
+						USAGE: '<canal>',
+						EXAMPLES: ['#entrou-saiu', 'entrou-saiu', '731705121464909824'],
 					},
-					REPLY: (channel: string) => `set member log channel to **${channel}**`,
+					REPLY: channel => `configurou o registro de membros no canal **${channel}**`,
 				},
 				AUTO_ROLE: {
 					DESCRIPTION: {
-						CONTENT: 'Sets automatic roles on the server.',
-						USAGE: '<role>',
-						EXAMPLES: ['@role', '706400473669697546'],
+						CONTENT: 'Configura o cargo automático no servidor.',
+						USAGE: '<cargo>',
+						EXAMPLES: ['@cargo', '706400473669697546'],
 					},
-					REPLY: (channel: string) => `new members will get the **${channel}** role`,
+					REPLY: role => `novos membros ganharão o cargo **${role}** role`,
 				},
 			},
 
 			DELETE: {
 				DESCRIPTION: {
-					CONTENT: 'Deletes a value to the config.',
-					USAGE: '<method> <...arguments>',
+					CONTENT: 'Deleta uma opção nas configurações.',
+					USAGE: '<método> <...argumentos>',
 				},
-				REPLY: (prefix: string | string[] | Promise<string | string[]>) => stripIndents`
-                When you beg me so much I just can't not help you~
-                Check \`${prefix}help config\` for more information.
+				REPLY: prefix => stripIndents`
+                Quando você implora tanto eu não consigo deixar de te ajudar~
+                Use \`${prefix}help config\` para mais informações.
             `,
 				MEMBER_LOG: {
 					DESCRIPTION: {
-						CONTENT: 'Deletes member log on the server.',
+						CONTENT: 'Deleta o canal de registro de membros no servidor.',
 					},
-					REPLY: 'deleted member log channel.',
+					REPLY: 'deletou o canal de registro de membros.',
 				},
 				AUTO_ROLE: {
 					DESCRIPTION: {
-						CONTENT: 'Deletes automatics role on the server.',
+						CONTENT: 'Deleta o cargo automático no servidor.',
 					},
-					REPLY: 'deleted automatic role.',
+					REPLY: 'deletou cargo automático.',
 				},
 			},
 
 			CLEAR: {
 				DESCRIPTION: {
-					CONTENT: 'Clears the guild config.',
+					CONTENT: 'Limpa as configurações do bot no servidor.',
 				},
-				REPLY: 'cleared the guild config.',
+				REPLY: 'limpou as configurações do bot no servidor.',
 			},
 
 			CHECK: {
 				DESCRIPTION: {
-					CONTENT: 'Checks the guild config.',
+					CONTENT: 'Checa as configurações do bot no servidor.',
 				},
 			},
 		},
 
 		REACTIONROLE: {
 			CREATE: {
-				DESCRIPTION: 'Create a **roles by reactions** message on the channel.',
+				DESCRIPTION: 'Cria uma mensagem de **Cargos por Reações** no canal.',
 				PROMPT: {
-					START_TITLE: (author: User | null) => stripIndents`
-					${author}, what would you like the title of the embed to be?
+					START_TITLE: author => stripIndents`
+					${author}, qual título você quer que a mensagem tenha?
 
-					Tip: could be a small phrase describing the roles on this embed.
-					e.g. \`COLORFUL ROLES\``,
-					RETRY_TITLE: (author: User | null) => stripIndents`
-					${author}, what would you like the title of the embed to be?
+					Dica: pode ser uma frase pequena descrevendo a categoria dos cargos.
+					ex: \`CARGOS COLORIDOS\``,
+					RETRY_TITLE: author => stripIndents`
+					${author}, qual título você quer que a mensagem tenha?
 
-					Tip: could be a small phrase describing the roles on this embed.
-					e.g. \`COLOR ROLES\``,
+					Dica: pode ser uma frase pequena descrevendo a categoria dos cargos.
+					ex: \`CARGOS COLORIDOS\``,
 				},
 			},
 		},
@@ -195,24 +233,24 @@ const MESSAGES: Messages = {
 		OWNER: {
 			RELOAD: {
 				PROMPT: {
-					START: (author: User | null) => `${author}, what module would you like to reload?`,
-					RETRY: (author: User | null) => `${author}, please provide a valid module!`,
+					START: author => `${author}, qual módulo você gostaria de recarregar?`,
+					RETRY: author => `${author}, por favor, diga um módulo válido!`,
 				},
 			},
 
 			BLACKLIST: {
-				DESCRIPTION: 'Prohibit/Allow a user from using Cyborg.',
+				DESCRIPTION: 'Proíbe/Permite um usuário de usar a Cyborg.',
 				PROMPT: {
-					START: (author: User | null) => `${author}, who would you like to blacklist/unblacklist?`,
+					START: author => `${author}, quem você gostaria de proíbir/permitir?`,
 				},
-				REPLY: (user: string) => `${user}, have you realized Cyborg's greatness? You've got good eyes~`,
-				REPLY_2: (user: string) => `${user}, you are not worthy of Cyborg's luck~`,
+				REPLY: user => `${user}, percebeu o quão poderosa a Cyborg é? Você tem bons olhos~`,
+				REPLY_2: user => `${user}, você não é dígno dos poderes de Cyborg~`,
 			},
 
 			EVAL: {
-				DESCRIPTION: "You can't use this anyway, so why explain.",
+				DESCRIPTION: 'Você não pode usar esse comando, por que perderia meu tempo explicando.',
 				PROMPT: {
-					START: (author: User | null) => `${author}, what would you like to evaluate?`,
+					START: author => `${author}, o que você gostaria de evaluar?`,
 				},
 			},
 		},
@@ -220,19 +258,19 @@ const MESSAGES: Messages = {
 		INFO: {
 			CHANNEL: {
 				DESCRIPTION: {
-					CONTENT: 'Get information about a channel.',
-					USAGE: '[channel]',
-					EXAMPLES: ['#general', 'general', '222197033908436994'],
+					CONTENT: 'Mostra informações de um canal.',
+					USAGE: '[canal]',
+					EXAMPLES: ['#geral', 'geral', '222197033908436994'],
 				},
 				EMBED: {
-					DESCRIPTION: (channel: TextChannel) => `Info about **${channel.name}** (ID: ${channel.id})`,
+					DESCRIPTION: channel => `Informações sobre **${channel.name}** (ID: ${channel.id})`,
 					FIELD_INFO: {
-						NAME: 'Info',
-						VALUE: (channel: TextChannel) => stripIndents`
-                        • Type: ${channel.type}
-                        • Topic ${channel.topic || 'None'}
+						NAME: 'Informações',
+						VALUE: channel => stripIndents`
+                        • Tipo: ${channel.type}
+                        • Tópico: ${channel.topic || 'None'}
                         • NSFW: ${Boolean(channel.nsfw)}
-                        • Creation Date: ${moment.utc(channel.createdAt).format('YYYY/MM/DD hh:mm:ss')}
+                        • Data de criação: ${moment.utc(channel.createdAt).format('DD/MM/YYYY hh:mm:ss')}
                     `,
 					},
 				},
@@ -240,28 +278,28 @@ const MESSAGES: Messages = {
 
 			EMOJI: {
 				DESCRIPTION: {
-					CONTENT: 'Get information about an emoji.',
+					CONTENT: 'Mostra informações sobre um emoji.',
 				},
 				PROMPT: {
-					START: (author: User | null) => `${author}, what emoji would you like information about?`,
-					RETRY: (author: User | null) => `${author}, please provide a valid emoji!`,
+					START: author => `${author}, qual emoji você gostaria de ver informações sobre?`,
+					RETRY: author => `${author}, você precisa mandar um emoji válido!`,
 				},
 				EMBED: {
 					DESCRIPTION: {
-						GUILDEMOJI: (emoji: GuildEmoji) => `Info about ${emoji.name} (ID: ${emoji.id})`,
-						EMOJI: (emoji: any) => `Info about ${emoji.emoji}`,
+						GUILDEMOJI: emoji => `Informações sobre ${emoji.name} (ID: ${emoji.id})`,
+						EMOJI: emoji => `Informações sobre ${emoji.emoji}`,
 					},
 					FIELD_INFO: {
-						NAME: 'Info',
+						NAME: 'Informações',
 						VALUE: {
-							GUILDEMOJI: (emoji: GuildEmoji) => stripIndents`
-                            • Identifier: \`<${emoji.identifier}>\`
-                            • Creation Date: ${moment.utc(emoji.createdAt ?? 0).format('YYYY/MM/DD hh:mm:ss')}
+							GUILDEMOJI: emoji => stripIndents`
+                            • Identificador: \`<${emoji.identifier}>\`
+                            • Data de criação: ${moment.utc(emoji.createdAt ?? 0).format('DD/MM/YYYY hh:mm:ss')}
                             • URL: ${emoji.url}
                             `,
-							EMOJI: (emoji: any) => stripIndents`
-                            • Name: \`${emoji.key}\`
-                            • Raw: \`${emoji.emoji}\`
+							EMOJI: emoji => stripIndents`
+                            • Nome: \`${emoji.key}\`
+                            • Crú: \`${emoji.emoji}\`
                             • Unicode: $(unicode)
                             `,
 						},
@@ -270,94 +308,117 @@ const MESSAGES: Messages = {
 			},
 
 			ROLE: {
-				DESCRIPTION: 'Get information about a role.',
+				DESCRIPTION: 'Mostra informações sobre um cargo.',
 			},
 
 			SERVER: {
-				DESCRIPTION: 'Get information on the server.',
+				DESCRIPTION: 'Mostra informações sobre o servidor.',
 			},
 
 			USER: {
-				DESCRIPTION: 'Get information about a member.',
+				DESCRIPTION: 'Mostra informações sobre um usuário.',
 			},
 		},
 
 		TAGS: {
-			DESCRIPTION: stripIndents`Available methods:
-				 • show \`<tag>\`
-				 • add \`[--hoist/--pin] [--template] <tag> <content>\`
-				 • alias \`<--add/--del> <tag> <tagalias>\`
-				 • del \`<tag>\`
-				 • edit \`[--hoist/--unhoist] [--template] <tag> <content>\`
-				 • source \`[--file] <tag>\`
-				 • info \`<tag>\`
-				 • search \`<tag>\`
-				 • list \`[member]\`
-				 • download \`[member]\`
+			DESCRIPTION: {
+				CONTENT: stripIndents`Métodos disponíveis:
+				• mostrar \`<tag>\`
+				• add \`[--hoist/--pin] [--template] <tag> <conteúdo>\`
+				• apelido \`<--add/--del> <tag> <apelidodatag>\`
+				• del \`<tag>\`
+				• editar \`[--hoist/--unhoist] [--template] <tag> <conteúdo>\`
+				• cru \`[--file] <tag>\`
+				• info \`<tag>\`
+				• procurar \`<tag>\`
+				• listar \`[member]\`
+				• baixar \`[member]\`
 
-				Required: \`<>\` | Optional: \`[]\`
+			   Obrigatório: \`<>\` | Opcional: \`[]\`
 
-				For additional \`<...arguments>\` usage refer to the examples below.
-			`,
+			   Para usos adicionais dos \`<...argumentos>\`, veja os exemplos abaixo.
+		   `,
+				USAGE: '<método> <...argumentos>',
+				EXAMPLES: [
+					'mostrar Teste',
+					'add Teste Teste',
+					'add --hoist/--pin "Teste 2" Teste2',
+					'add --template Teste1 ${guild}',
+					'apelido --add Teste1 Teste2',
+					'apelido --del "Teste 2" "Teste 3"',
+					'del Teste',
+					'editar Teste Novo conteúdo pra tag',
+					'editar "Teste 1" Outro novo conteúdo pra tag',
+					'editar Teste --hoist',
+					'editar Teste --unhoist Outro novo conteúdo pra tag',
+					'editar Teste --template',
+					'cru Teste',
+					'cru --file Teste',
+					'info Teste',
+					'procurar Teste',
+					'listar @Cosmzs',
+					'baixar @Cosmzs',
+				],
+			},
 
 			ADD: {
-				DESCRIPTION: 'Adds a tag, usable for everyone on the server (Markdown can be used).',
+				DESCRIPTION: 'Adiciona uma nova tag, usável por todos no servidor (Markdown pode ser usado).',
 				PROMPT: {
-					START: (author: User | null) => `${author}, what should the tag be named?`,
-					RETRY: (author: User | null, val: string) => `${author}, a tag with the name **${val}** already exists.`,
+					START: author => `${author}, como a tag deveria se chamar?`,
+					RETRY: (author, val) => `${author}, já existe uma tag com o nome **${val}**, use outro.`,
 				},
 				PROMPT_2: {
-					START: (author: User | null) => `${author}, what should the content of the tag be?`,
+					START: author => `${author}, qual o conteúdo dessa tag?`,
 				},
-				TOO_LONG: 'you must still have water behind your ears to not realize that messages have a limit of 2000 characters!',
-				REPLY: (name: string) => `leave it to me! A tag with the name **${name}** has been added.`,
+				TOO_LONG: 'mensagens tem um limite de 2000 caracteres!',
+				REPLY: name => `pode deixar! A tag com nome **${name}** foi adicionada.`,
 			},
 
 			ALIAS: {
-				DESCRIPTION: 'Alias a tag.',
+				DESCRIPTION: 'Adiciona um apelido a uma tag.',
 				PROMPT: {
-					START: (author: User | null) => `${author}, what tag do you want to alias?`,
-					RETRY: (author: User | null, val: string) => `${author}, a tag with the name **${val}** does not exists.`,
+					START: author => `${author}, qual tag você quer apelidar?`,
+					RETRY: (author, val) => `${author}, não existe nenhuma tag com o nome **${val}**.`,
 				},
 				PROMPT_2: {
-					START: (author: User | null) => `${author}, what alias do you want to apply to this tag?`,
-					RETRY: (author: User | null, val: string) => `${author}, a tag with the name **${val}** already exists.`,
+					START: author => `${author}, qual apelido você quer adicionar nessa tag?`,
+					RETRY: (author, val) => `${author}, já existe uma tag com o nome **${val}**.`,
 				},
 				PROMPT_3: {
-					START: (author: User | null) => `${author}, what alias do you want to remove to this tag?`,
-					RETRY: (author: User | null, val: string) => `${author}, a tag with the name **${val}** already exists.`,
+					START: author => `${author}, qual apelido você quer remover dessa tag?`,
+					RETRY: (author, val) => `${author}, já existe uma tag com o nome **${val}**.`,
 				},
-				TOO_LONG: 'you must still have water behind your ears to not realize that messages have a limit of 2000 characters!',
-				REPLY: (first: string, second: string, add: boolean) => `alias ${second.substring(0, 1900)} ${add ? 'added to' : 'deleted from'} tag ${first}.`,
+				TOO_LONG: 'mensagens tem um limite de 2000 caracteres!',
+				REPLY: (first, second, add) => `apelido ${second.substring(0, 1900)} ${add ? 'adicionado a' : 'deletado da'} tag ${first}.`,
 			},
 
 			DELETE: {
-				DESCRIPTION: 'Deletes a tag.',
+				DESCRIPTION: 'Deleta uma tag.',
 				PROMPT: {
-					START: (author: User | null) => `${author}, what tag do you want to delete?`,
-					RETRY: (author: User | null, val: string) => `${author}, a tag with the name **${val}** does not exists.`,
+					START: author => `${author}, qual tag você quer deletar?`,
+					RETRY: (author, val) => `${author}, não existe nenhuma tag com o nome **${val}**.`,
 				},
-				OWN_TAG: 'you can only delete your own tags.',
-				REPLY: (tag: string) => `successfully deleted **${tag}**.`,
+				OWN_TAG: 'você só pode deletar suas próprias tags.',
+				REPLY: tag => `deletou a tag **${tag}** com sucesso.`,
 			},
 
 			DOWNLOAD: {
-				DESCRIPTION: 'Downloads a/all tag(s).',
-				REPLY: 'Haiiiii~',
+				DESCRIPTION: 'Baixa todas tags de alguém.',
+				REPLY: '~',
 			},
 
 			EDIT: {
-				DESCRIPTION: 'Edit a tag (Markdown can be used).',
+				DESCRIPTION: 'Edita uma tag (Markdown pode ser usado).',
 				PROMPT: {
-					START: (author: User | null) => `${author}, what tag do you want to edit?`,
-					RETRY: (author: User | null, val: string) => `${author}, a tag with the name **${val}** does not exists.`,
+					START: author => `${author}, qual tag você quer editar?`,
+					RETRY: (author, val) => `${author}, não existe nenhuma tag com o nome **${val}**.`,
 				},
 				PROMPT_2: {
-					START: (author: User | null) => `${author}, what should the new content be?`,
+					START: author => `${author}, what should the new content be?`,
 				},
 				OWN_TAG: 'losers are only allowed to edit their own tags! Hah hah hah!',
 				TOO_LONG: 'you must still have water behind your ears to not realize that messages have a limit of 2000 characters!',
-				REPLY: (tag: string, hoist: boolean, template: boolean) => {
+				REPLY: (tag, hoist, template) => {
 					if (hoist && template) {
 						return `successfully edited **${tag}** to be hoisted and templated.`;
 					}
@@ -377,38 +438,38 @@ const MESSAGES: Messages = {
 			INFO: {
 				DESCRIPTION: 'Displays information about a tag.',
 				PROMPT: {
-					START: (author: User | null) => `${author}, what tag do you want information on?`,
-					RETRY: (author: User | null, val: string) => `${author}, a tag with the name **${val}** does not exists.`,
+					START: author => `${author}, what tag do you want information on?`,
+					RETRY: (author, val) => `${author}, não existe nenhuma tag com o nome **${val}**.`,
 				},
 			},
 
 			LIST: {
 				DESCRIPTION: 'Lists all server tags.',
-				NO_TAGS: (member?: string) => (member ? `**${member}** doesn't have any tags.` : "you don't have any tags."),
-				GUILD_NO_TAGS: (guild: string) => `**${guild}** doesn't have any tags. Why not add some?`,
+				NO_TAGS: member => (member ? `**${member}** não tem nenhuma tag.` : 'você não tem nenhuma tag.'),
+				GUILD_NO_TAGS: guild => `**${guild}** não tem nenhuma tag. Por que não adicionar algumas?`,
 			},
 
 			SEARCH: {
-				DESCRIPTION: 'Searches a tag.',
+				DESCRIPTION: 'Procura uma tag.',
 				PROMPT: {
-					START: (author: User | null) => `${author}, what do you want to search for?`,
+					START: author => `${author}, o que você quer procurar?`,
 				},
-				NO_RESULT: (query: string) => `No results found with query ${query}.`,
-				TOO_BIG: 'the output is way too big to display, make your search more specific and try again!',
+				NO_RESULT: query => `Nenhum resultado com a pesquisa **${query}**.`,
+				TOO_BIG: 'o resultado é muito grande para mostrar, pense numa pesquisa mais específica e tente de novo!',
 			},
 
 			SHOW: {
-				DESCRIPTION: 'Displays a tag.',
+				DESCRIPTION: 'Mostra uma tag.',
 				PROMPT: {
-					START: (author: User | null) => `${author}, what tag do you want to see?`,
+					START: author => `${author}, qual tag você quer ver?`,
 				},
 			},
 
 			SOURCE: {
-				DESCRIPTION: 'Displays a tags source (Highlighted with Markdown).',
+				DESCRIPTION: 'Mostra uma tag crua (Com markdown).',
 				PROMPT: {
-					START: (author: User | null) => `${author}, what tag do you want to see the source of?`,
-					RETRY: (author: User | null, val: string) => `${author}, a tag with the name **${val}** does not exists.`,
+					START: author => `${author}, qual tag você quer ver o conteúdo crú?`,
+					RETRY: (author, val) => `${author}, não existe nenhuma tag com o nome **${val}**.`,
 				},
 			},
 		},
@@ -445,38 +506,38 @@ const MESSAGES: Messages = {
 					EXAMPLES: ['Cosmzs', 'Texto bonito e legal', 'espaço:unico Texto bonito e legal', 'ponto:cruz Texto bonito e legal', 'ponto:duplo espaço:cruz Texto bonito e legal'],
 				},
 				PROMPT: {
-					START: (author: User) => `${author}, o que você deseja transcrever?`,
-					RETRY: (author: User) => `${author}, o que você deseja transcrever?`,
+					START: author => `${author}, o que você deseja transcrever?`,
+					RETRY: author => `${author}, o que você deseja transcrever?`,
 				},
 			},
 			INFO: {},
 
 			HELP: {
 				DESCRIPTION: {
-					CONTENT: (prefix: string | string[] | Promise<string | string[]>) => stripIndents`Displays a list of available commands, or detailed information for a specified command.
-					Use \`${prefix}help --perm\` to hide commands you don't have permission to use.
-					Use \`${prefix}help --dm\` to hide commands you cant use on DM's.
+					CONTENT: prefix => stripIndents`Mostra uma lista de comandos disponíveis, ou detalha informações para um comando específico.
+					Use \`${prefix}ajuda --perm\` para esconder comandos que você não tem permissão para usar.
+					Use \`${prefix}ajuda --dm\` para esconder comandos que você não pode usar em DM's.
                     `,
-					USAGE: '[command]',
+					USAGE: '[comando]',
 				},
-				REPLY: (prefix: string | string[] | Promise<string | string[]>, msg: Message) => stripIndents`**A list of available commands.**
-                    For additional info on a command, type \`${prefix}help <command>\`
-                    Use \`${prefix}help --perm\` to hide commands you don't have permission to use.
-                    ${!msg.guild ? `Use \`${prefix}help --dm\` to hide commands you cant use on DM's.` : ''}
+				REPLY: (prefix, msg) => stripIndents`**Lista de comandos disponíveis.**
+                    Para informações adicionais sobre um comando, use \`${prefix}ajuda <comando>\`
+                    Use \`${prefix}ajuda --perm\` para esconder comandos que você não tem permissão para usar.
+                    ${!msg.guild ? `Use \`${prefix}ajuda --dm\` para esconder comandos que você não pode usar em DM's.` : ''}
                 `,
 				EMBED: {
-					FIELD_COMMANDS: 'Commands',
-					FIELD_DESCRIPTION: 'Description',
-					FIELD_ALIASES: 'Aliases',
-					FIELD_EXAMPLES: 'Examples',
+					FIELD_COMMANDS: 'Comandos',
+					FIELD_DESCRIPTION: 'Descrição',
+					FIELD_ALIASES: 'Apelidos',
+					FIELD_EXAMPLES: 'Exemplos',
 				},
 			},
 
 			LANGUAGE: {
-				DESCRIPTION: 'Displays or changes the language that the bot uses on this guild.',
-				REPLY: (language: string) => `The current language for this guild is: \`${language}\``,
-				REPLY_2: (language: string) => `the language has been reset to \`${language}\``,
-				REPLY_3: (language: string) => `the language has been set to \`${language}\``,
+				DESCRIPTION: 'Mostra ou altera o idioma utilizada pela Cyborg neste servidor.',
+				REPLY: language => `O idioma atual deste servidor é: \`${language}\``,
+				REPLY_2: language => `o idioma foi resetado para \`${language}\``,
+				REPLY_3: language => `o idioma foi configurado para \`${language}\``,
 			},
 
 			PING: {
@@ -486,7 +547,7 @@ const MESSAGES: Messages = {
 						response: 'Você tinha 0.01% de chance de tirar essa resposta.',
 						chance: 0.0001,
 					},
-					{ response: 'Não.', chance: 0.1 },
+					{ response: 'Perdi... Você é muito bom no ping pong! :ping_pong:', chance: 0.1 },
 					{
 						response: stripIndents`:ping_pong: Pong! \`$(ping)ms\`
                             Heartbeat: \`$(heartbeat)ms\``,
@@ -496,84 +557,83 @@ const MESSAGES: Messages = {
 			},
 
 			PREFIX: {
-				DESCRIPTION: 'Displays or changes the prefix of the guild.',
-				REPLY: (prefix: string | string[] | Promise<string | string[]>) => `The current prefix for this guild is: \`${prefix}\``,
-				REPLY_2: (prefix: string) => `the prefix has been reset to \`${prefix}\``,
-				REPLY_3: (prefix: string) => `the prefix has been set to \`${prefix}\``,
+				DESCRIPTION: 'Mostra ou altera o prefixo do bot no servidor.',
+				REPLY: prefix => `Prefixo atual para este servidor é: \`${prefix}\``,
+				REPLY_2: prefix => `o prefixo foi resetado para \`${prefix}\``,
+				REPLY_3: prefix => `o prefixo foi configurado para \`${prefix}\``,
 			},
 
 			REMINDME: {
 				DESCRIPTION: stripIndents`
-				Reminds you of something after a certain amount of time.
+				Te lembra de alguma coisa depois de um período de tempo.
 
-				**Valid time formats are:**
+				**Formatos válidos são:**
 				\`\`\`css
-				╔═══════╦═════════╦═════════╦══════╗
-				║ years ║ months  ║ weeks   ║ days ║
-				║ year  ║ month   ║ week    ║ day  ║
-				║ yrs   ║ mts     ║ w       ║ d    ║
-				║ yr    ║ mt      ║         ║      ║
-				╠═══════╬═════════╬═════════╬══════╝
-				║ hours ║ minutes ║ seconds ║
-				║ hour  ║ minute  ║ second  ║
-				║ hrs   ║ mins    ║ secs    ║
-				║ hr    ║ min     ║ sec     ║
-				║ h     ║ m       ║ s       ║
-				╚═══════╩═════════╩═════════╝
+				╔═══════╦═════════╦══════════╦══════╗
+				║ anos  ║ meses   ║ semanas  ║ dias ║
+				║ ano   ║ mes     ║ semana   ║ dia  ║
+				║ a     ║         ║          ║ d    ║
+				╠═══════╬═════════╬══════════╬══════╝
+				║ horas ║ minutos ║ segundos ║
+				║ hora  ║ minuto  ║ segundo  ║
+				║ hrs   ║ mins    ║ segs     ║
+				║ hr    ║ min     ║ seg      ║
+				║ h     ║ m       ║ s        ║
+				╚═══════╩═════════╩══════════╝
 				\`\`\`\
-				**$(prefix)reminder list**
-				Shows 10 latest currently running reminders.
+				**$(prefix)reminder listar**
+				Mostra seus 10 reminders mais recentes.
 				**$(prefix)reminder del <ID>**
-				Delete a single reminder by ID.
-				**$(prefix)reminder clear**
-				Clears all reminders you have set.
+				Deleta um único reminder pelo ID.
+				**$(prefix)reminder limpar**
+				Limpa todos os seus reminders.
 				`,
 				ADD: {
-					TOO_LONG: 'you must still have water behind your ears to not realize that messages have a limit of 2000 characters!',
+					TOO_LONG: 'mensagens tem um limite de 2000 caracteres!',
 					PROMPT_TIME: {
-						START: (author: User | null) => `${author}, when do you want me to remind you?`,
-						RETRY: (author: User | null) => stripIndents`
-						${author}, when do you want me do remind you?
+						START: author => `${author}, daqui a quanto tempo você quer que eu te lembre?`,
+						RETRY: author => stripIndents`
+						${author}, daqui a quanto tempo você quer que eu te lembre?
 						
-						Check \`$(prefix)help remindme\` for more information on valid time formats.`,
+						Use \`$(prefix)ajuda remindme\` para mais formatos de tempo válidos.`,
 					},
 					PROMPT_TEXT: {
-						START: (author: User | null) => `${author}, what should I remind you of?`,
+						START: author => `${author}, o que você quer que eu te lembre?`,
 					},
 				},
 				LIST: {
-					NOT_FOUND: "You don't have any running reminders.",
+					NOT_FOUND: 'Você não tem nenhum reminder configurado.',
 					TITLE: 'reminders',
-					FOOTER_1: `Total of $(qtd) reminder$(s)`,
-					FOOTER_2: `Showing latest 10 of $(qtd) reminders`,
+					FOOTER_1: `Total de $(qtd) reminder$(s)`,
+					FOOTER_2: `Mostrando últimos 10 de $(qtd) reminders`,
 				},
 				CLEAR: {
-					NOT_FOUND: `You don't have anything to clear.`,
+					NOT_FOUND: 'Você não tem nenhum reminder para limpar.',
 					AWAIT_MESSAGE: stripIndents`
-					Are you sure you want to clear $(qtd) reminder$(s)?
+					Você tem certeza que quer limpar $(qtd) reminder$(s)?
 
-					Type **y**es to confirm.`,
-					TIMEOUT: `You took too long to respond. I guess you don't want to clear your reminders.`,
-					REPLY: `Successfully cleared $(qtd) reminder$(s).`,
+					Digite **s**im para confirmar.`,
+					TIMEOUT: 'Você demorou muito para responder. Acho que não quer limpar os seus reminders.',
+					REPLY: 'Limpou todos os seus $(qtd) reminder$(s).',
 				},
 				DEL: {
 					PROMPT: {
-						START: (author: User | null) => `${author}, whats the ID of the reminder you want to delete?`,
-						RETRY: (author: User | null) => stripIndents`
-						${author}, whats the ID of the reminder you want to delete?
+						START: author => `${author}, qual o ID do reminder que você quer deletar?`,
+						RETRY: author => stripIndents`
+						${author}, qual o ID do reminder que você quer deletar?
 						
-						Check \`$(prefix)remindme list\` if you're not sure of the ID.`,
+						Use \`$(prefix)remindme list\` para conferir os seus reminders.`,
 					},
 					ERROR: stripIndents`
-					Could not find that reminder, are you sure you typed the correct ID?
+					Não consegui encontrar esse reminder, você tem certeza que digitou o ID correto?
 					
-					Check \`$(prefix)remindme list\` if you're not sure of the ID.`,
-					REPLY: 'Successfully deleted reminder `$(key)`.',
+					Use \`$(prefix)remindme list\` para conferir os seus reminders.`,
+					REPLY: 'Deletou reminder `$(key)` com sucesso.',
 				},
 			},
 
 			STATS: {
-				DESCRIPTION: 'Displays statistics about the bot.',
+				DESCRIPTION: 'Mostra estatísticas do bot.',
 			},
 		},
 	},
