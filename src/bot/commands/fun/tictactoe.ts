@@ -8,9 +8,9 @@ interface SCORES {
 }
 
 const Scores: SCORES = {
-	O: 10,
+	O: 1,
 	TIE: 0,
-	X: -10,
+	X: -1,
 };
 
 enum Symbol {
@@ -92,9 +92,9 @@ export default class TicTacToeCommand extends Command {
 			${instance.board.map(sq => sq.map(s => s).join('')).join('\n')}`);
 	}
 
-	bestMove(player: Player): string {
+	async bestMove(player: Player): Promise<string> {
 		const instance = this.getInstance(player.user)!;
-		let board = instance.board.map(e => e);
+		let board = instance.board;
 		let bestScore: number = -Infinity;
 		let move: { i: number; j: number } = { i: 0, j: 0 };
 
@@ -113,12 +113,12 @@ export default class TicTacToeCommand extends Command {
 			}
 		}
 
-		return instance.board[move.i][move.j];
+		return Promise.resolve(instance.board[move.i][move.j]);
 	}
 
 	minimax(board: string[][], depth: number, isMaximizing: boolean, player: Player): number {
-		if (this.check(player.user)) {
-			return Scores[this.check(player.user)?.mark ?? 'TIE'];
+		if (this.check(player.user, board)) {
+			return Scores[this.check(player.user, board)?.mark ?? 'TIE'];
 		}
 
 		if (isMaximizing) {
@@ -152,24 +152,17 @@ export default class TicTacToeCommand extends Command {
 		}
 	}
 
-	private turn(reaction: string, player: Player): void {
+	private turn(reaction: string, player: Player): Promise<boolean> {
 		const instance = this.getInstance(player.user)!;
 
-		instance.board = instance.board.map((square, i) => {
-			return square.map((s, j) => {
-				if (s === reaction) {
-					instance.board[i][j] = player.symbol;
-					return player.symbol;
-				}
-				return s;
-			})!;
-		})!;
+		instance.board = instance.board.map(square => square.map(s => (s === reaction ? player.symbol : s)));
 		instance.players.forEach((p: Player) => (p.turn = !p.turn));
+
+		return Promise.resolve(true);
 	}
 
-	private check(user: User): { user: User; mark: string } | null {
+	private check(user: User, b: string[][]): { user: User; mark: string } | null {
 		const instance = this.getInstance(user)!;
-		const b = instance.board;
 		const conditions = [
 			[b[0][0], b[0][1], b[0][2]],
 			[b[1][0], b[1][1], b[1][2]],
@@ -279,15 +272,15 @@ export default class TicTacToeCommand extends Command {
 
 						let reaction: string;
 						if (player.user.id === this.client.user!.id) {
-							reaction = this.bestMove(player);
+							reaction = await this.bestMove(player);
 						} else {
 							const reacted = await reactionMessage?.awaitReactions(filter, { maxEmojis: 1, time: 30000, errors: ['time'] });
 							reaction = reacted.first()!.emoji.name;
 						}
 
-						this.turn(reaction, player);
+						await this.turn(reaction, player);
 
-						if (this.check(msg.author)) return this.check(msg.author)?.user;
+						if (this.check(msg.author, instance.board)) return this.check(msg.author, instance.board)?.user;
 						else Flag.fail('...');
 					} catch (error) {
 						msg.util?.send({ embed: instance.embed.setDescription(`Jogadores demoraram muito para escolher...\n\nO jogo foi cancelado.`) }).then(msg => msg.reactions.removeAll());

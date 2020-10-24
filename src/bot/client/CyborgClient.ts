@@ -1,5 +1,5 @@
 import { AkairoClient, CommandHandler, Flag, InhibitorHandler, ListenerHandler } from 'discord-akairo';
-import { Message, Util, Collection } from 'discord.js';
+import { Message, Util, Guild } from 'discord.js';
 import { join } from 'path';
 import { Logger } from 'winston';
 import TwitchScheduler from '../structures/TwitchScheduler';
@@ -11,7 +11,6 @@ import { Tags, TagsInsertInput } from '../util/graphQLTypes';
 import { EVENTS, logger, TOPICS } from '../util/logger';
 import ms from '../util/timeParser';
 import * as locale from '../util/locale';
-import { Guild } from 'discord.js';
 
 declare module 'discord-akairo' {
 	interface AkairoClient {
