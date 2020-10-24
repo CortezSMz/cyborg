@@ -3,18 +3,28 @@ import { Command, Flag } from 'discord-akairo';
 import { Collection, Message, MessageEmbed, MessageReaction, Snowflake, TextChannel, User, Permissions } from 'discord.js';
 import { COLORS } from '../../util/constants';
 
-export enum Symbol {
+interface SCORES {
+	[index: string]: number;
+}
+
+const Scores: SCORES = {
+	O: 10,
+	TIE: 0,
+	X: -10,
+};
+
+enum Symbol {
 	O = '⭕',
 	X = '❌',
 }
 
-export interface Player {
+interface Player {
 	user: User;
 	turn: boolean;
 	symbol: Symbol.O | Symbol.X;
 }
 
-export interface GameInstance {
+interface GameInstance {
 	delete(): boolean;
 	players: Array<Player>;
 	channel: TextChannel;
@@ -53,6 +63,7 @@ export default class TicTacToeCommand extends Command {
 			turn: second ? false : true,
 			symbol: second ? Symbol.O : Symbol.X,
 		};
+
 		return player;
 	}
 
@@ -81,20 +92,82 @@ export default class TicTacToeCommand extends Command {
 			${instance.board.map(sq => sq.map(s => s).join('')).join('\n')}`);
 	}
 
-	private turn(reaction: MessageReaction): void {
-		const instance = this.getInstance(reaction.users.cache.filter(u => !u.bot).first()!)!;
-		const player = instance.players.find((p: Player) => p.turn)!;
+	bestMove(player: Player): string {
+		const instance = this.getInstance(player.user)!;
+		let board = instance.board.map(e => e);
+		let bestScore: number = -Infinity;
+		let move: { i: number; j: number } = { i: 0, j: 0 };
 
-		instance.board = instance.board.map(square => square.map(s => (s === reaction.emoji.name ? player.symbol : s))!)!;
+		for (let i = 0; i < 3; i++) {
+			for (let j = 0; j < 3; j++) {
+				if (board[i][j] !== Symbol.O && board[i][j] !== Symbol.X) {
+					let oldSymbol: string = board[i][j];
+					board[i][j] = Symbol.O;
+					let score = this.minimax(board, 0, false, player);
+					board[i][j] = oldSymbol;
+					if (score > bestScore) {
+						bestScore = score;
+						move = { i, j };
+					}
+				}
+			}
+		}
+
+		return instance.board[move.i][move.j];
+	}
+
+	minimax(board: string[][], depth: number, isMaximizing: boolean, player: Player): number {
+		if (this.check(player.user)) {
+			return Scores[this.check(player.user)?.mark ?? 'TIE'];
+		}
+
+		if (isMaximizing) {
+			let bestScore: number = -Infinity;
+			for (let i = 0; i < 3; i++) {
+				for (let j = 0; j < 3; j++) {
+					if (board[i][j] !== Symbol.O && board[i][j] !== Symbol.X) {
+						let oldSymbol: string = board[i][j];
+						board[i][j] = Symbol.O;
+						let score = this.minimax(board, depth + 1, false, player);
+						board[i][j] = oldSymbol;
+						bestScore = Math.max(score, bestScore);
+					}
+				}
+			}
+			return bestScore;
+		} else {
+			let bestScore: number = Infinity;
+			for (let i = 0; i < 3; i++) {
+				for (let j = 0; j < 3; j++) {
+					if (board[i][j] !== Symbol.O && board[i][j] !== Symbol.X) {
+						let oldSymbol: string = board[i][j];
+						board[i][j] = Symbol.X;
+						let score = this.minimax(board, depth + 1, true, player);
+						board[i][j] = oldSymbol;
+						bestScore = Math.min(score, bestScore);
+					}
+				}
+			}
+			return bestScore;
+		}
+	}
+
+	private turn(reaction: string, player: Player): void {
+		const instance = this.getInstance(player.user)!;
+
+		instance.board = instance.board.map((square, i) => {
+			return square.map((s, j) => {
+				if (s === reaction) {
+					instance.board[i][j] = player.symbol;
+					return player.symbol;
+				}
+				return s;
+			})!;
+		})!;
 		instance.players.forEach((p: Player) => (p.turn = !p.turn));
 	}
 
-	private checkRow(first: string, second: string, third: string): string | null {
-		const set = new Set([first, second, third]);
-		return set.size === 1 ? Array.from(set.values())[0] : null;
-	}
-
-	private check(user: User): User | null {
+	private check(user: User): { user: User; mark: string } | null {
 		const instance = this.getInstance(user)!;
 		const b = instance.board;
 		const conditions = [
@@ -111,7 +184,10 @@ export default class TicTacToeCommand extends Command {
 		for (const win of conditions) {
 			if (win[0] !== Symbol.X && win[0] !== Symbol.O) continue;
 			if (win[0] === win[1] && win[0] === win[2]) {
-				return instance.players.find((p: Player) => p.symbol === win[0])?.user!;
+				return {
+					user: instance.players.find((p: Player) => p.symbol === win[0])?.user!,
+					mark: win[0] === Symbol.O ? 'O' : 'X',
+				};
 			}
 		}
 		return null;
@@ -129,24 +205,45 @@ export default class TicTacToeCommand extends Command {
 		yield {
 			type: async (msg: Message) => {
 				const instance = this.instances.get(msg.author.id)!;
-				const embed = new MessageEmbed().setColor(COLORS.EMBED).setTitle('Jogo da Velha').setDescription(`Esperando alguém se juntar...\n\nClique no ⚔️ para jogar contra ${msg.author}`);
+				const embed = new MessageEmbed().setColor(COLORS.EMBED).setTitle('Jogo da Velha').setDescription(stripIndents`
+				Esperando alguém se juntar...
+				
+				Clique no ⚔️ para jogar contra ${msg.author}
+
+				Ou clique no 🤖 para jogar contra o bot (${this.client.user})
+				||PS: bot configurado no modo \`HARD\`!!||
+				`);
 
 				const filter = (reaction: MessageReaction, user: User) => {
-					return reaction.emoji.name === '⚔️' && user.id !== msg.author.id && !user.bot;
+					if (reaction.emoji.name === '⚔️') return user.id !== msg.author.id && !user.bot;
+					else if (reaction.emoji.name === '🤖') return user.id === msg.author.id && !user.bot;
+					else return false;
 				};
 
 				try {
 					let instanceMessage: Message = await msg.util?.send({ embed })!;
 					await instanceMessage.react('⚔️');
+					await instanceMessage.react('🤖');
 
 					const reaction = await instanceMessage?.awaitReactions(filter, { maxEmojis: 1, time: 30000, errors: ['time'] });
-					const user = reaction.first()?.users.cache.find((u: User) => !u.bot && u.id !== msg.author.id);
+
+					let user: User;
+
+					if (reaction.first()?.emoji.name === '🤖') {
+						user = this.client.user!;
+					} else if (reaction.first()?.emoji.name === '⚔️') {
+						user = reaction.first()?.users.cache.find((u: User) => !u.bot && u.id !== msg.author.id)!;
+					}
+
 					instance.players.push(this.createPlayer(user!, true));
-					reaction.first()?.remove();
+					if (user!.bot) instance.players.forEach((p: Player) => (p.turn = !p.turn));
+
+					await instanceMessage.reactions.removeAll();
+
 					msg.util?.send({
 						embed: embed.setDescription(stripIndents`
 						${msg.author} entrou no jogo como ${Symbol.X}
-						${user} entrou no jogo como ${Symbol.O}
+						${user!} entrou no jogo como ${Symbol.O}
 						
 						${this.client.emojis.cache.get('709533456866213930')} Carregando...
 						`),
@@ -177,10 +274,20 @@ export default class TicTacToeCommand extends Command {
 					try {
 						this.updateEmbed(msg);
 						await msg.util?.send({ embed: instance.embed })!;
-						const reaction = await reactionMessage?.awaitReactions(filter, { maxEmojis: 1, time: 30000, errors: ['time'] });
-						this.turn(reaction.first()!);
 
-						if (this.check(msg.author)) return this.check(msg.author);
+						const player = instance.players.find((p: Player) => p.turn)!;
+
+						let reaction: string;
+						if (player.user.id === this.client.user!.id) {
+							reaction = this.bestMove(player);
+						} else {
+							const reacted = await reactionMessage?.awaitReactions(filter, { maxEmojis: 1, time: 30000, errors: ['time'] });
+							reaction = reacted.first()!.emoji.name;
+						}
+
+						this.turn(reaction, player);
+
+						if (this.check(msg.author)) return this.check(msg.author)?.user;
 						else Flag.fail('...');
 					} catch (error) {
 						msg.util?.send({ embed: instance.embed.setDescription(`Jogadores demoraram muito para escolher...\n\nO jogo foi cancelado.`) }).then(msg => msg.reactions.removeAll());
