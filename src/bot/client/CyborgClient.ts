@@ -174,7 +174,7 @@ export default class CyborgClient extends AkairoClient {
 		this.logger.info(CYBORG.INHIBITOR_HANDLER.LOADED, { topic: TOPICS.DISCORD_AKAIRO, event: EVENTS.INIT });
 		this.listenerHandler.loadAll();
 		this.logger.info(CYBORG.LISTENER_HANDLER.LOADED, { topic: TOPICS.DISCORD_AKAIRO, event: EVENTS.INIT });
-		await this.settings.init();
+		// await this.settings.init();
 		this.logger.info(CYBORG.SETTINGS.INIT, { topic: TOPICS.DISCORD_AKAIRO, event: EVENTS.INIT });
 	}
 

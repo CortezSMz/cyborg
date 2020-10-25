@@ -14,32 +14,28 @@ export default class messageReactionAddReactionRole extends Listener {
 	}
 
 	public async exec(reaction: MessageReaction, user: User) {
-		if (user.bot) return;
-		if (reaction.partial || user.partial) {
-			try {
+		try {
+			if (user.bot) return;
+			if (reaction.partial || user.partial) {
 				await reaction.message.fetch();
 				await user.fetch();
-			} catch (err) {
-				this.client.logger.error(err.message, { topic: TOPICS.DISCORD, event: EVENTS.ERROR });
 			}
-		}
 
-		if (!reaction.message.guild) return;
-		const { data } = await graphQLClient.mutate<any, ReactionRolesInsertInput>({
-			mutation: GRAPHQL.QUERY.REACTIONROLES,
-			variables: {
-				guild: reaction.message.guild.id,
-				channel: reaction.message.channel.id,
-				message: reaction.message.id,
-			},
-		});
+			if (!reaction.message.guild) return;
+			const { data } = await graphQLClient.mutate<any, ReactionRolesInsertInput>({
+				mutation: GRAPHQL.QUERY.REACTIONROLES,
+				variables: {
+					guild: reaction.message.guild.id,
+					channel: reaction.message.channel.id,
+					message: reaction.message.id,
+				},
+			});
 
-		let reactionRoles = data.reactionRoles;
+			let reactionRoles = data.reactionRoles;
 
-		if (!reactionRoles.length) return;
-		if (!reactionRoles[0].roles[reaction.emoji.name]) return;
+			if (!reactionRoles.length) return;
+			if (!reactionRoles[0].roles[reaction.emoji.name]) return;
 
-		try {
 			const guild = reaction.message.guild;
 			const role = guild!.roles.cache.get(reactionRoles[0].roles[reaction.emoji.name]);
 			const member = await guild?.members.fetch(user);
