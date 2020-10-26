@@ -46,7 +46,7 @@ export default class messageReactionRemoveReactionRole extends Listener {
 			await member.roles.remove(role, 'Role by reaction');
 			this.client.logger.info(`Removed a role by reaction on ${member.guild.name} (${member.guild.id})`, { topic: TOPICS.DISCORD, event: 'REACTIONROLE' });
 		} catch (err) {
-			this.client.logger.error(err.message, { topic: TOPICS.DISCORD, event: EVENTS.ERROR });
+			// this.client.logger.error(err.message, { topic: TOPICS.DISCORD, event: EVENTS.ERROR });
 		}
 	}
 }
