@@ -244,7 +244,7 @@ export default class TicTacToeCommand extends Command {
 					await instanceMessage.react('⚔️');
 					await instanceMessage.react('🤖');
 
-					const reaction = await instanceMessage?.awaitReactions(filter, { maxEmojis: 1, time: 300000, errors: ['time'] });
+					const reaction = await instanceMessage?.awaitReactions(filter, { maxEmojis: 1, time: 30000, errors: ['time'] });
 
 					let user: User;
 
@@ -302,10 +302,10 @@ export default class TicTacToeCommand extends Command {
 						let reaction: string;
 						if (player.user.id === this.client.user!.id) {
 							const hrStart = process.hrtime();
-							reaction = await this.bestMove(player);
+							reaction = this.bestMove(player);
 							instance.hrDiff = process.hrtime(hrStart);
 						} else {
-							const reacted = await reactionMessage?.awaitReactions(filter, { maxEmojis: 1, time: 300000, errors: ['time'] });
+							const reacted = await reactionMessage?.awaitReactions(filter, { maxEmojis: 1, time: 30000, errors: ['time'] });
 							reaction = reacted.first()!.emoji.name;
 						}
 
@@ -324,7 +324,7 @@ export default class TicTacToeCommand extends Command {
 				return 'TIE';
 			},
 			prompt: {
-				time: 300000,
+				time: 30000,
 				retries: 10,
 				start: {
 					embed: this.getInstance(msg.author)!.embed,

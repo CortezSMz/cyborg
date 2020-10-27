@@ -309,7 +309,7 @@ export default class BlackJackCommand extends Command {
 				return this.check(msg.author, msg.guild!, { phrase });
 			}),
 			prompt: {
-				time: 300000,
+				time: 30000,
 				retries: Infinity,
 				start: {
 					content: this.client.LOCALE(msg.guild).COMMANDS.FUN.BLACKJACK.PROMPT.CONTENT,

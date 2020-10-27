@@ -92,14 +92,14 @@ export default class TwitchScheduler {
 			startedAt: onlineData.started_at,
 		});
 
-		graphQLClient.mutate<any, TwitchStreamsInsertInput>({
+		/* 		graphQLClient.mutate<any, TwitchStreamsInsertInput>({
 			mutation: GRAPHQL.MUTATION.UPDATE_TWITCH_STREAMS,
 			variables: {
 				...this.streamers.get(ID),
 				streamer: onlineData.user_id,
 				id: ID,
 			},
-		});
+		}); */
 	}
 
 	private async update(
@@ -138,39 +138,32 @@ export default class TwitchScheduler {
 		if (!newCat.includes(game.data.length === 0 ? '\u200b' : game.data[0].name)) newCat.push(game.data.length === 0 ? '\u200b' : game.data[0].name);
 
 		const guild = this.client.guilds.cache.get(storedData.guild)!;
-		if (isPremium(guild)) {
-			const channel = guild.channels.cache.get(storedData.channel) as TextChannel;
-			let message: Message;
-			try {
-				message = await channel.messages.fetch(storedData.message);
-			} catch (err) {
-				return this.offline(storedData, ID);
-			}
-
-			const gameName = game.data.length === 0 ? '\u200b' : game.data[0].name;
-			const embed = new MessageEmbed(message.embeds[0])
-				.setTitle(onlineData.title)
-				.setImage(`https://static-cdn.jtvnw.net/previews-ttv/live_user_${onlineData.user_name.toLowerCase()}.jpg?t=${Date.now()}`)
-				.spliceFields(0, 2, [
-					{
-						name: `${
-							gameName === 'Just Chatting' ? this.client.LOCALE(guild).COMMANDS.TWITCH.ONLINE_EMBED.FIELD_CATEGORY.CATEGORY : this.client.LOCALE(guild).COMMANDS.TWITCH.ONLINE_EMBED.FIELD_CATEGORY.GAME
-						}`,
-						value: `${game.data.length === 0 ? '\u200b' : game.data[0].name}`,
-						inline: true,
-					},
-					{
-						name: this.client.LOCALE(guild).COMMANDS.TWITCH.ONLINE_EMBED.FIELD_VIEWERS,
-						value: `${onlineData.viewer_count}`,
-						inline: true,
-					},
-				])
-				.setFooter(this.client.LOCALE(guild).COMMANDS.TWITCH.ONLINE_EMBED.FOOTER.replace('$(duration)', moment.duration(Date.now() - (new Date(onlineData.started_at) as any)).format('h[h ]m[m ]s[s ]')));
-			message.edit(
-				this.client.LOCALE(guild).COMMANDS.TWITCH.ONLINE_MESSAGE.replace('$(streamer)', onlineData.user_name.replace(/([^a-zA-Z0-9])/g, '\\$1')) + `\n<https://www.twitch.tv/${onlineData.user_name}>`,
-				embed
-			);
+		const channel = guild.channels.cache.get(storedData.channel) as TextChannel;
+		let message: Message;
+		try {
+			message = await channel.messages.fetch(storedData.message);
+		} catch (err) {
+			return this.offline(storedData, ID);
 		}
+
+		const gameName = game.data.length === 0 ? '\u200b' : game.data[0].name;
+		const embed = new MessageEmbed(message.embeds[0])
+			.setTitle(onlineData.title)
+			.setImage(`https://static-cdn.jtvnw.net/previews-ttv/live_user_${onlineData.user_name.toLowerCase()}.jpg?t=${Date.now()}`)
+			.spliceFields(0, 2, [
+				{
+					name: `${gameName === 'Just Chatting' ? this.client.LOCALE(guild).COMMANDS.TWITCH.ONLINE_EMBED.FIELD_CATEGORY.CATEGORY : this.client.LOCALE(guild).COMMANDS.TWITCH.ONLINE_EMBED.FIELD_CATEGORY.GAME}`,
+					value: `${game.data.length === 0 ? '\u200b' : game.data[0].name}`,
+					inline: true,
+				},
+				{
+					name: this.client.LOCALE(guild).COMMANDS.TWITCH.ONLINE_EMBED.FIELD_VIEWERS,
+					value: `${onlineData.viewer_count}`,
+					inline: true,
+				},
+			])
+			.setFooter(this.client.LOCALE(guild).COMMANDS.TWITCH.ONLINE_EMBED.FOOTER.replace('$(duration)', moment.duration(Date.now() - (new Date(onlineData.started_at) as any)).format('h[h ]m[m ]s[s ]')));
+		message.edit(this.client.LOCALE(guild).COMMANDS.TWITCH.ONLINE_MESSAGE.replace('$(streamer)', onlineData.user_name.replace(/([^a-zA-Z0-9])/g, '\\$1')) + `\n<https://www.twitch.tv/${onlineData.user_name}>`, embed);
 
 		this.streamers.set(ID, {
 			...storedData,
@@ -178,7 +171,6 @@ export default class TwitchScheduler {
 			startedAt: onlineData.started_at,
 			categories: newCat,
 		});
-
 		// only worth when DB is local, else too slow to maintain :(
 		/* 
                 graphQLClient.mutate<any, TwitchStreamsInsertInput>({
@@ -247,7 +239,7 @@ export default class TwitchScheduler {
 				)
 				.catch(() => {});
 
-		await graphQLClient.mutate<any, TwitchStreamsInsertInput>({
+		/* 		await graphQLClient.mutate<any, TwitchStreamsInsertInput>({
 			mutation: GRAPHQL.MUTATION.UPDATE_TWITCH_STREAMS,
 			variables: {
 				id: ID,
@@ -258,7 +250,7 @@ export default class TwitchScheduler {
 				duration: null,
 				startedAt: null,
 			},
-		});
+		}); */
 		this.streamers.set(ID, {
 			...this.streamers.get(ID),
 			message: null,
@@ -289,14 +281,54 @@ export default class TwitchScheduler {
 		this.checkInterval = this.client.setInterval(this.check.bind(this), this.checkRate);
 	}
 
-	private async check() {
-		const { data } = await graphQLClient.query<any, TwitchStreamsInsertInput>({
+	private async check(): Promise<true> {
+		/* 		const { data } = await graphQLClient.query<any, TwitchStreamsInsertInput>({
 			query: GRAPHQL.QUERY.TWITCH_STREAMS,
 		});
 
 		let storedStreams: TwitchStreams[];
 		storedStreams = data.twitchStreams;
 		if (!storedStreams.length) return;
+ */
+
+		const storedStreams = [
+			{
+				id: 0,
+				streamer: '137512886',
+				guild: '701892016337977394',
+				channel: '701928421898453034',
+				message: null,
+				categories: [],
+				online: false,
+				streamerName: 'Giu14_',
+				startedAt: null,
+				duration: null,
+			},
+			{
+				id: 1,
+				streamer: '241862747',
+				guild: '703820623624798208',
+				channel: '703822562819440720',
+				message: null,
+				categories: [],
+				online: false,
+				streamerName: 'FornalhaRunica',
+				startedAt: null,
+				duration: null,
+			},
+			{
+				id: 2,
+				streamer: '241862747',
+				guild: '706581070514094100',
+				channel: '706603026357420103',
+				message: null,
+				categories: [],
+				online: false,
+				streamerName: 'FornalhaRunica',
+				startedAt: null,
+				duration: null,
+			},
+		];
 
 		for (const stream of storedStreams) {
 			if (this.streamers.has(stream.id)) continue;
@@ -333,5 +365,6 @@ export default class TwitchScheduler {
 
 			if (onlineData && streamer[1].online && streamer[1].message) await this.update(onlineData, streamer[1], streamer[0]);
 		}
+		return true;
 	}
 }

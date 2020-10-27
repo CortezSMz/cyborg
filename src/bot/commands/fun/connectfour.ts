@@ -183,18 +183,22 @@ export default class ConnectFourCommand extends Command {
 		return 0;
 	}
 
-	private drop(player: Player, reaction: string): void {
-		const instance = this.getInstance(player.user)!;
+	private drop(player: Player, reaction: string): Promise<void> {
+		return new Promise(resolve => {
+			const instance = this.getInstance(player.user)!;
 
-		for (let i = instance.board.length - 1; i >= 0; i--) {
-			const col = this.columns.indexOf(reaction);
-			if (instance.board[i][col] === Symbol.EMPTY) {
-				instance.board[i][col] = player.symbol;
-				break;
+			for (let i = instance.board.length - 1; i >= 0; i--) {
+				const col = this.columns.indexOf(reaction);
+				if (instance.board[i][col] === Symbol.EMPTY) {
+					instance.board[i][col] = player.symbol;
+					break;
+				}
 			}
-		}
 
-		instance.players.forEach((p: Player) => (p.turn = !p.turn));
+			instance.players.forEach((p: Player) => (p.turn = !p.turn));
+
+			resolve();
+		});
 	}
 
 	private check(user: User, b: string[][]): { user: User | null; mark: string } | null {
@@ -325,7 +329,7 @@ export default class ConnectFourCommand extends Command {
 					await instanceMessage.react('⚔️');
 					await instanceMessage.react('🤖');
 
-					const reaction = await instanceMessage?.awaitReactions(filter, { maxEmojis: 1, time: 300000, errors: ['time'] });
+					const reaction = await instanceMessage?.awaitReactions(filter, { maxEmojis: 1, time: 30000, errors: ['time'] });
 
 					let user: User;
 
@@ -380,9 +384,7 @@ export default class ConnectFourCommand extends Command {
 
 						const player = instance.players.find((p: Player) => p.turn)!;
 
-						let depth: number = Infinity;
-						if (i < 14) depth = 6;
-						else if (i < 28) depth = 7;
+						let depth: number = 5;
 
 						let reaction: string;
 						if (player.user.id === this.client.user!.id) {
@@ -390,11 +392,11 @@ export default class ConnectFourCommand extends Command {
 							reaction = this.bestMove(player, depth);
 							instance.hrDiff = process.hrtime(hrStart);
 						} else {
-							const reacted = await reactionMessage?.awaitReactions(filter, { maxEmojis: 1, time: 300000, errors: ['time'] });
+							const reacted = await reactionMessage?.awaitReactions(filter, { maxEmojis: 1, time: 30000, errors: ['time'] });
 							reaction = reacted.first()!.emoji.name;
 						}
 
-						this.drop(player, reaction);
+						await this.drop(player, reaction);
 
 						if (this.check(msg.author, instance.board) != null) {
 							return this.check(msg.author, instance.board)!.user ?? 'TIE';
