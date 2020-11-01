@@ -22,6 +22,7 @@ interface Player {
 
 interface GameInstance {
 	delete(): boolean;
+	finished: boolean;
 	players: Player[];
 	channel: TextChannel;
 	board: string[][];
@@ -42,9 +43,7 @@ export default class TicTacToeCommand extends Command {
 				usage: () => '',
 				examples: () => [''],
 			},
-			userPermissions: (msg: Message) => {
-				if (this.getInstance(msg.author)) this.getInstance(msg.author)?.delete();
-			},
+			lock: 'user',
 			channel: 'guild',
 			clientPermissions: [Permissions.FLAGS.MANAGE_MESSAGES],
 			category: 'fun',
@@ -78,25 +77,27 @@ export default class TicTacToeCommand extends Command {
 		return board;
 	}
 
-	private updateEmbed(msg: Message, finished: boolean = false): Promise<void> {
-		const instance = this.getInstance(msg.author)!;
-		instance.embed.setAuthor(`${Symbol.X} Jogo da Velha ${Symbol.O}`).setColor(COLORS.EMBED).setDescription(stripIndents`
+	private updateEmbed(msg: Message): Promise<void> {
+		return new Promise(resolve => {
+			const instance = this.getInstance(msg.author)!;
+			instance.embed.setAuthor(`${Symbol.X} Jogo da Velha ${Symbol.O}`).setColor(COLORS.EMBED).setDescription(stripIndents`
 			${instance.players
 				.map((p: Player) => {
-					if (p.turn) return `${p.symbol}: ${p.user}${finished ? '' : '**<--** \\✏️'}`;
+					if (p.turn) return `${p.symbol}: ${p.user}${instance.finished ? '' : '**<--** \\✏️'}`;
 					else return `${p.symbol}: ${p.user}`;
 				})
 				.join('\n')}
 
 			${instance.board.map(sq => sq.map(s => s).join('')).join('\n')}`);
-		if (instance.possibilities !== 0) {
-			instance.embed.setFooter(`${instance.possibilities} possibilities in ${instance.hrDiff[0] > 0 ? `${instance.hrDiff[0]}s ` : ''}${instance.hrDiff[1] / 1000000}ms`);
-		}
-		instance.possibilities = 0;
-		instance.emptySlots = 0;
-		instance.hrDiff = [0, 0];
+			if (instance.possibilities !== 0) {
+				instance.embed.setFooter(`${instance.possibilities} possibilities in ${instance.hrDiff[0] > 0 ? `${instance.hrDiff[0]}s ` : ''}${instance.hrDiff[1] / 1000000}ms`);
+			}
+			instance.possibilities = 0;
+			instance.emptySlots = 0;
+			instance.hrDiff = [0, 0];
 
-		return Promise.resolve();
+			resolve();
+		});
 	}
 
 	bestMove(player: Player): string {
@@ -168,12 +169,14 @@ export default class TicTacToeCommand extends Command {
 	}
 
 	turn(player: Player, reaction: string): Promise<void> {
-		const instance = this.getInstance(player.user)!;
+		return new Promise(resolve => {
+			const instance = this.getInstance(player.user)!;
 
-		instance.board = instance.board.map(square => square.map(s => (s === reaction ? player.symbol : s)));
-		instance.players.forEach((p: Player) => (p.turn = !p.turn));
+			instance.board = instance.board.map(square => square.map(s => (s === reaction ? player.symbol : s)));
+			instance.players.forEach((p: Player) => (p.turn = !p.turn));
 
-		return Promise.resolve();
+			resolve();
+		});
 	}
 
 	private check(user: User, b: string[][]): { user: User | null; mark: string } | null {
@@ -210,9 +213,10 @@ export default class TicTacToeCommand extends Command {
 		return null;
 	}
 
-	public async *args(msg: Message) {
+	public *args(msg: Message) {
 		this.instances.set(msg.author.id, {
 			delete: () => this.instances.delete(msg.author.id),
+			finished: false,
 			players: [this.createPlayer(msg.author)],
 			channel: msg.channel as TextChannel,
 			embed: new MessageEmbed(),
@@ -270,8 +274,6 @@ export default class TicTacToeCommand extends Command {
 						${this.client.emojis.cache.get('709533456866213930')} Carregando...
 						`),
 					});
-
-					for (const emoji of this.emojis) await instanceMessage.react(emoji);
 				} catch (error) {
 					msg.util?.send({ embed: embed.setDescription(`Ninguém entrou e o jogo foi cancelado.`) }).then(msg => msg.reactions.removeAll());
 					return Flag.cancel();
@@ -280,70 +282,54 @@ export default class TicTacToeCommand extends Command {
 			match: 'none',
 		};
 
-		await this.updateEmbed(msg);
-
-		const winner: User = yield {
-			type: async (msg: Message) => {
-				const instance = this.instances.get(msg.author.id)!;
-				let reactionMessage: Message = await msg.util?.send({ embed: instance.embed })!;
-
-				const filter = (reaction: MessageReaction, user: User) => {
-					reaction.users.remove(user);
-					return instance.board.some(l => l.some(c => c.includes(reaction.emoji.name))) && this.emojis.includes(reaction.emoji.name) && user.id === instance.players.find((p: Player) => p.turn)?.user.id;
-				};
-
-				for (let i = 0; i < 9; i++) {
-					try {
-						await this.updateEmbed(msg);
-						await msg.util?.send({ embed: instance.embed })!;
-
-						const player = instance.players.find((p: Player) => p.turn)!;
-
-						let reaction: string;
-						if (player.user.id === this.client.user!.id) {
-							const hrStart = process.hrtime();
-							reaction = this.bestMove(player);
-							instance.hrDiff = process.hrtime(hrStart);
-						} else {
-							const reacted = await reactionMessage?.awaitReactions(filter, { maxEmojis: 1, time: 30000, errors: ['time'] });
-							reaction = reacted.first()!.emoji.name;
-						}
-
-						await this.turn(player, reaction);
-
-						if (this.check(msg.author, instance.board) != null) {
-							return this.check(msg.author, instance.board)!.user ?? 'TIE';
-						} else Flag.fail('...');
-					} catch (error) {
-						msg.util?.send({ embed: instance.embed.setDescription(`Jogadores demoraram muito para escolher...\n\nO jogo foi cancelado.`) }).then(msg => msg.reactions.removeAll());
-						return Flag.cancel();
-					}
-				}
-				await this.updateEmbed(msg);
-				await reactionMessage.reactions.removeAll();
-				return 'TIE';
-			},
-			prompt: {
-				time: 30000,
-				retries: 10,
-				start: {
-					embed: this.getInstance(msg.author)!.embed,
-				},
-				retry: {
-					embed: this.getInstance(msg.author)!.embed,
-				},
-			},
-		};
-
-		return { winner };
+		return {};
 	}
 
-	public async exec(message: Message, { winner }: { winner: User | string }) {
-		const instance = this.getInstance(message.author)!;
+	public async exec(message: Message) {
+		for (const emoji of this.emojis) await message.util?.lastResponse?.react(emoji);
 
-		await this.updateEmbed(message, true);
+		await this.updateEmbed(message);
 
-		if (typeof winner === 'string')
+		let winner: User | string;
+		const instance = this.instances.get(message.author.id)!;
+		let reactionMessage: Message = await message.util?.send({ embed: instance.embed })!;
+
+		const filter = (reaction: MessageReaction, user: User) => {
+			reaction.users.remove(user);
+			return instance.board.some(l => l.some(c => c.includes(reaction.emoji.name))) && this.emojis.includes(reaction.emoji.name) && user.id === instance.players.find((p: Player) => p.turn)?.user.id;
+		};
+
+		while (!instance.finished) {
+			try {
+				await this.updateEmbed(message);
+				await message.util?.send({ embed: instance.embed })!;
+
+				const player = instance.players.find((p: Player) => p.turn)!;
+
+				let reaction: string;
+				if (player.user.id === this.client.user!.id) {
+					const hrStart = process.hrtime();
+					reaction = this.bestMove(player);
+					instance.hrDiff = process.hrtime(hrStart);
+				} else {
+					const reacted = await reactionMessage?.awaitReactions(filter, { maxEmojis: 1, time: 30000, errors: ['time'] });
+					reaction = reacted.first()!.emoji.name;
+				}
+
+				await this.turn(player, reaction);
+
+				if (this.check(message.author, instance.board) != null) {
+					instance.finished = true;
+					winner = this.check(message.author, instance.board)!.user ?? 'TIE';
+				}
+			} catch (error) {
+				return message.util?.send({ embed: instance.embed.setDescription(`Jogadores demoraram muito para escolher...\n\nO jogo foi cancelado.`) }).then(msg => msg.reactions.removeAll());
+			}
+		}
+
+		await this.updateEmbed(message);
+
+		if (typeof winner! === 'string')
 			message.util
 				?.send({
 					embed: instance.embed.setColor('#38667d').addField(`\u200b`, 'Velha!').setFooter(''),
@@ -353,8 +339,8 @@ export default class TicTacToeCommand extends Command {
 			message.util
 				?.send({
 					embed: instance.embed
-						.setColor(winner.bot ? '#f01343' : '#06b814')
-						.addField(`\u200b`, `**🎊 ${winner} venceu a partida!!! 🥳🎉**\nNão foi dessa vez, ${instance.players.find((p: Player) => p.user.id !== winner.id)?.user}...`)
+						.setColor(winner!.bot ? '#f01343' : '#06b814')
+						.addField(`\u200b`, `**🎊 ${winner!} venceu a partida!!! 🥳🎉**\nNão foi dessa vez, ${instance.players.find((p: Player) => p.user.id !== (winner as User).id)?.user}...`)
 						.setFooter(''),
 				})
 				.then(msg => msg.reactions.removeAll());

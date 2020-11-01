@@ -1,5 +1,5 @@
 import { AkairoClient, CommandHandler, Flag, InhibitorHandler, ListenerHandler } from 'discord-akairo';
-import { Message, Util, Guild } from 'discord.js';
+import { Message, Util, Guild, Intents } from 'discord.js';
 import { join } from 'path';
 import { Logger } from 'winston';
 import TwitchScheduler from '../structures/TwitchScheduler';
@@ -12,6 +12,12 @@ import { EVENTS, logger, TOPICS } from '../util/logger';
 import ms from '../util/timeParser';
 import * as locale from '../util/locale';
 
+declare module '../util/locale' {
+	interface Msgs {
+		[key: string]: Messages;
+	}
+}
+
 declare module 'discord-akairo' {
 	interface AkairoClient {
 		logger: Logger;
@@ -20,7 +26,7 @@ declare module 'discord-akairo' {
 		config: CyborgOptions;
 		remindmeScheduler: RemindmeScheduler;
 		twitchScheduler: TwitchScheduler;
-		LOCALE: (guild: Guild | null) => Messages;
+		LOCALE: (language: ('EN' | 'PTBR') | Guild) => Messages;
 	}
 }
 
@@ -37,7 +43,7 @@ export default class CyborgClient extends AkairoClient {
 
 	public settings = new HasuraProvider();
 
-	public LOCALE: (guild: Guild | null) => Messages;
+	public LOCALE: (language: ('EN' | 'PTBR') | Guild) => Messages;
 
 	public commandHandler: CommandHandler = new CommandHandler(this, {
 		directory: join(__dirname, '..', 'commands'),
@@ -60,7 +66,7 @@ export default class CyborgClient extends AkairoClient {
 				retries: 3,
 				time: 30000,
 			},
-			otherwise: '',
+			otherwise: (_: Message, { failure }: { failure: { value: string } }) => failure.value,
 		},
 	});
 
@@ -96,16 +102,18 @@ export default class CyborgClient extends AkairoClient {
 				messageCacheMaxSize: 1000,
 				//disableMentions: 'everyone',
 				partials: ['MESSAGE', 'REACTION'],
-				// ws: { intents: ['GUILDS', 'GUILD_MESSAGES', 'GUILD_MESSAGE_REACTIONS'] },
+				ws: { intents: Intents.NON_PRIVILEGED },
 			}
 		);
 
 		this.root = config.root;
 
-		this.LOCALE = (guild: Guild | null): Messages => {
-			let lang = this.settings.get(guild ?? '', SETTINGS.LANGUAGE, process.env.DEFAULT_LANG);
-			// @ts-ignore
-			return locale[lang.replace(/-/g, '')].MESSAGES as Messages;
+		this.LOCALE = (language): Messages => {
+			if (language instanceof Guild) {
+				let lang = this.settings.get(language, SETTINGS.LANGUAGE, process.env.DEFAULT_LANG);
+				return ((locale as unknown) as locale.Msgs)[lang.replace(/-/g, '')];
+			}
+			return locale[language];
 		};
 
 		this.commandHandler.resolver.addType('duration', (_, phrase): number | null => {
@@ -159,7 +167,7 @@ export default class CyborgClient extends AkairoClient {
 		});
 	}
 
-	private async _init() {
+	private async _init(): Promise<void> {
 		this.commandHandler.useInhibitorHandler(this.inhibitorHandler);
 		this.commandHandler.useListenerHandler(this.listenerHandler);
 		this.listenerHandler.setEmitters({
@@ -174,11 +182,11 @@ export default class CyborgClient extends AkairoClient {
 		this.logger.info(CYBORG.INHIBITOR_HANDLER.LOADED, { topic: TOPICS.DISCORD_AKAIRO, event: EVENTS.INIT });
 		this.listenerHandler.loadAll();
 		this.logger.info(CYBORG.LISTENER_HANDLER.LOADED, { topic: TOPICS.DISCORD_AKAIRO, event: EVENTS.INIT });
-		// await this.settings.init();
+		await this.settings.init();
 		this.logger.info(CYBORG.SETTINGS.INIT, { topic: TOPICS.DISCORD_AKAIRO, event: EVENTS.INIT });
 	}
 
-	public async start() {
+	public async start(): Promise<string> {
 		await this._init();
 		return this.login(this.config.token);
 	}

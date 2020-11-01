@@ -56,7 +56,7 @@ export default class HelpCommand extends Command {
 						})
 						.join(' ')}\u200b`
 				);
-				/* 				if (category.id === 'tag' && message.guild) {
+				if (category.id === 'tag' && message.guild) {
 					const { data } = await graphQLClient.query<any, TagsInsertInput>({
 						query: GRAPHQL.QUERY.TAGS,
 						variables: {
@@ -73,7 +73,7 @@ export default class HelpCommand extends Command {
 					if (hoistedTags) {
 						embed.addField(`ﾅ ${message.guild.name} ${this.client.LOCALE(message.guild!).COMMANDS.CATEGORIES[category.id.toUpperCase()]}`, hoistedTags);
 					}
-				} */
+				}
 			}
 
 			return message.util?.send(embed);

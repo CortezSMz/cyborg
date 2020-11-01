@@ -2,7 +2,7 @@ import { stripIndents } from 'common-tags';
 import { Messages } from '../constants';
 import moment = require('moment');
 
-const MESSAGES: Messages = {
+export default {
 	COMMAND_HANDLER: {
 		PROMPT: {
 			MODIFY_START: str => {
@@ -44,6 +44,37 @@ const MESSAGES: Messages = {
 	},
 
 	COMMANDS: {
+		ALIASES: {
+			'CONFIG-CHECK': ['check'],
+			CONFIG: ['config'],
+			LANGUAGE: ['language', 'lang'],
+			PREFIX: ['prefix'],
+			BLACKJACK: ['blackjack'],
+			CONNECTFOUR: ['connectfour', 'cf', 'conectequatro', 'connect4'],
+			JACKBLACK: ['jackblack'],
+			TICTACTOE: ['tictactoe', 'ttt', 'jogodavelha', 'velha'],
+			CHANNEL: ['channel', 'channel-info'],
+			EMOJI: ['emoji', 'emoji-info'],
+			ROLE: ['role', 'role-info'],
+			GUILD: ['guild', 'server', 'server-info'],
+			USER: ['user', 'member', 'user-info'],
+			BLACKLIST: ['blacklist', 'unblacklist'],
+			EVAL: ['eval'],
+			PURGE: ['purge', 'prune'],
+			RELOAD: ['reload'],
+			TEST: ['test'],
+			REACTIONROLE: ['reactionrole', 'rr'],
+			'TAG-LIST': ['tags'],
+			TAG: ['tag'],
+			TWITCH: ['twitch'],
+			EMBED: ['embed'],
+			HELP: ['help', 'h', 'ajuda'],
+			PING: ['ping'],
+			'REMINDME-ADD': ['reminder', 'remindme', 'remind'],
+			RUNE: ['rune', 'futhark'],
+			STATS: ['stats'],
+		},
+
 		CATEGORIES: {
 			FUN: 'Fun',
 			CONFIG: 'Config',
@@ -635,6 +666,4 @@ const MESSAGES: Messages = {
 			},
 		},
 	},
-};
-
-export default { MESSAGES };
+} as Messages;

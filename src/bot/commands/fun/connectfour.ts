@@ -9,7 +9,7 @@ enum Scores {
 	RED,
 }
 
-export enum Symbol {
+export enum Mark {
 	EMPTY = '▫️',
 	RED = '🔴',
 	YELLOW = '🟡',
@@ -18,12 +18,13 @@ export enum Symbol {
 export interface Player {
 	user: User;
 	turn: boolean;
-	symbol: Symbol.RED | Symbol.YELLOW;
+	Mark: Mark.RED | Mark.YELLOW;
 }
 export interface GameInstance {
 	delete(): boolean;
+	finished: boolean;
 	players: Player[];
-	board: Symbol[][];
+	board: Mark[][];
 	embed: MessageEmbed;
 	hrDiff: [number, number];
 	possibilities: number;
@@ -38,10 +39,11 @@ export default class ConnectFourCommand extends Command {
 			aliases: ['connectfour', 'cf', 'conectequatro', 'connect4'],
 			description: {
 				content: () =>
-					`Reaja com o número lugar onde quer colocar seu ${Symbol.RED} ou ${Symbol.YELLOW}\n\nO objetivo do jogo é conseguir deixar 4 bolinhas da mesma cor em linha sem o oponente te interromper. Pode ser diagonal, horizontal e vertical.`,
+					`Reaja com o número lugar onde quer colocar seu ${Mark.RED} ou ${Mark.YELLOW}\n\nO objetivo do jogo é conseguir deixar 4 bolinhas da mesma cor em linha sem o oponente te interromper. Pode ser diagonal, horizontal e vertical.`,
 				usage: () => '',
 				examples: () => [''],
 			},
+			lock: 'user',
 			category: 'fun',
 			ratelimit: 3,
 		});
@@ -55,7 +57,7 @@ export default class ConnectFourCommand extends Command {
 		const player: Player = {
 			user,
 			turn: second ? false : true,
-			symbol: second ? Symbol.RED : Symbol.YELLOW,
+			Mark: second ? Mark.RED : Mark.YELLOW,
 		};
 		return player;
 	}
@@ -65,40 +67,39 @@ export default class ConnectFourCommand extends Command {
 		for (let i = 0; i < 6; i++) {
 			board[i] = [];
 			for (let j = 0; j < 7; j++) {
-				board[i].push(Symbol.EMPTY);
+				board[i].push(Mark.EMPTY);
 			}
 		}
 		return board;
 	}
 
-	private updateEmbed(msg: Message, round: number = 0, finished: boolean = false): Promise<void> {
-		const instance = this.getInstance(msg.author)!;
-		instance.embed.setAuthor(`${Symbol.YELLOW} Connect 4 ${Symbol.RED}`).setColor(COLORS.EMBED).setDescription(stripIndents`
+	private updateEmbed(msg: Message): Promise<void> {
+		return new Promise(resolve => {
+			const instance = this.getInstance(msg.author)!;
+			instance.embed.setAuthor(`${Mark.YELLOW} Connect 4 ${Mark.RED}`).setColor(COLORS.EMBED).setDescription(stripIndents`
 			${instance.players
 				.map((p: Player) => {
-					if (p.turn) return `${p.symbol}: ${p.user}${finished ? '' : ' **<--️ turn**'}`;
-					else return `${p.symbol}: ${p.user}`;
+					if (p.turn) return `${p.Mark}: ${p.user}${instance.finished ? '' : ' **<--️ turn**'}`;
+					else return `${p.Mark}: ${p.user}`;
 				})
 				.join('\n')}
-			${finished ? '' : '\nColoque a bolinha e tente conectar 4 antes do seu oponente...\n'}
+			${instance.finished ? '' : '\nColoque a bolinha e tente conectar 4 antes do seu oponente...\n'}
 			${instance.board.map(line => line.map(col => col).join('')).join('\n')}
 			${this.columns.slice(0, 7).join('')}`);
-		if (round > 0) {
-			instance.embed.setTitle(`Round ${round}`);
-		}
-		if (instance.possibilities !== 0) {
-			instance.embed.setFooter(`${instance.possibilities} possibilities in ${instance.hrDiff[0] > 0 ? `${instance.hrDiff[0]}s ` : ''}${instance.hrDiff[1] / 1000000}ms`);
-		}
-		instance.possibilities = 0;
-		instance.hrDiff = [0, 0];
+			if (instance.possibilities !== 0) {
+				instance.embed.setFooter(`${instance.possibilities} possibilities in ${instance.hrDiff[0] > 0 ? `${instance.hrDiff[0]}s ` : ''}${instance.hrDiff[1] / 1000000}ms`);
+			}
+			instance.possibilities = 0;
+			instance.hrDiff = [0, 0];
 
-		return Promise.resolve();
+			resolve();
+		});
 	}
 
 	isValidLocation(board: string[][], reaction: string): { row: number; col: number } | null {
 		for (let i = board.length - 1; i >= 0; i--) {
 			const col = this.columns.indexOf(reaction);
-			if (board[i][col] === Symbol.EMPTY) {
+			if (board[i][col] === Mark.EMPTY) {
 				return { row: i, col };
 			}
 		}
@@ -106,7 +107,7 @@ export default class ConnectFourCommand extends Command {
 		return null;
 	}
 
-	allValidMoves(board: Symbol[][]): { row: number; col: number }[] {
+	allValidMoves(board: Mark[][]): { row: number; col: number }[] {
 		const validMoves = [];
 		for (let i = 0; i < this.columns.length; i++) {
 			if (this.isValidLocation(board, this.columns[i])) validMoves.push(this.isValidLocation(board, this.columns[i])!);
@@ -125,11 +126,11 @@ export default class ConnectFourCommand extends Command {
 		const validMoves = this.allValidMoves(board);
 
 		for (const { row, col } of validMoves) {
-			let oldSymbol: Symbol = board[row][col];
-			board[row][col] = Symbol.RED;
-			let score = this.minimax(board, depth, Symbol.YELLOW, player);
+			let oldMark: Mark = board[row][col];
+			board[row][col] = Mark.RED;
+			const score = this.minimax(board, depth, Mark.YELLOW, player);
 
-			board[row][col] = oldSymbol;
+			board[row][col] = oldMark;
 			moves.push({ score, row, col });
 			if (score > bestScore) {
 				bestScore = score;
@@ -144,36 +145,36 @@ export default class ConnectFourCommand extends Command {
 		return this.columns[bestMove.col];
 	}
 
-	minimax(board: Symbol[][], depth: number, playing: Symbol, player: Player): number {
+	minimax(board: Mark[][], depth: number, playing: Mark, player: Player): number {
 		if (this.check(player.user, board) != null || depth === 0) {
 			this.getInstance(player.user)!.possibilities++;
 			const mark = this.check(player.user, board)?.mark!;
-			if (mark === Symbol.YELLOW) return Scores.YELLOW;
-			else if (mark === Symbol.RED) return Scores.RED;
+			if (mark === Mark.YELLOW) return Scores.YELLOW;
+			else if (mark === Mark.RED) return Scores.RED;
 			else return Scores.TIE;
 		}
 
-		if (playing == Symbol.RED) {
+		if (playing == Mark.RED) {
 			let bestScore: number = -Infinity;
 			const validMoves = this.allValidMoves(board);
 			for (const { row, col } of validMoves) {
-				const oldSymbol: Symbol = board[row][col];
-				board[row][col] = Symbol.RED;
-				let score = this.minimax(board, depth - 1, Symbol.YELLOW, player);
-				board[row][col] = oldSymbol;
+				const oldMark: Mark = board[row][col];
+				board[row][col] = Mark.RED;
+				const score = this.minimax(board, depth - 1, Mark.YELLOW, player);
+				board[row][col] = oldMark;
 				if (score > bestScore) {
 					bestScore = score;
 				}
 			}
 			return bestScore;
-		} else if (playing == Symbol.YELLOW) {
+		} else if (playing == Mark.YELLOW) {
 			let bestScore: number = Infinity;
 			const validMoves = this.allValidMoves(board);
 			for (const { row, col } of validMoves) {
-				const oldSymbol: Symbol = board[row][col];
-				board[row][col] = Symbol.YELLOW;
-				let score = this.minimax(board, depth - 1, Symbol.RED, player);
-				board[row][col] = oldSymbol;
+				const oldMark: Mark = board[row][col];
+				board[row][col] = Mark.YELLOW;
+				const score = this.minimax(board, depth - 1, Mark.RED, player);
+				board[row][col] = oldMark;
 				if (score < bestScore) {
 					bestScore = score;
 				}
@@ -189,8 +190,8 @@ export default class ConnectFourCommand extends Command {
 
 			for (let i = instance.board.length - 1; i >= 0; i--) {
 				const col = this.columns.indexOf(reaction);
-				if (instance.board[i][col] === Symbol.EMPTY) {
-					instance.board[i][col] = player.symbol;
+				if (instance.board[i][col] === Mark.EMPTY) {
+					instance.board[i][col] = player.Mark;
 					break;
 				}
 			}
@@ -277,10 +278,10 @@ export default class ConnectFourCommand extends Command {
 		];
 
 		for (const win of conditions) {
-			if (win[0] === Symbol.EMPTY) continue;
+			if (win[0] === Mark.EMPTY) continue;
 			if (win[0] === win[1] && win[0] === win[2] && win[0] === win[3]) {
 				return {
-					user: instance.players.find((p: Player) => p.symbol === win[0])?.user!,
+					user: instance.players.find((p: Player) => p.Mark === win[0])?.user!,
 					mark: win[0],
 				};
 			}
@@ -289,7 +290,7 @@ export default class ConnectFourCommand extends Command {
 		let tie: number = 0;
 		for (let i = 0; i < b.length; i++) {
 			for (let j = 0; j < b[i].length; j++) {
-				if (b[i][j] === Symbol.EMPTY) tie++;
+				if (b[i][j] === Mark.EMPTY) tie++;
 			}
 		}
 
@@ -300,6 +301,7 @@ export default class ConnectFourCommand extends Command {
 	public *args(msg: Message) {
 		this.instances.set(msg.author.id, {
 			delete: () => this.instances.delete(msg.author.id),
+			finished: false,
 			players: [this.createPlayer(msg.author)],
 			embed: new MessageEmbed(),
 			board: this.createBoard(),
@@ -310,7 +312,7 @@ export default class ConnectFourCommand extends Command {
 		yield {
 			type: async (msg: Message) => {
 				const instance = this.instances.get(msg.author.id)!;
-				const embed = new MessageEmbed().setColor(COLORS.EMBED).setTitle(`${Symbol.YELLOW} Connect 4 ${Symbol.RED}`).setDescription(stripIndents`
+				const embed = new MessageEmbed().setColor(COLORS.EMBED).setTitle(`${Mark.YELLOW} Connect 4 ${Mark.RED}`).setDescription(stripIndents`
 					Esperando alguém se juntar...
 					
 					Clique no ⚔️ para jogar contra ${msg.author}
@@ -347,16 +349,14 @@ export default class ConnectFourCommand extends Command {
 
 					msg.util?.send({
 						embed: embed.setDescription(stripIndents`
-						${msg.author} entrou no jogo como ${Symbol.YELLOW}
-						${user!} entrou no jogo como ${Symbol.RED}
+						${msg.author} entrou no jogo como ${Mark.YELLOW}
+						${user!} entrou no jogo como ${Mark.RED}
 
-						${instance.players.filter((p: Player) => p.turn).map((p: Player) => `${p.symbol} começa jogando!`)}
+						${instance.players.filter((p: Player) => p.turn).map((p: Player) => `${p.Mark} começa jogando!`)}
 						
 						${this.client.emojis.cache.get('709533456866213930')} Carregando...
 						`),
 					});
-
-					for (const emoji of this.columns) await instanceMessage.react(emoji);
 				} catch (error) {
 					msg.util?.send({ embed: embed.setDescription(`Ninguém entrou e o jogo foi cancelado.`) }).then(msg => msg.reactions.removeAll());
 					return Flag.cancel();
@@ -365,60 +365,56 @@ export default class ConnectFourCommand extends Command {
 			match: 'none',
 		};
 
-		this.updateEmbed(msg);
-
-		const winner: User = yield {
-			type: async (msg: Message) => {
-				const instance = this.instances.get(msg.author.id)!;
-				let reactionMessage: Message = await msg.util?.send({ embed: instance.embed })!;
-
-				const filter = (reaction: MessageReaction, user: User) => {
-					reaction.users.remove(user);
-					return Boolean(this.isValidLocation(instance.board, reaction.emoji.name)) && this.columns.includes(reaction.emoji.name) && user.id === instance.players.find((p: Player) => p.turn)?.user.id;
-				};
-
-				for (let i = 0; i < 45; i++) {
-					try {
-						await this.updateEmbed(msg, i + 1);
-						await msg.util?.send({ embed: instance.embed })!;
-
-						const player = instance.players.find((p: Player) => p.turn)!;
-
-						let depth: number = 5;
-
-						let reaction: string;
-						if (player.user.id === this.client.user!.id) {
-							const hrStart = process.hrtime();
-							reaction = this.bestMove(player, depth);
-							instance.hrDiff = process.hrtime(hrStart);
-						} else {
-							const reacted = await reactionMessage?.awaitReactions(filter, { maxEmojis: 1, time: 30000, errors: ['time'] });
-							reaction = reacted.first()!.emoji.name;
-						}
-
-						await this.drop(player, reaction);
-
-						if (this.check(msg.author, instance.board) != null) {
-							return this.check(msg.author, instance.board)!.user ?? 'TIE';
-						} else Flag.fail('...');
-					} catch (error) {
-						msg.util?.send({ embed: instance.embed.setDescription(`Jogadores demoraram muito para escolher...\n\nO jogo foi cancelado.`) }).then(msg => msg.reactions.removeAll());
-						return Flag.cancel();
-					}
-				}
-				return 'tie';
-			},
-		};
-
-		return { winner };
+		return {};
 	}
 
-	public async exec(message: Message, { winner }: { winner: User | string }) {
+	public async exec(message: Message) {
+		for (const emoji of this.columns) await message.util?.lastResponse?.react(emoji);
+
+		await this.updateEmbed(message);
+
+		let winner: User | string;
 		const instance = this.getInstance(message.author)!;
 
-		await this.updateEmbed(message, -1, true);
+		let reactionMessage: Message = await message.util?.send({ embed: instance.embed })!;
 
-		if (typeof winner === 'string')
+		const filter = (reaction: MessageReaction, user: User) => {
+			reaction.users.remove(user);
+			return Boolean(this.isValidLocation(instance.board, reaction.emoji.name)) && this.columns.includes(reaction.emoji.name) && user.id === instance.players.find((p: Player) => p.turn)?.user.id;
+		};
+
+		while (!instance.finished) {
+			try {
+				await this.updateEmbed(message);
+				await message.util?.send({ embed: instance.embed })!;
+
+				const player = instance.players.find((p: Player) => p.turn)!;
+
+				let depth: number = 5;
+
+				let reaction: string;
+				if (player.user.id === this.client.user!.id) {
+					const hrStart = process.hrtime();
+					reaction = this.bestMove(player, depth);
+					instance.hrDiff = process.hrtime(hrStart);
+				} else {
+					const reacted = await reactionMessage?.awaitReactions(filter, { maxEmojis: 1, time: 30000, errors: ['time'] });
+					reaction = reacted.first()!.emoji.name;
+				}
+
+				await this.drop(player, reaction);
+
+				if (this.check(message.author, instance.board) != null) {
+					winner = this.check(message.author, instance.board)!.user ?? 'TIE';
+				}
+			} catch (error) {
+				return message.util?.send({ embed: instance.embed.setDescription(`Jogadores demoraram muito para escolher...\n\nO jogo foi cancelado.`) }).then(msg => msg.reactions.removeAll());
+			}
+		}
+
+		await this.updateEmbed(message);
+
+		if (typeof winner! === 'string')
 			message.util
 				?.send({
 					embed: instance.embed.setColor('#38667d').addField(`\u200b`, 'Empate!').setFooter('').setTitle(''),
@@ -428,8 +424,8 @@ export default class ConnectFourCommand extends Command {
 			message.util
 				?.send({
 					embed: instance.embed
-						.setColor(winner.bot ? '#f01343' : '#06b814')
-						.addField(`\u200b`, `**🎊 ${winner} venceu a partida!!! 🥳🎉**\nNão foi dessa vez, ${instance.players.find((p: Player) => p.user.id !== winner.id)?.user}...`)
+						.setColor(winner!.bot ? '#f01343' : '#06b814')
+						.addField(`\u200b`, `**🎊 ${winner!} venceu a partida!!! 🥳🎉**\nNão foi dessa vez, ${instance.players.find((p: Player) => p.user.id !== (winner as User).id)?.user}...`)
 						.setFooter('')
 						.setTitle(''),
 				})

@@ -41,7 +41,6 @@ export default class SetConfigMemberLogCommand extends Command {
 									msg
 										.guild!.roles.cache.sort((a, b) => b.position - a.position)
 										.map(role => {
-											console.log(role.name, failedRole.comparePositionTo(role), me.roles.highest.comparePositionTo(role));
 											if (role.id === failedRole.id) return `**${role} <-- your role**`;
 											if (role.id === me.roles.highest.id) return `**${role} <-- my highest**`;
 											if (
@@ -73,6 +72,6 @@ export default class SetConfigMemberLogCommand extends Command {
 	public async exec(message: Message, { role }: { role: Role }) {
 		const guild = message.guild!;
 		this.client.settings.set(guild, SETTINGS.AUTO_ROLE, role.id);
-		return message.util?.reply(this.client.LOCALE(guild).COMMANDS.CONFIG.SET.AUTO_ROLE.REPLY(role.name));
+		return message.util?.reply(this.client.LOCALE(guild!).COMMANDS.CONFIG.SET.AUTO_ROLE.REPLY(role.name));
 	}
 }

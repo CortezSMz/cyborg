@@ -3,7 +3,7 @@ import { MessageReaction, User } from 'discord.js';
 import { TOPICS, EVENTS } from '../../../util/logger';
 import { graphQLClient, GRAPHQL } from '../../../util/graphQL';
 import { ReactionRolesInsertInput } from '../../../util/graphQLTypes';
-import { PRODUCTION, CYBORG } from '../../../util/constants';
+import { PRODUCTION } from '../../../util/constants';
 
 export default class messageReactionRemoveReactionRole extends Listener {
 	public constructor() {
@@ -46,7 +46,7 @@ export default class messageReactionRemoveReactionRole extends Listener {
 			await member.roles.remove(role, 'Role by reaction');
 			this.client.logger.info(`Removed a role by reaction on ${member.guild.name} (${member.guild.id})`, { topic: TOPICS.DISCORD, event: 'REACTIONROLE' });
 		} catch (err) {
-			// this.client.logger.error(err.message, { topic: TOPICS.DISCORD, event: EVENTS.ERROR });
+			this.client.logger.error(err.message, { topic: TOPICS.DISCORD, event: EVENTS.ERROR });
 		}
 	}
 }

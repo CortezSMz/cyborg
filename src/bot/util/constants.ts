@@ -48,10 +48,6 @@ export interface Settings {
 	};
 }
 
-export const isPremium = (guild: Guild) => {
-	return (guild?.client as CyborgClient)?.settings.get(guild, SETTINGS.PREMIUM, false) ?? false;
-};
-
 export interface Messages {
 	COMMAND_HANDLER: {
 		PROMPT: {
@@ -101,6 +97,38 @@ export interface Messages {
 			TAG: string;
 			UTIL: string;
 			TWITCH: string;
+		};
+
+		ALIASES: {
+			[key: string]: string[];
+			'CONFIG-CHECK': string[];
+			CONFIG: string[];
+			LANGUAGE: string[];
+			PREFIX: string[];
+			BLACKJACK: string[];
+			CONNECTFOUR: string[];
+			JACKBLACK: string[];
+			TICTACTOE: string[];
+			CHANNEL: string[];
+			EMOJI: string[];
+			ROLE: string[];
+			GUILD: string[];
+			USER: string[];
+			BLACKLIST: string[];
+			EVAL: string[];
+			PURGE: string[];
+			RELOAD: string[];
+			TEST: string[];
+			REACTIONROLE: string[];
+			'TAG-LIST': string[];
+			TAG: string[];
+			TWITCH: string[];
+			EMBED: string[];
+			HELP: string[];
+			PING: string[];
+			'REMINDME-ADD': string[];
+			RUNE: string[];
+			STATS: string[];
 		};
 
 		FUN: {

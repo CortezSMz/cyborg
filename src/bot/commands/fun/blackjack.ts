@@ -33,9 +33,9 @@ export default class BlackJackCommand extends Command {
 		super('blackjack', {
 			aliases: ['blackjack'],
 			description: {
-				content: (msg: Message) => this.client.LOCALE(msg.guild).COMMANDS.FUN.BLACKJACK.DESCRIPTION.CONTENT((this.handler.prefix as PrefixSupplier)(msg), msg.author.username),
+				content: (msg: Message) => this.client.LOCALE(msg.guild!).COMMANDS.FUN.BLACKJACK.DESCRIPTION.CONTENT((this.handler.prefix as PrefixSupplier)(msg), msg.author.username),
 				usage: () => '',
-				examples: (msg: Message) => this.client.LOCALE(msg.guild).COMMANDS.FUN.BLACKJACK.DESCRIPTION.EXAMPLES,
+				examples: (msg: Message) => this.client.LOCALE(msg.guild!).COMMANDS.FUN.BLACKJACK.DESCRIPTION.EXAMPLES,
 			},
 			// userPermissions: (msg: Message) => {
 			//	if (this.getInstance(msg.author)) return "You're already on a blackjack game.";
@@ -96,7 +96,7 @@ export default class BlackJackCommand extends Command {
 		const player: Player = {
 			user: author,
 			hand,
-			status: this.client.LOCALE(guild).COMMANDS.FUN.BLACKJACK.PLAYERSTATUS.DRAWING,
+			status: this.client.LOCALE(guild!).COMMANDS.FUN.BLACKJACK.PLAYERSTATUS.DRAWING,
 		};
 		return player;
 	}
@@ -179,7 +179,7 @@ export default class BlackJackCommand extends Command {
 		const bot = instance.players.find((p: Player) => p.user.bot)!;
 		const player = instance.players.find((p: Player) => p.user.id === user.id)!;
 		const playerScore = this.getScore(player);
-		const PlayerStatus = this.client.LOCALE(guild).COMMANDS.FUN.BLACKJACK.PLAYERSTATUS;
+		const PlayerStatus = this.client.LOCALE(guild!).COMMANDS.FUN.BLACKJACK.PLAYERSTATUS;
 		let playerEnded: boolean = false;
 
 		if (natural) {
@@ -192,7 +192,7 @@ export default class BlackJackCommand extends Command {
 			instance.ended = instance.players.filter((p: Player) => p.status !== PlayerStatus.DRAWING && !p.user.bot).length === instance.players.filter((p: Player) => !p.user.bot).length;
 		}
 
-		if (playerScore === 21 || phrase === this.client.LOCALE(guild).COMMANDS.FUN.BLACKJACK.PROMPT.PLAYS[1][0]) {
+		if (playerScore === 21 || phrase === this.client.LOCALE(guild!).COMMANDS.FUN.BLACKJACK.PROMPT.PLAYS[1][0]) {
 			playerEnded = true;
 			player.status = PlayerStatus.STANDING;
 			instance.ended = instance.players.filter((p: Player) => p.status !== PlayerStatus.DRAWING && !p.user.bot).length === instance.players.filter((p: Player) => !p.user.bot).length;
@@ -256,7 +256,7 @@ export default class BlackJackCommand extends Command {
 
 	private setWinner(user: User, guild: Guild, { players, tie }: { players: Player[]; tie: boolean }): void {
 		const instance = this.getInstance(user)!;
-		const PlayerStatus = this.client.LOCALE(guild).COMMANDS.FUN.BLACKJACK.PLAYERSTATUS;
+		const PlayerStatus = this.client.LOCALE(guild!).COMMANDS.FUN.BLACKJACK.PLAYERSTATUS;
 		for (const player of instance.players) {
 			if (players.some((p: Player) => player.user.id === p.user.id)) player.status = tie ? PlayerStatus.TIE : PlayerStatus.WON;
 			else player.status = PlayerStatus.LOST;
@@ -301,8 +301,8 @@ export default class BlackJackCommand extends Command {
 			player: Player[] | null;
 			natural: { h: boolean; p: boolean };
 		} = yield {
-			type: Argument.compose(this.client.LOCALE(msg.guild).COMMANDS.FUN.BLACKJACK.PROMPT.PLAYS, (msg: Message, phrase: string) => {
-				if (phrase === this.client.LOCALE(msg.guild).COMMANDS.FUN.BLACKJACK.PROMPT.PLAYS[0][0]) this.hit(msg.author);
+			type: Argument.compose(this.client.LOCALE(msg.guild!).COMMANDS.FUN.BLACKJACK.PROMPT.PLAYS, (msg: Message, phrase: string) => {
+				if (phrase === this.client.LOCALE(msg.guild!).COMMANDS.FUN.BLACKJACK.PROMPT.PLAYS[0][0]) this.hit(msg.author);
 
 				this.updateEmbed(msg.author);
 
@@ -312,11 +312,11 @@ export default class BlackJackCommand extends Command {
 				time: 30000,
 				retries: Infinity,
 				start: {
-					content: this.client.LOCALE(msg.guild).COMMANDS.FUN.BLACKJACK.PROMPT.CONTENT,
+					content: this.client.LOCALE(msg.guild!).COMMANDS.FUN.BLACKJACK.PROMPT.CONTENT,
 					embed: this.getInstance(msg.author)!.embed,
 				},
 				retry: {
-					content: this.client.LOCALE(msg.guild).COMMANDS.FUN.BLACKJACK.PROMPT.CONTENT,
+					content: this.client.LOCALE(msg.guild!).COMMANDS.FUN.BLACKJACK.PROMPT.CONTENT,
 					embed: this.getInstance(msg.author)!.embed,
 				},
 			},
@@ -334,10 +334,10 @@ export default class BlackJackCommand extends Command {
 		if (natural.h || natural.p) string = 'Blackjack! ';
 		if (instance.ended && player?.length)
 			string +=
-				`${player.map((p: Player) => p.user).join(' & ')} ${player.length > 1 ? this.client.LOCALE(message.guild).COMMANDS.FUN.BLACKJACK.TIED : this.client.LOCALE(message.guild).COMMANDS.FUN.BLACKJACK.WON} ` +
-				this.client.LOCALE(message.guild).COMMANDS.FUN.BLACKJACK.THE_GAME;
-		else if (instance.ended) string += ' ' + this.client.LOCALE(message.guild).COMMANDS.FUN.BLACKJACK.ENDED;
-		else string = this.client.LOCALE(message.guild).COMMANDS.FUN.BLACKJACK.WAITING;
+				`${player.map((p: Player) => p.user).join(' & ')} ${player.length > 1 ? this.client.LOCALE(message.guild!).COMMANDS.FUN.BLACKJACK.TIED : this.client.LOCALE(message.guild!).COMMANDS.FUN.BLACKJACK.WON} ` +
+				this.client.LOCALE(message.guild!).COMMANDS.FUN.BLACKJACK.THE_GAME;
+		else if (instance.ended) string += ' ' + this.client.LOCALE(message.guild!).COMMANDS.FUN.BLACKJACK.ENDED;
+		else string = this.client.LOCALE(message.guild!).COMMANDS.FUN.BLACKJACK.WAITING;
 
 		message.channel.send(string, {
 			embed: instance.embed.setColor(!instance.ended ? COLORS.EMBED : '#e6101b'),

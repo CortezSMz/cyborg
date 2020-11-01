@@ -4,7 +4,8 @@ import { TwitchStreamsInsertInput, TwitchStreams } from '../util/graphQLTypes';
 import { graphQLClient, GRAPHQL } from '../util/graphQL';
 import fetch from 'node-fetch';
 import moment = require('moment');
-import { isPremium, SETTINGS } from '../util/constants';
+import { SETTINGS } from '../util/constants';
+import { TOPICS, EVENTS } from '../util/logger';
 
 export default class TwitchScheduler {
 	private readonly checkRate: number;
@@ -69,16 +70,18 @@ export default class TwitchScheduler {
 			.setURL(`https://www.twitch.tv/${onlineData.user_name.toLowerCase()}`)
 			.setTitle(onlineData.title)
 			.addField(
-				`${gameName === 'Just Chatting' ? this.client.LOCALE(guild).COMMANDS.TWITCH.ONLINE_EMBED.FIELD_CATEGORY.CATEGORY : this.client.LOCALE(guild).COMMANDS.TWITCH.ONLINE_EMBED.FIELD_CATEGORY.GAME}`,
+				`${gameName === 'Just Chatting' ? this.client.LOCALE(guild!).COMMANDS.TWITCH.ONLINE_EMBED.FIELD_CATEGORY.CATEGORY : this.client.LOCALE(guild!).COMMANDS.TWITCH.ONLINE_EMBED.FIELD_CATEGORY.GAME}`,
 				`${gameName}`,
 				true
 			)
-			.addField(this.client.LOCALE(guild).COMMANDS.TWITCH.ONLINE_EMBED.FIELD_VIEWERS, `${onlineData.viewer_count}`, true)
+			.addField(this.client.LOCALE(guild!).COMMANDS.TWITCH.ONLINE_EMBED.FIELD_VIEWERS, `${onlineData.viewer_count}`, true)
 			.setImage(`https://static-cdn.jtvnw.net/previews-ttv/live_user_${onlineData.user_name.toLowerCase()}.jpg?t=${Date.now()}`)
-			.setFooter(this.client.LOCALE(guild).COMMANDS.TWITCH.ONLINE_EMBED.FOOTER.replace('$(duration)', moment.duration(Date.now() - (new Date(onlineData.started_at) as any)).format('h[h ]m[m ]s[s ]')));
+			.setFooter(this.client.LOCALE(guild!).COMMANDS.TWITCH.ONLINE_EMBED.FOOTER.replace('$(duration)', moment.duration(Date.now() - (new Date(onlineData.started_at) as any)).format('h[h ]m[m ]s[s ]')));
 
 		const message = await channel
-			.send(this.client.LOCALE(guild).COMMANDS.TWITCH.ONLINE_MESSAGE.replace('$(streamer)', onlineData.user_name.replace(/([^a-zA-Z0-9])/g, '\\$1')) + `\n<https://www.twitch.tv/${onlineData.user_name}>`, { embed })
+			.send(this.client.LOCALE(guild!).COMMANDS.TWITCH.ONLINE_MESSAGE.replace('$(streamer)', onlineData.user_name.replace(/([^a-zA-Z0-9])/g, '\\$1')) + `\n<https://www.twitch.tv/${onlineData.user_name}>`, {
+				embed,
+			})
 			.catch(() => {});
 
 		if (!message) return;
@@ -92,14 +95,14 @@ export default class TwitchScheduler {
 			startedAt: onlineData.started_at,
 		});
 
-		/* 		graphQLClient.mutate<any, TwitchStreamsInsertInput>({
+		graphQLClient.mutate<any, TwitchStreamsInsertInput>({
 			mutation: GRAPHQL.MUTATION.UPDATE_TWITCH_STREAMS,
 			variables: {
 				...this.streamers.get(ID),
 				streamer: onlineData.user_id,
 				id: ID,
 			},
-		}); */
+		});
 	}
 
 	private async update(
@@ -152,18 +155,21 @@ export default class TwitchScheduler {
 			.setImage(`https://static-cdn.jtvnw.net/previews-ttv/live_user_${onlineData.user_name.toLowerCase()}.jpg?t=${Date.now()}`)
 			.spliceFields(0, 2, [
 				{
-					name: `${gameName === 'Just Chatting' ? this.client.LOCALE(guild).COMMANDS.TWITCH.ONLINE_EMBED.FIELD_CATEGORY.CATEGORY : this.client.LOCALE(guild).COMMANDS.TWITCH.ONLINE_EMBED.FIELD_CATEGORY.GAME}`,
+					name: `${gameName === 'Just Chatting' ? this.client.LOCALE(guild!).COMMANDS.TWITCH.ONLINE_EMBED.FIELD_CATEGORY.CATEGORY : this.client.LOCALE(guild!).COMMANDS.TWITCH.ONLINE_EMBED.FIELD_CATEGORY.GAME}`,
 					value: `${game.data.length === 0 ? '\u200b' : game.data[0].name}`,
 					inline: true,
 				},
 				{
-					name: this.client.LOCALE(guild).COMMANDS.TWITCH.ONLINE_EMBED.FIELD_VIEWERS,
+					name: this.client.LOCALE(guild!).COMMANDS.TWITCH.ONLINE_EMBED.FIELD_VIEWERS,
 					value: `${onlineData.viewer_count}`,
 					inline: true,
 				},
 			])
-			.setFooter(this.client.LOCALE(guild).COMMANDS.TWITCH.ONLINE_EMBED.FOOTER.replace('$(duration)', moment.duration(Date.now() - (new Date(onlineData.started_at) as any)).format('h[h ]m[m ]s[s ]')));
-		message.edit(this.client.LOCALE(guild).COMMANDS.TWITCH.ONLINE_MESSAGE.replace('$(streamer)', onlineData.user_name.replace(/([^a-zA-Z0-9])/g, '\\$1')) + `\n<https://www.twitch.tv/${onlineData.user_name}>`, embed);
+			.setFooter(this.client.LOCALE(guild!).COMMANDS.TWITCH.ONLINE_EMBED.FOOTER.replace('$(duration)', moment.duration(Date.now() - (new Date(onlineData.started_at) as any)).format('h[h ]m[m ]s[s ]')));
+		message.edit(
+			this.client.LOCALE(guild!).COMMANDS.TWITCH.ONLINE_MESSAGE.replace('$(streamer)', onlineData.user_name.replace(/([^a-zA-Z0-9])/g, '\\$1')) + `\n<https://www.twitch.tv/${onlineData.user_name}>`,
+			embed
+		);
 
 		this.streamers.set(ID, {
 			...storedData,
@@ -225,10 +231,10 @@ export default class TwitchScheduler {
 					.replace('$(endd)', moment(storedData.startedAt).utcOffset(-3).add(storedData.duration, 'milliseconds').format('D/M/YY HH:mm:ss'))
 					.replace('$(ttt)', moment.duration(storedData.duration).format('h[h]m[m]s[s]'))
 			)
-			.setFooter(this.client.LOCALE(guild).COMMANDS.TWITCH.OFFLINE_EMBED.FOOTER.replace('$(streamer)', storedData.streamerName))
+			.setFooter(this.client.LOCALE(guild!).COMMANDS.TWITCH.OFFLINE_EMBED.FOOTER.replace('$(streamer)', storedData.streamerName))
 			.setTimestamp(new Date(storedData.startedAt));
 
-		if (message) message.edit(this.client.LOCALE(guild).COMMANDS.TWITCH.OFFLINE_MESSAGE, embed);
+		if (message) message.edit(this.client.LOCALE(guild!).COMMANDS.TWITCH.OFFLINE_MESSAGE, embed);
 		else
 			channel
 				.send(
@@ -239,7 +245,7 @@ export default class TwitchScheduler {
 				)
 				.catch(() => {});
 
-		/* 		await graphQLClient.mutate<any, TwitchStreamsInsertInput>({
+		await graphQLClient.mutate<any, TwitchStreamsInsertInput>({
 			mutation: GRAPHQL.MUTATION.UPDATE_TWITCH_STREAMS,
 			variables: {
 				id: ID,
@@ -250,7 +256,7 @@ export default class TwitchScheduler {
 				duration: null,
 				startedAt: null,
 			},
-		}); */
+		});
 		this.streamers.set(ID, {
 			...this.streamers.get(ID),
 			message: null,
@@ -281,54 +287,22 @@ export default class TwitchScheduler {
 		this.checkInterval = this.client.setInterval(this.check.bind(this), this.checkRate);
 	}
 
-	private async check(): Promise<true> {
-		/* 		const { data } = await graphQLClient.query<any, TwitchStreamsInsertInput>({
-			query: GRAPHQL.QUERY.TWITCH_STREAMS,
-		});
-
+	private async check(): Promise<boolean> {
 		let storedStreams: TwitchStreams[];
-		storedStreams = data.twitchStreams;
-		if (!storedStreams.length) return;
- */
+		try {
+			const { data } = await graphQLClient.query<any, TwitchStreamsInsertInput>({
+				query: GRAPHQL.QUERY.TWITCH_STREAMS,
+			});
 
-		const storedStreams = [
-			{
-				id: 0,
-				streamer: '137512886',
-				guild: '701892016337977394',
-				channel: '701928421898453034',
-				message: null,
-				categories: [],
-				online: false,
-				streamerName: 'Giu14_',
-				startedAt: null,
-				duration: null,
-			},
-			{
-				id: 1,
-				streamer: '241862747',
-				guild: '703820623624798208',
-				channel: '703822562819440720',
-				message: null,
-				categories: [],
-				online: false,
-				streamerName: 'FornalhaRunica',
-				startedAt: null,
-				duration: null,
-			},
-			{
-				id: 2,
-				streamer: '241862747',
-				guild: '706581070514094100',
-				channel: '706603026357420103',
-				message: null,
-				categories: [],
-				online: false,
-				streamerName: 'FornalhaRunica',
-				startedAt: null,
-				duration: null,
-			},
-		];
+			storedStreams = data.twitchStreams;
+		} catch (err) {
+			this.client.logger.error(err, { topic: TOPICS.TWITCH, event: EVENTS.ERROR });
+			storedStreams = [
+				{ id: 0, streamer: '137512886', guild: '701892016337977394', channel: '701928421898453034', message: null, categories: [], online: false, streamerName: 'Giu14_', startedAt: null, duration: null },
+				{ id: 1, streamer: '241862747', guild: '703820623624798208', channel: '703822562819440720', message: null, categories: [], online: false, streamerName: 'FornalhaRunica', startedAt: null, duration: null },
+				{ id: 2, streamer: '241862747', guild: '706581070514094100', channel: '706603026357420103', message: null, categories: [], online: false, streamerName: 'FornalhaRunica', startedAt: null, duration: null },
+			];
+		}
 
 		for (const stream of storedStreams) {
 			if (this.streamers.has(stream.id)) continue;
@@ -339,32 +313,38 @@ export default class TwitchScheduler {
 			if (!storedStreams.find(s => s.id === stream)) this.streamers.delete(stream);
 		}
 
-		const body = await fetch(
-			`https://api.twitch.tv/helix/streams?${Array.from(this.streamers.values())
-				.map(s => `user_id=${s.streamer}`)
-				.join('&')}`,
-			{
-				method: 'GET',
-				headers: {
-					Authorization: `Bearer ${process.env.TWITCH_BEARER}`,
-					'Client-ID': `${process.env.TWITCH_CLIENTID}`,
-				},
+		try {
+			const body = await fetch(
+				`https://api.twitch.tv/helix/streams?${Array.from(this.streamers.values())
+					.map(s => `user_id=${s.streamer}`)
+					.join('&')}`,
+				{
+					method: 'GET',
+					headers: {
+						Authorization: `Bearer ${process.env.TWITCH_BEARER}`,
+						'Client-ID': `${process.env.TWITCH_CLIENTID}`,
+					},
+				}
+			);
+
+			const onlineStreams = await body.json();
+
+			for (const streamer of this.streamers) {
+				const onlineData = onlineStreams.data.find((s: { user_id: string }) => s.user_id === streamer[1].streamer);
+
+				if (!onlineData && !streamer[1].online) continue;
+
+				if (!onlineData && streamer[1].online && streamer[1].message) await this.offline(streamer[1], streamer[0]);
+
+				if (onlineData && !streamer[1].online) await this.online(onlineData, streamer[1], streamer[0]);
+
+				if (onlineData && streamer[1].online && streamer[1].message) await this.update(onlineData, streamer[1], streamer[0]);
 			}
-		);
-
-		const onlineStreams = await body.json();
-
-		for (const streamer of this.streamers) {
-			const onlineData = onlineStreams.data.find((s: { user_id: string }) => s.user_id === streamer[1].streamer);
-
-			if (!onlineData && !streamer[1].online) continue;
-
-			if (!onlineData && streamer[1].online && streamer[1].message) await this.offline(streamer[1], streamer[0]);
-
-			if (onlineData && !streamer[1].online) await this.online(onlineData, streamer[1], streamer[0]);
-
-			if (onlineData && streamer[1].online && streamer[1].message) await this.update(onlineData, streamer[1], streamer[0]);
+		} catch (err) {
+			this.client.logger.error(err, { topic: TOPICS.TWITCH, event: EVENTS.ERROR });
+			return false;
 		}
+
 		return true;
 	}
 }
