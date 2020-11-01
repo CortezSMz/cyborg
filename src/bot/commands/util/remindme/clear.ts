@@ -1,11 +1,9 @@
-import { Command } from 'discord-akairo';
+import CyborgCommand from '../../../structures/CyborgCommand';
 import { Message, Permissions } from 'discord.js';
 import { graphQLClient, GRAPHQL } from '../../../util/graphQL';
 import { RemindmesInsertInput, Remindmes } from '../../../util/graphQLTypes';
-import { stripIndents } from 'common-tags';
-import { SETTINGS } from '../../../util/constants';
 
-export default class RemindmeCommand extends Command {
+export default class RemindmeCommand extends CyborgCommand {
 	public constructor() {
 		super('remindme-clear', {
 			category: 'util',

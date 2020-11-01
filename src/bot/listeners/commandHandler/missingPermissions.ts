@@ -1,8 +1,8 @@
 import { Listener, Command } from 'discord-akairo';
 import { stripIndents } from 'common-tags';
 import { Message } from 'discord.js';
-import { SETTINGS } from '../../util/constants';
-import { TOPICS, EVENTS } from '../../util/logger';
+import { SETTINGS } from '../../util/Constants';
+import { TOPICS, EVENTS } from '../../util/Logger';
 
 interface Permissions {
 	[key: string]: string;

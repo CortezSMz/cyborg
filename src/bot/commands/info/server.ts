@@ -1,9 +1,9 @@
 import { stripIndents } from 'common-tags';
-import { Command } from 'discord-akairo';
+import CyborgCommand from '../../structures/CyborgCommand';
 import { Message, MessageEmbed, Permissions } from 'discord.js';
 import * as moment from 'moment';
 import 'moment-duration-format';
-import { COLORS } from '../../util/constants';
+import { COLORS } from '../../util/Constants';
 
 interface HumanLevels {
 	[key: string]: string;
@@ -17,10 +17,9 @@ const HUMAN_LEVELS: HumanLevels = {
 	VERY_HIGH: '┻━┻ ﾐヽ(ಠ益ಠ)ノ彡┻━┻',
 };
 
-export default class GuildInfoCommand extends Command {
+export default class GuildInfoCommand extends CyborgCommand {
 	public constructor() {
 		super('guild', {
-			aliases: ['guild', 'server', 'server-info'],
 			description: {
 				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.INFO.SERVER.DESCRIPTION,
 				usage: () => null,

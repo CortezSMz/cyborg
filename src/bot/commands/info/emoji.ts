@@ -1,15 +1,14 @@
-import { Command } from 'discord-akairo';
+import CyborgCommand from '../../structures/CyborgCommand';
 import { GuildEmoji, Message, MessageEmbed, Permissions } from 'discord.js';
 import * as emojis from 'node-emoji';
 import * as punycode from 'punycode';
-import { COLORS } from '../../util/constants';
+import { COLORS } from '../../util/Constants';
 
 const EMOJI_REGEX = /<(?:a)?:(?:\w{2,32}):(\d{17,19})>?/;
 
-export default class EmojiInfoCommand extends Command {
+export default class EmojiInfoCommand extends CyborgCommand {
 	public constructor() {
 		super('emoji', {
-			aliases: ['emoji', 'emoji-info'],
 			description: {
 				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.INFO.EMOJI.DESCRIPTION.CONTENT,
 				usage: () => '<emoji>',

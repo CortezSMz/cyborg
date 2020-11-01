@@ -1,10 +1,10 @@
-import { Command, Flag } from 'discord-akairo';
+import CyborgCommand from '../../../structures/CyborgCommand';
+import { Flag } from 'discord-akairo';
 import { Message } from 'discord.js';
 
-export default class EmbedCommand extends Command {
+export default class EmbedCommand extends CyborgCommand {
 	public constructor() {
 		super('embed', {
-			aliases: ['embed'],
 			description: {
 				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.EMBED.DESCRIPTION.CONTENT,
 				usage: () => '<method> <...arguments>',

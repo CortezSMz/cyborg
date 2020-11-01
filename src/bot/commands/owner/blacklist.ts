@@ -1,11 +1,10 @@
-import { Command } from 'discord-akairo';
+import CyborgCommand from '../../structures/CyborgCommand';
 import { Message, User } from 'discord.js';
-import { SETTINGS } from '../../util/constants';
+import { SETTINGS } from '../../util/Constants';
 
-export default class BlacklistCommand extends Command {
+export default class BlacklistCommand extends CyborgCommand {
 	public constructor() {
 		super('blacklist', {
-			aliases: ['blacklist', 'unblacklist'],
 			description: {
 				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.OWNER.BLACKLIST.DESCRIPTION,
 				usage: () => '<user>',

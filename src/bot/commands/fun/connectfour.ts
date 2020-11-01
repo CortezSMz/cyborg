@@ -1,7 +1,8 @@
 import { stripIndents } from 'common-tags';
-import { COLORS } from '../../util/constants';
-import { Flag, Command } from 'discord-akairo';
+import { COLORS } from '../../util/Constants';
+import { Flag } from 'discord-akairo';
 import { User, MessageReaction, MessageEmbed, Snowflake, Message, Collection } from 'discord.js';
+import CyborgCommand from '../../structures/CyborgCommand';
 
 enum Scores {
 	YELLOW = -1,
@@ -13,6 +14,8 @@ export enum Mark {
 	EMPTY = '▫️',
 	RED = '🔴',
 	YELLOW = '🟡',
+	WINRED = '<a:red_circle:772495465857286145>',
+	WINYELLOW = '<a:yellow_circle:772497517673185312>',
 }
 
 export interface Player {
@@ -20,6 +23,7 @@ export interface Player {
 	turn: boolean;
 	Mark: Mark.RED | Mark.YELLOW;
 }
+
 export interface GameInstance {
 	delete(): boolean;
 	finished: boolean;
@@ -30,13 +34,12 @@ export interface GameInstance {
 	possibilities: number;
 }
 
-export default class ConnectFourCommand extends Command {
+export default class ConnectFourCommand extends CyborgCommand {
 	private readonly columns = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣'];
 	private instances: Collection<Snowflake, GameInstance> = new Collection();
 
 	public constructor() {
 		super('connectfour', {
-			aliases: ['connectfour', 'cf', 'conectequatro', 'connect4'],
 			description: {
 				content: () =>
 					`Reaja com o número lugar onde quer colocar seu ${Mark.RED} ou ${Mark.YELLOW}\n\nO objetivo do jogo é conseguir deixar 4 bolinhas da mesma cor em linha sem o oponente te interromper. Pode ser diagonal, horizontal e vertical.`,
@@ -85,7 +88,7 @@ export default class ConnectFourCommand extends Command {
 				.join('\n')}
 			${instance.finished ? '' : '\nColoque a bolinha e tente conectar 4 antes do seu oponente...\n'}
 			${instance.board.map(line => line.map(col => col).join('')).join('\n')}
-			${this.columns.slice(0, 7).join('')}`);
+			${this.columns.join('')}`);
 			if (instance.possibilities !== 0) {
 				instance.embed.setFooter(`${instance.possibilities} possibilities in ${instance.hrDiff[0] > 0 ? `${instance.hrDiff[0]}s ` : ''}${instance.hrDiff[1] / 1000000}ms`);
 			}
@@ -201,101 +204,82 @@ export default class ConnectFourCommand extends Command {
 			resolve();
 		});
 	}
+	cFour(a: Mark, b: Mark, c: Mark, d: Mark): boolean {
+		return a != Mark.EMPTY && a == b && a == c && a == d;
+	}
 
-	private check(user: User, b: string[][]): { user: User | null; mark: string } | null {
+	private check(user: User, board: Mark[][]): { user: User | null; mark: string; places: number[][] } | null {
 		const instance = this.getInstance(user)!;
 
-		const conditions = [
-			[b[5][3], b[4][4], b[3][5], b[2][6]],
-			[b[5][2], b[4][3], b[3][4], b[2][5]],
-			[b[4][3], b[3][4], b[2][5], b[1][6]],
-			[b[5][1], b[4][2], b[3][3], b[2][4]],
-			[b[4][2], b[3][3], b[2][4], b[1][5]],
-			[b[3][3], b[2][4], b[1][5], b[0][6]],
-			[b[5][0], b[4][1], b[3][2], b[2][3]],
-			[b[4][1], b[3][2], b[2][3], b[1][4]],
-			[b[3][2], b[2][3], b[1][4], b[0][5]],
-			[b[4][0], b[3][1], b[2][2], b[1][3]],
-			[b[0][2], b[0][3], b[0][4], b[0][5]],
-			[b[0][3], b[0][4], b[0][5], b[0][6]],
-			[b[1][2], b[1][3], b[1][4], b[1][5]],
-			[b[1][3], b[1][4], b[1][5], b[1][6]],
-			[b[2][2], b[2][3], b[2][4], b[2][5]],
-			[b[2][3], b[2][4], b[2][5], b[2][6]],
-			[b[3][2], b[3][3], b[3][4], b[3][5]],
-			[b[3][3], b[3][4], b[3][5], b[3][6]],
-			[b[4][0], b[4][1], b[4][2], b[4][3]],
-			[b[4][1], b[4][2], b[4][3], b[4][4]],
-			[b[4][2], b[4][3], b[4][4], b[4][5]],
-			[b[4][3], b[4][4], b[4][5], b[4][6]],
-			[b[5][0], b[5][1], b[5][2], b[5][3]],
-			[b[5][1], b[5][2], b[5][3], b[5][4]],
-			[b[5][2], b[5][3], b[5][4], b[5][5]],
-			[b[5][3], b[5][4], b[5][5], b[5][6]],
-			[b[1][0], b[2][0], b[3][0], b[4][0]],
-			[b[2][0], b[3][0], b[4][0], b[5][0]],
-			[b[1][1], b[2][1], b[3][1], b[4][1]],
-			[b[2][1], b[3][1], b[4][1], b[5][1]],
-			[b[1][2], b[2][2], b[3][2], b[4][2]],
-			[b[2][2], b[3][2], b[4][2], b[5][2]],
-			[b[1][3], b[2][3], b[3][3], b[4][3]],
-			[b[2][3], b[3][3], b[4][3], b[5][3]],
-			[b[1][4], b[2][4], b[3][4], b[4][4]],
-			[b[2][4], b[3][4], b[4][4], b[5][4]],
-			[b[0][5], b[1][5], b[2][5], b[3][5]],
-			[b[1][5], b[2][5], b[3][5], b[4][5]],
-			[b[2][5], b[3][5], b[4][5], b[5][5]],
-			[b[0][6], b[1][6], b[2][6], b[3][6]],
-			[b[1][6], b[2][6], b[3][6], b[4][6]],
-			[b[2][6], b[3][6], b[4][6], b[5][6]],
-			[b[2][0], b[3][1], b[4][2], b[5][3]],
-			[b[2][1], b[3][2], b[4][3], b[5][4]],
-			[b[1][0], b[2][1], b[3][2], b[4][3]],
-			[b[2][2], b[3][3], b[4][4], b[5][5]],
-			[b[1][1], b[2][2], b[3][3], b[4][4]],
-			[b[2][3], b[3][4], b[4][5], b[5][6]],
-			[b[1][2], b[2][3], b[3][4], b[4][5]],
-			[b[1][3], b[2][4], b[3][5], b[4][6]],
-			[b[0][2], b[1][3], b[2][4], b[3][5]],
-			[b[0][3], b[1][4], b[2][5], b[3][6]],
-			[b[0][0], b[1][1], b[2][2], b[3][3]],
-			[b[0][1], b[1][2], b[2][3], b[3][4]],
-			[b[3][1], b[2][2], b[1][3], b[0][4]],
-			[b[3][0], b[2][1], b[1][2], b[0][3]],
-			[b[0][0], b[0][1], b[0][2], b[0][3]],
-			[b[0][1], b[0][2], b[0][3], b[0][4]],
-			[b[1][0], b[1][1], b[1][2], b[1][3]],
-			[b[1][1], b[1][2], b[1][3], b[1][4]],
-			[b[2][0], b[2][1], b[2][2], b[2][3]],
-			[b[2][1], b[2][2], b[2][3], b[2][4]],
-			[b[3][0], b[3][1], b[3][2], b[3][3]],
-			[b[3][1], b[3][2], b[3][3], b[3][4]],
-			[b[0][0], b[1][0], b[2][0], b[3][0]],
-			[b[0][1], b[1][1], b[2][1], b[3][1]],
-			[b[0][2], b[1][2], b[2][2], b[3][2]],
-			[b[0][3], b[1][3], b[2][3], b[3][3]],
-			[b[0][4], b[1][4], b[2][4], b[3][4]],
-		];
+		const bl = board.length;
+		const bw = board[0].length;
 
-		for (const win of conditions) {
-			if (win[0] === Mark.EMPTY) continue;
-			if (win[0] === win[1] && win[0] === win[2] && win[0] === win[3]) {
-				return {
-					user: instance.players.find((p: Player) => p.Mark === win[0])?.user!,
-					mark: win[0],
-				};
+		for (let row = 0; row < bl; row++) {
+			for (let col = 0; col < bw; col++) {
+				const mark = board[row][col];
+
+				// check right if we have to
+				if (col < bw - 3 && this.cFour(mark, board[row][col + 1], board[row][col + 2], board[row][col + 3])) {
+					return {
+						user: instance.players.find((p: Player) => p.Mark === mark)?.user!,
+						mark,
+						places: [
+							[row, col],
+							[row, col + 1],
+							[row, col + 2],
+							[row, col + 3],
+						],
+					};
+				}
+				// check down if we have to
+				if (row < bl - 3 && this.cFour(mark, board[row + 1][col], board[row + 2][col], board[row + 3][col])) {
+					return {
+						user: instance.players.find((p: Player) => p.Mark === mark)?.user!,
+						mark,
+						places: [
+							[row, col],
+							[row + 1, col],
+							[row + 2, col],
+							[row + 3, col],
+						],
+					};
+				}
+				// down right
+				if (row < bl - 3 && col < bw - 3 && this.cFour(mark, board[row + 1][col + 1], board[row + 2][col + 2], board[row + 3][col + 3])) {
+					return {
+						user: instance.players.find((p: Player) => p.Mark === mark)?.user!,
+						mark,
+						places: [
+							[row, col],
+							[row + 1, col + 1],
+							[row + 2, col + 2],
+							[row + 3, col + 3],
+						],
+					};
+				}
+				// down left
+				if (row < bl - 3 && col > 2 && this.cFour(mark, board[row + 1][col - 1], board[row + 2][col - 2], board[row + 3][col - 3])) {
+					return {
+						user: instance.players.find((p: Player) => p.Mark === mark)?.user!,
+						mark,
+						places: [
+							[row, col],
+							[row + 1, col - 1],
+							[row + 2, col - 2],
+							[row + 3, col - 3],
+						],
+					};
+				}
 			}
 		}
 
-		let tie: number = 0;
-		for (let i = 0; i < b.length; i++) {
-			for (let j = 0; j < b[i].length; j++) {
-				if (b[i][j] === Mark.EMPTY) tie++;
+		for (let i = 0; i < bl; i++) {
+			for (let j = 0; j < bw; j++) {
+				if (board[i][j] === Mark.EMPTY) return null;
 			}
 		}
 
-		if (tie === 0) return { user: null, mark: 'TIE' };
-		return null;
+		return { user: null, mark: 'TIE', places: [] };
 	}
 
 	public *args(msg: Message) {
@@ -404,8 +388,16 @@ export default class ConnectFourCommand extends Command {
 
 				await this.drop(player, reaction);
 
-				if (this.check(message.author, instance.board) != null) {
-					winner = this.check(message.author, instance.board)!.user ?? 'TIE';
+				const check = this.check(message.author, instance.board);
+				if (check != null) {
+					instance.finished = true;
+					winner = check.user ?? 'TIE';
+
+					const winMark = check.mark === Mark.RED ? Mark.WINRED : Mark.WINYELLOW;
+					instance.board[check.places[0][0]][check.places[0][1]] = winMark;
+					instance.board[check.places[1][0]][check.places[1][1]] = winMark;
+					instance.board[check.places[2][0]][check.places[2][1]] = winMark;
+					instance.board[check.places[3][0]][check.places[3][1]] = winMark;
 				}
 			} catch (error) {
 				return message.util?.send({ embed: instance.embed.setDescription(`Jogadores demoraram muito para escolher...\n\nO jogo foi cancelado.`) }).then(msg => msg.reactions.removeAll());

@@ -1,7 +1,8 @@
-import { Command, Flag, PrefixSupplier } from 'discord-akairo';
+import CyborgCommand from '../../../structures/CyborgCommand';
+import { Flag, PrefixSupplier } from 'discord-akairo';
 import { Message, Permissions } from 'discord.js';
 
-export default class DeleteConfigCommand extends Command {
+export default class DeleteConfigCommand extends CyborgCommand {
 	public constructor() {
 		super('config-delete', {
 			description: {

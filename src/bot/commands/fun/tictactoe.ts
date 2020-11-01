@@ -1,7 +1,8 @@
 import { stripIndents } from 'common-tags';
-import { COLORS } from '../../util/constants';
-import { Command, Flag } from 'discord-akairo';
+import { COLORS } from '../../util/Constants';
+import { Flag } from 'discord-akairo';
 import { Collection, Message, MessageEmbed, MessageReaction, Snowflake, TextChannel, User, Permissions } from 'discord.js';
+import CyborgCommand from '../../structures/CyborgCommand';
 
 enum Scores {
 	X = -1,
@@ -32,12 +33,11 @@ interface GameInstance {
 	emptySlots: number;
 }
 
-export default class TicTacToeCommand extends Command {
+export default class TicTacToeCommand extends CyborgCommand {
 	private readonly emojis = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣'];
 	private instances: Collection<Snowflake, GameInstance> = new Collection();
 	private constructor() {
 		super('tictactoe', {
-			aliases: ['tictactoe', 'ttt', 'jogodavelha', 'velha'],
 			description: {
 				content: () => `Reaja com o número lugar onde quer colocar seu ${Symbol.O} ou ${Symbol.X}`,
 				usage: () => '',

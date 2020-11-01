@@ -5,6 +5,7 @@ export enum TOPICS {
 	UNHANDLED_REJECTION = 'UNHANDLED_REJECTION',
 	DISCORD = 'DISCORD',
 	DISCORD_AKAIRO = 'DISCORD_AKAIRO',
+	HASURA = 'HASURA',
 	RPC = 'RPC',
 	TWITCH = 'TWITCH',
 	METRICS = 'METRICS',
@@ -38,10 +39,8 @@ export const logger = createLogger({
 		format.timestamp({ format: 'YYYY/MM/DD HH:mm:ss' }),
 		format.printf((info: any): string => {
 			const { timestamp, label, level, message, topic, event, ...rest } = info;
-			return `[${timestamp}][${label}][${level.toUpperCase()}][${topic}]${event ? `[${event}]` : ''}: ${message}${
-				Object.keys(rest).length ? `\n${JSON.stringify(rest, null, 2)}` : ''
-				}`;
-		}),
+			return `[${timestamp}][${label}][${level.toUpperCase()}][${topic}]${event ? `[${event}]` : ''}: ${message}${Object.keys(rest).length ? `\n${JSON.stringify(rest, null, 2)}` : ''}`;
+		})
 	),
 	transports: [
 		new transports.Console({

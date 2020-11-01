@@ -1,6 +1,5 @@
 import { Listener } from 'discord-akairo';
-import { Message, MessageEmbed, Util } from 'discord.js';
-import { COLORS } from '../../util/constants';
+import { Message, Util } from 'discord.js';
 import { TagsInsertInput, Tags } from '../../util/graphQLTypes';
 import { graphQLClient, GRAPHQL } from '../../util/graphQL';
 

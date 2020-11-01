@@ -1,12 +1,11 @@
-import { Command } from 'discord-akairo';
+import CyborgCommand from '../../structures/CyborgCommand';
 import { Message, MessageEmbed, Permissions, TextChannel } from 'discord.js';
 import 'moment-duration-format';
-import { COLORS } from '../../util/constants';
+import { COLORS } from '../../util/Constants';
 
-export default class ChannelInfoCommand extends Command {
+export default class ChannelInfoCommand extends CyborgCommand {
 	public constructor() {
 		super('channel', {
-			aliases: ['channel', 'channel-info'],
 			description: {
 				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.INFO.CHANNEL.DESCRIPTION.CONTENT,
 				usage: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.INFO.CHANNEL.DESCRIPTION.USAGE,

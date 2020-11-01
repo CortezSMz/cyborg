@@ -1,12 +1,12 @@
 import * as moment from 'moment';
-import { Command } from 'discord-akairo';
+import CyborgCommand from '../../../structures/CyborgCommand';
 import { Message, Permissions } from 'discord.js';
-import { COLORS, SETTINGS } from '../../../util/constants';
+import { COLORS } from '../../../util/Constants';
 import { graphQLClient, GRAPHQL } from '../../../util/graphQL';
 import { RemindmesInsertInput, Remindmes } from '../../../util/graphQLTypes';
 import { MessageEmbed } from 'discord.js';
 
-export default class RemindmeCommand extends Command {
+export default class RemindmeCommand extends CyborgCommand {
 	public constructor() {
 		super('remindme-list', {
 			category: 'util',

@@ -1,13 +1,10 @@
-import { Command, Flag } from 'discord-akairo';
+import { PrefixSupplier, Flag, Argument } from 'discord-akairo';
 import { Message, Permissions } from 'discord.js';
+import CyborgCommand from '../../../structures/CyborgCommand';
 
-import { Argument } from 'discord-akairo';
-import { PrefixSupplier } from 'discord-akairo';
-
-export default class RemindmeCommand extends Command {
+export default class RemindmeCommand extends CyborgCommand {
 	public constructor() {
 		super('remindme-add', {
-			aliases: ['reminder', 'remindme', 'remind'],
 			category: 'util',
 			description: {
 				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.UTIL.REMINDME.DESCRIPTION.replace(/\$\(prefix\)/g, (this.handler.prefix as PrefixSupplier)(message) as string),

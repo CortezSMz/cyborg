@@ -1,9 +1,8 @@
-import { Command } from 'discord-akairo';
+import CyborgCommand from '../../structures/CyborgCommand';
 import { Message } from 'discord.js';
-import { SETTINGS } from '../../util/constants';
 import { Tags } from '../../util/graphQLTypes';
 
-export default class TagSourceCommand extends Command {
+export default class TagSourceCommand extends CyborgCommand {
 	public constructor() {
 		super('tag-source', {
 			category: 'tag',

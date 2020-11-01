@@ -1,11 +1,11 @@
-import { Command } from 'discord-akairo';
+import CyborgCommand from '../../structures/CyborgCommand';
 import { Message, MessageEmbed, Permissions } from 'discord.js';
 import * as moment from 'moment';
 import 'moment-duration-format';
-import { COLORS } from '../../util/constants';
+import { COLORS } from '../../util/Constants';
 import { Tags } from '../../util/graphQLTypes';
 
-export default class TagInfoCommand extends Command {
+export default class TagInfoCommand extends CyborgCommand {
 	public constructor() {
 		super('tag-info', {
 			category: 'tag',

@@ -1,11 +1,11 @@
-import { Command } from 'discord-akairo';
+import CyborgCommand from '../../structures/CyborgCommand';
 import { Message, Util } from 'discord.js';
-import { PRODUCTION } from '../../util/constants';
+import { PRODUCTION } from '../../util/Constants';
 import { GRAPHQL, graphQLClient } from '../../util/graphQL';
 import { Tags, TagsInsertInput } from '../../util/graphQLTypes';
 import { interpolateString } from '../../util/template';
 
-export default class TagShowCommand extends Command {
+export default class TagShowCommand extends CyborgCommand {
 	public constructor() {
 		super('tag-show', {
 			category: 'tag',

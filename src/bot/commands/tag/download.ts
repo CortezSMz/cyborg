@@ -1,11 +1,11 @@
-import { Command } from 'discord-akairo';
+import CyborgCommand from '../../structures/CyborgCommand';
 import { GuildMember, Message } from 'discord.js';
-import { PRODUCTION, SETTINGS } from '../../util/constants';
+import { PRODUCTION, SETTINGS } from '../../util/Constants';
 import { GRAPHQL, graphQLClient } from '../../util/graphQL';
 import { Tags, TagsInsertInput } from '../../util/graphQLTypes';
 import { safeDump } from 'js-yaml';
 
-export default class TagDownloadCommand extends Command {
+export default class TagDownloadCommand extends CyborgCommand {
 	public constructor() {
 		super('tag-download', {
 			category: 'tag',

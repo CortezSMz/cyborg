@@ -1,9 +1,9 @@
 import { stripIndents } from 'common-tags';
-import { Command } from 'discord-akairo';
+import CyborgCommand from '../../structures/CyborgCommand';
 import { Message, MessageEmbed, Permissions, Role } from 'discord.js';
 import * as moment from 'moment';
 import 'moment-duration-format';
-import { COLORS } from '../../util/constants';
+import { COLORS } from '../../util/Constants';
 
 interface PermissionsIndex {
 	[key: string]: string;
@@ -40,10 +40,9 @@ const PERMISSIONS: PermissionsIndex = {
 	USE_VAD: 'Use voice activity',
 };
 
-export default class RoleInfoCommand extends Command {
+export default class RoleInfoCommand extends CyborgCommand {
 	public constructor() {
 		super('role', {
-			aliases: ['role', 'role-info'],
 			description: {
 				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.INFO.ROLE.DESCRIPTION,
 				usage: () => '[role]',

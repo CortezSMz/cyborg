@@ -1,14 +1,13 @@
 import { stripIndents } from 'common-tags';
-import { Command } from 'discord-akairo';
+import CyborgCommand from '../../structures/CyborgCommand';
 import { Message, MessageEmbed, Permissions } from 'discord.js';
 import * as moment from 'moment';
 import 'moment-duration-format';
-import { COLORS, SETTINGS } from '../../util/constants';
+import { COLORS } from '../../util/Constants';
 
-export default class StatsCommand extends Command {
+export default class StatsCommand extends CyborgCommand {
 	public constructor() {
 		super('stats', {
-			aliases: ['stats'],
 			description: {
 				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.UTIL.STATS.DESCRIPTION,
 				usage: () => null,

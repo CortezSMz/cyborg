@@ -1,6 +1,6 @@
 import { Command, Listener } from 'discord-akairo';
 import { Message } from 'discord.js';
-import { EVENTS, TOPICS } from '../../util/logger';
+import { EVENTS, TOPICS } from '../../util/Logger';
 
 export default class CommandCancelledListener extends Listener {
 	public constructor() {
@@ -12,9 +12,6 @@ export default class CommandCancelledListener extends Listener {
 	}
 
 	public exec(message: Message, command: Command) {
-		this.client.logger.info(
-			`Cancelled ${command.id} on ${message.guild ? `${message.guild.name} (${message.guild.id})` : 'DM'}`,
-			{ topic: TOPICS.DISCORD_AKAIRO, event: EVENTS.COMMAND_CANCELLED },
-		);
+		this.client.logger.info(`Cancelled ${command.id} on ${message.guild ? `${message.guild.name} (${message.guild.id})` : 'DM'}`, { topic: TOPICS.DISCORD_AKAIRO, event: EVENTS.COMMAND_CANCELLED });
 	}
 }

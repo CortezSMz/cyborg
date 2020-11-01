@@ -1,9 +1,9 @@
-import { Command } from 'discord-akairo';
+import CyborgCommand from '../../../structures/CyborgCommand';
 import { Message, Permissions } from 'discord.js';
-import { SETTINGS } from '../../../util/constants';
+import { SETTINGS } from '../../../util/Constants';
 import { GRAPHQL, graphQLClient } from '../../../util/graphQL';
 
-export default class ToggleRoleStateCommand extends Command {
+export default class ToggleRoleStateCommand extends CyborgCommand {
 	public constructor() {
 		super('config-toggle-role-state', {
 			description: {

@@ -1,10 +1,10 @@
-import { Command } from 'discord-akairo';
+import CyborgCommand from '../../structures/CyborgCommand';
 import { Message, MessageEmbed, Permissions, Util } from 'discord.js';
-import { PRODUCTION, SETTINGS } from '../../util/constants';
+import { PRODUCTION } from '../../util/Constants';
 import { GRAPHQL, graphQLClient } from '../../util/graphQL';
 import { Tags, TagsInsertInput } from '../../util/graphQLTypes';
 
-export default class SearchTagCommand extends Command {
+export default class SearchTagCommand extends CyborgCommand {
 	public constructor() {
 		super('tag-search', {
 			category: 'tag',

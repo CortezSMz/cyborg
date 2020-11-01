@@ -1,13 +1,12 @@
-import { Command } from 'discord-akairo';
+import CyborgCommand from '../../structures/CyborgCommand';
 import { Message, Permissions } from 'discord.js';
 import 'moment-duration-format';
 
 import transcribe from '../../util/runeParser';
 
-export default class RunaCommand extends Command {
+export default class RunaCommand extends CyborgCommand {
 	public constructor() {
 		super('rune', {
-			aliases: ['rune', 'futhark'],
 			description: {
 				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.UTIL.RUNE.DESCRIPTION.CONTENT,
 				usage: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.UTIL.RUNE.DESCRIPTION.USAGE,

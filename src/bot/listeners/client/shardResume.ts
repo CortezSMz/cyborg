@@ -1,6 +1,6 @@
 import { Listener } from 'discord-akairo';
-import { CYBORG } from '../../util/constants';
-import { TOPICS } from '../../util/logger';
+import { CYBORG } from '../../util/Constants';
+import { TOPICS } from '../../util/Logger';
 
 export default class ShardResumeListener extends Listener {
 	public constructor() {

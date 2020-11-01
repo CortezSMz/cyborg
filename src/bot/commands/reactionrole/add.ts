@@ -1,4 +1,4 @@
-import { Command } from 'discord-akairo';
+import CyborgCommand from '../../structures/CyborgCommand';
 import { Message, Permissions, Role, Emoji, MessageEmbed } from 'discord.js';
 import { Argument } from 'discord-akairo';
 import * as emojis from 'node-emoji';
@@ -6,12 +6,12 @@ import { stripIndents } from 'common-tags';
 import { PrefixSupplier } from 'discord-akairo';
 import { graphQLClient, GRAPHQL } from '../../util/graphQL';
 import { ReactionRolesInsertInput, ReactionRoles } from '../../util/graphQLTypes';
-import { COLORS } from '../../util/constants';
+import { COLORS } from '../../util/Constants';
 import { Flag } from 'discord-akairo';
 
 const EMOJI_REGEX = /<(?:a)?:(?:\w{2,32}):(\d{17,19})>?/;
 
-export default class ReactionRoleAddCommand extends Command {
+export default class ReactionRoleAddCommand extends CyborgCommand {
 	constructor() {
 		super('reactionrole-add', {
 			description: {

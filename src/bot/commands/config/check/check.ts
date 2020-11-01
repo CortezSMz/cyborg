@@ -1,13 +1,12 @@
-import { Command } from 'discord-akairo';
+import CyborgCommand from '../../../structures/CyborgCommand';
 import { Message, MessageEmbed, Permissions } from 'discord.js';
-import { SETTINGS } from '../../../util/constants';
+import { SETTINGS } from '../../../util/Constants';
 import { stripIndents } from 'common-tags';
 import { PrefixSupplier } from 'discord-akairo';
 
-export default class CheckConfigCommand extends Command {
+export default class CheckConfigCommand extends CyborgCommand {
 	public constructor() {
 		super('config-check', {
-			aliases: ['check'],
 			description: {
 				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.CONFIG.CHECK.DESCRIPTION.CONTENT,
 				usage: () => null,

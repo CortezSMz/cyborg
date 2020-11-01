@@ -1,10 +1,10 @@
-import { Command, PrefixSupplier } from 'discord-akairo';
+import { PrefixSupplier } from 'discord-akairo';
 import { Message, Permissions } from 'discord.js';
-
+import CyborgCommand from '../../../structures/CyborgCommand';
 import { graphQLClient, GRAPHQL } from '../../../util/graphQL';
 import { RemindmesInsertInput } from '../../../util/graphQLTypes';
 
-export default class RemindmeCommand extends Command {
+export default class RemindmeCommand extends CyborgCommand {
 	public constructor() {
 		super('remindme-del', {
 			category: 'util',

@@ -1,6 +1,6 @@
 import { Provider } from 'discord-akairo';
 import { Guild } from 'discord.js';
-import { PRODUCTION, Settings } from '../util/constants';
+import { PRODUCTION, Settings } from '../util/Constants';
 import { graphQLClient, GRAPHQL } from '../util/graphQL';
 import { Settings as GraphQLSettings, SettingsInsertInput } from '../util/graphQLTypes';
 
@@ -20,11 +20,7 @@ export default class HasuraProvider extends Provider {
 		}
 	}
 
-	public get<K extends keyof Settings, T = undefined>(
-		guild: string | Guild,
-		key: K,
-		defaultValue?: T,
-	): Settings[K] | T {
+	public get<K extends keyof Settings, T = undefined>(guild: string | Guild, key: K, defaultValue?: T): Settings[K] | T {
 		const id = this.constructor.getGuildId(guild);
 		if (this.items.has(id)) {
 			const value = this.items.get(id)[key];

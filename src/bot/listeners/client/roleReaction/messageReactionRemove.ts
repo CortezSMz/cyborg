@@ -1,9 +1,9 @@
 import { Listener } from 'discord-akairo';
 import { MessageReaction, User } from 'discord.js';
-import { TOPICS, EVENTS } from '../../../util/logger';
+import { TOPICS, EVENTS } from '../../../util/Logger';
 import { graphQLClient, GRAPHQL } from '../../../util/graphQL';
 import { ReactionRolesInsertInput } from '../../../util/graphQLTypes';
-import { PRODUCTION } from '../../../util/constants';
+import { PRODUCTION } from '../../../util/Constants';
 
 export default class messageReactionRemoveReactionRole extends Listener {
 	public constructor() {

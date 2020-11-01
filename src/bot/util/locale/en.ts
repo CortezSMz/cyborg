@@ -1,5 +1,5 @@
 import { stripIndents } from 'common-tags';
-import { Messages } from '../constants';
+import { Messages } from '../Constants';
 import moment = require('moment');
 
 export default {
@@ -45,14 +45,14 @@ export default {
 
 	COMMANDS: {
 		ALIASES: {
-			'CONFIG-CHECK': ['check'],
+			CONFIGCHECK: ['check'],
 			CONFIG: ['config'],
 			LANGUAGE: ['language', 'lang'],
 			PREFIX: ['prefix'],
 			BLACKJACK: ['blackjack'],
-			CONNECTFOUR: ['connectfour', 'cf', 'conectequatro', 'connect4'],
+			CONNECTFOUR: ['connectfour', 'connect4', 'cf', 'c4'],
 			JACKBLACK: ['jackblack'],
-			TICTACTOE: ['tictactoe', 'ttt', 'jogodavelha', 'velha'],
+			TICTACTOE: ['tictactoe', 'ttt'],
 			CHANNEL: ['channel', 'channel-info'],
 			EMOJI: ['emoji', 'emoji-info'],
 			ROLE: ['role', 'role-info'],
@@ -64,13 +64,13 @@ export default {
 			RELOAD: ['reload'],
 			TEST: ['test'],
 			REACTIONROLE: ['reactionrole', 'rr'],
-			'TAG-LIST': ['tags'],
+			TAGLIST: ['tags'],
 			TAG: ['tag'],
 			TWITCH: ['twitch'],
 			EMBED: ['embed'],
 			HELP: ['help', 'h', 'ajuda'],
 			PING: ['ping'],
-			'REMINDME-ADD': ['reminder', 'remindme', 'remind'],
+			REMINDMEADD: ['reminder', 'remindme', 'remind'],
 			RUNE: ['rune', 'futhark'],
 			STATS: ['stats'],
 		},
@@ -447,6 +447,7 @@ export default {
 				OWN_TAG: 'losers are only allowed to edit their own tags! Hah hah hah!',
 				TOO_LONG: 'you must still have water behind your ears to not realize that messages have a limit of 2000 characters!',
 				REPLY: (tag, hoist, template) => {
+					console.log(tag, hoist, template);
 					if (hoist && template) {
 						return `successfully edited **${tag}** to be hoisted and templated.`;
 					}

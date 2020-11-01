@@ -1,11 +1,10 @@
-import { Command } from 'discord-akairo';
+import CyborgCommand from '../../structures/CyborgCommand';
 import { Message, Permissions } from 'discord.js';
-import { SETTINGS } from '../../util/constants';
+import { SETTINGS } from '../../util/Constants';
 
-export default class LanguageCommand extends Command {
+export default class LanguageCommand extends CyborgCommand {
 	public constructor() {
 		super('language', {
-			aliases: ['language', 'lang'],
 			description: {
 				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.UTIL.LANGUAGE.DESCRIPTION,
 				usage: () => '[language]',

@@ -1,6 +1,6 @@
 import { Listener } from 'discord-akairo';
 import { MessageReaction, User } from 'discord.js';
-import { TOPICS, EVENTS } from '../../../util/logger';
+import { TOPICS, EVENTS } from '../../../util/Logger';
 import { graphQLClient, GRAPHQL } from '../../../util/graphQL';
 import { ReactionRolesInsertInput } from '../../../util/graphQLTypes';
 

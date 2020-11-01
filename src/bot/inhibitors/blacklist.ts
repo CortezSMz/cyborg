@@ -1,6 +1,6 @@
 import { Inhibitor } from 'discord-akairo';
 import { Message } from 'discord.js';
-import { SETTINGS } from '../util/constants';
+import { SETTINGS } from '../util/Constants';
 
 export default class BlacklistInhibitor extends Inhibitor {
 	public constructor() {

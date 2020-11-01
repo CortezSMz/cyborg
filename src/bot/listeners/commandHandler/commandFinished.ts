@@ -1,6 +1,6 @@
 import { Command, Listener } from 'discord-akairo';
 import { Message } from 'discord.js';
-import { EVENTS, TOPICS } from '../../util/logger';
+import { EVENTS, TOPICS } from '../../util/Logger';
 
 export default class CommandFinishedListener extends Listener {
 	public constructor() {
@@ -14,11 +14,9 @@ export default class CommandFinishedListener extends Listener {
 	public exec(message: Message, command: Command, args: any) {
 		this.client.logger.info(
 			`Finished ${command.id} on ${message.guild ? `${message.guild.name} (${message.guild.id})` : 'DM'}${
-				Object.keys(args).length && !args.command
-					? ` with arguments ${args.mod ? args.mod.id : JSON.stringify(args)}`
-					: ''
+				Object.keys(args).length && !args.command ? ` with arguments ${args.mod ? args.mod.id : JSON.stringify(args)}` : ''
 			}`,
-			{ topic: TOPICS.DISCORD_AKAIRO, event: EVENTS.COMMAND_FINISHED },
+			{ topic: TOPICS.DISCORD_AKAIRO, event: EVENTS.COMMAND_FINISHED }
 		);
 	}
 }

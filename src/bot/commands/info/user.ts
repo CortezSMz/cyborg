@@ -1,14 +1,13 @@
 import { stripIndents } from 'common-tags';
-import { Command } from 'discord-akairo';
+import CyborgCommand from '../../structures/CyborgCommand';
 import { GuildMember, Message, MessageEmbed, Permissions } from 'discord.js';
 import * as moment from 'moment';
 import 'moment-duration-format';
-import { COLORS } from '../../util/constants';
+import { COLORS } from '../../util/Constants';
 
-export default class UserInfoCommand extends Command {
+export default class UserInfoCommand extends CyborgCommand {
 	public constructor() {
 		super('user', {
-			aliases: ['user', 'member', 'user-info'],
 			description: {
 				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.INFO.USER.DESCRIPTION,
 				usage: () => '[member]',

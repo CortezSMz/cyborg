@@ -1,11 +1,9 @@
-import { Command } from 'discord-akairo';
+import CyborgCommand from '../../structures/CyborgCommand';
 import { Message } from 'discord.js';
-import { Messages } from '../../util/constants';
 
-export default class PingCommand extends Command {
+export default class PingCommand extends CyborgCommand {
 	public constructor() {
 		super('ping', {
-			aliases: ['ping'],
 			description: {
 				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.UTIL.PING.DESCRIPTION,
 				usage: () => null,

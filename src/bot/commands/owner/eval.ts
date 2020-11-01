@@ -1,12 +1,12 @@
 import { stripIndents } from 'common-tags';
-import { Command } from 'discord-akairo';
+import CyborgCommand from '../../structures/CyborgCommand';
 import { Message, Util } from 'discord.js';
 import * as util from 'util';
 
 const NL = '!!NL!!';
 const NL_PATTERN = new RegExp(NL, 'g');
 
-export default class EvalCommand extends Command {
+export default class EvalCommand extends CyborgCommand {
 	public hrStart: [number, number] | undefined;
 
 	public lastMessage: any;
@@ -17,7 +17,6 @@ export default class EvalCommand extends Command {
 
 	public constructor() {
 		super('eval', {
-			aliases: ['eval'],
 			description: {
 				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.OWNER.EVAL.DESCRIPTION,
 				usage: () => '<code>',

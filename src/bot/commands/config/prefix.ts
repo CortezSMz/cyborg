@@ -1,11 +1,11 @@
-import { Command, PrefixSupplier } from 'discord-akairo';
+import CyborgCommand from '../../structures/CyborgCommand';
+import { PrefixSupplier } from 'discord-akairo';
 import { Message, Permissions } from 'discord.js';
-import { SETTINGS } from '../../util/constants';
+import { SETTINGS } from '../../util/Constants';
 
-export default class PrefixCommand extends Command {
+export default class PrefixCommand extends CyborgCommand {
 	public constructor() {
 		super('prefix', {
-			aliases: ['prefix'],
 			description: {
 				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.UTIL.PREFIX.DESCRIPTION,
 				usage: () => '[prefix]',

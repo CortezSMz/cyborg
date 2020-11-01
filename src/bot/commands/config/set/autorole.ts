@@ -1,10 +1,10 @@
-import { Command } from 'discord-akairo';
+import CyborgCommand from '../../../structures/CyborgCommand';
 import { Message, Permissions, Role, MessageEmbed } from 'discord.js';
-import { SETTINGS, COLORS } from '../../../util/constants';
+import { SETTINGS, COLORS } from '../../../util/Constants';
 import { stripIndents } from 'common-tags';
 import { Flag } from 'discord-akairo';
 
-export default class SetConfigMemberLogCommand extends Command {
+export default class SetConfigMemberLogCommand extends CyborgCommand {
 	public constructor() {
 		super('config-set-autorole', {
 			description: {

@@ -1,5 +1,5 @@
 import { Listener } from 'discord-akairo';
-import { EVENTS, TOPICS } from '../../util/logger';
+import { EVENTS, TOPICS } from '../../util/Logger';
 
 export default class CommandErrorListener extends Listener {
 	public constructor() {

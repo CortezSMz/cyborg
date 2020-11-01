@@ -1,7 +1,8 @@
-import { Command, Flag, PrefixSupplier } from 'discord-akairo';
+import CyborgCommand from '../../../structures/CyborgCommand';
+import { Flag, PrefixSupplier } from 'discord-akairo';
 import { Message, Permissions } from 'discord.js';
 
-export default class ToggleCommand extends Command {
+export default class ToggleCommand extends CyborgCommand {
 	public constructor() {
 		super('config-toggle', {
 			description: {

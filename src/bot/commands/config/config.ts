@@ -1,10 +1,10 @@
-import { Command, Flag } from 'discord-akairo';
+import { Flag } from 'discord-akairo';
 import { Message, Permissions } from 'discord.js';
+import CyborgCommand from '../../structures/CyborgCommand';
 
-export default class ConfigCommand extends Command {
+export default class ConfigCommand extends CyborgCommand {
 	public constructor() {
 		super('config', {
-			aliases: ['config'],
 			description: {
 				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.CONFIG.DESCRIPTION.CONTENT,
 				usage: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.CONFIG.DESCRIPTION.USAGE,

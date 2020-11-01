@@ -1,10 +1,10 @@
-import { Command, Flag } from 'discord-akairo';
+import CyborgCommand from '../../structures/CyborgCommand';
+import { Flag } from 'discord-akairo';
 import { Message } from 'discord.js';
 
-export default class TagCommand extends Command {
+export default class TagCommand extends CyborgCommand {
 	public constructor() {
 		super('tag', {
-			aliases: ['tag'],
 			description: {
 				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.TAGS.DESCRIPTION.CONTENT,
 				usage: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.TAGS.DESCRIPTION.USAGE,

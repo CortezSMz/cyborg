@@ -1,10 +1,9 @@
-import { Command } from 'discord-akairo';
+import CyborgCommand from '../../structures/CyborgCommand';
 import { Message } from 'discord.js';
 
-export default class JackblackCommand extends Command {
+export default class JackblackCommand extends CyborgCommand {
 	public constructor() {
 		super('jackblack', {
-			aliases: ['jackblack'],
 			category: 'fun',
 		});
 	}

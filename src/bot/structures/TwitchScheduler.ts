@@ -4,8 +4,8 @@ import { TwitchStreamsInsertInput, TwitchStreams } from '../util/graphQLTypes';
 import { graphQLClient, GRAPHQL } from '../util/graphQL';
 import fetch from 'node-fetch';
 import moment = require('moment');
-import { SETTINGS } from '../util/constants';
-import { TOPICS, EVENTS } from '../util/logger';
+import { SETTINGS } from '../util/Constants';
+import { TOPICS, EVENTS } from '../util/Logger';
 
 export default class TwitchScheduler {
 	private readonly checkRate: number;

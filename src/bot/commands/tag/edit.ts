@@ -1,11 +1,10 @@
-import { Command } from 'discord-akairo';
+import CyborgCommand from '../../structures/CyborgCommand';
 import { Message, Util } from 'discord.js';
-
 import { GRAPHQL, graphQLClient } from '../../util/graphQL';
 import { Tags, TagsSetInput } from '../../util/graphQLTypes';
 import { interpolateString } from '../../util/template';
 
-export default class TagEditCommand extends Command {
+export default class TagEditCommand extends CyborgCommand {
 	public constructor() {
 		super('tag-edit', {
 			category: 'tag',
@@ -66,6 +65,7 @@ export default class TagEditCommand extends Command {
 	}
 
 	public async exec(message: Message, { tag, hoist, unhoist, template, untemplate, content }: { tag: Tags; hoist: boolean; unhoist: boolean; template: boolean; untemplate: boolean; content: string }) {
+		this.client.LOCALE(message.guild!).COMMANDS;
 		const staff = message.member?.permissions.has(['MANAGE_MESSAGES']) ?? false;
 		if (tag.user !== message.author.id && !staff) {
 			return message.util?.reply(this.client.LOCALE(message.guild!).COMMANDS.TAGS.EDIT.OWN_TAG);
@@ -102,7 +102,7 @@ export default class TagEditCommand extends Command {
 					guild: message.guild ? message.guild.toString() : null,
 				});
 			} catch (error) {
-				return message.channel.send(error);
+				return message.channel.send(error + '\u200b');
 			}
 		}
 

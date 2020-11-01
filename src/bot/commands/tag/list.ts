@@ -1,13 +1,12 @@
-import { Command } from 'discord-akairo';
+import CyborgCommand from '../../structures/CyborgCommand';
 import { GuildMember, Message, MessageEmbed, Permissions } from 'discord.js';
-import { PRODUCTION, SETTINGS } from '../../util/constants';
+import { PRODUCTION } from '../../util/Constants';
 import { GRAPHQL, graphQLClient } from '../../util/graphQL';
 import { Tags, TagsInsertInput } from '../../util/graphQLTypes';
 
-export default class TagListCommand extends Command {
+export default class TagListCommand extends CyborgCommand {
 	public constructor() {
 		super('tag-list', {
-			aliases: ['tags'],
 			category: 'tag',
 			description: {
 				content: (message: Message) => this.client.LOCALE(message.guild!).COMMANDS.TAGS.LIST.DESCRIPTION,

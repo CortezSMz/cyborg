@@ -1,8 +1,8 @@
-import { Command } from 'discord-akairo';
+import CyborgCommand from '../../../structures/CyborgCommand';
 import { Message, Permissions } from 'discord.js';
-import { SETTINGS } from '../../../util/constants';
+import { SETTINGS } from '../../../util/Constants';
 
-export default class DeleteConfigMemberLogCommand extends Command {
+export default class DeleteConfigMemberLogCommand extends CyborgCommand {
 	public constructor() {
 		super('config-del-memberlog', {
 			description: {

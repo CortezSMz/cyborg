@@ -1,4 +1,4 @@
-import { Command } from 'discord-akairo';
+import CyborgCommand from '../../structures/CyborgCommand';
 import { Message, Permissions, TextChannel } from 'discord.js';
 import { graphQLClient, GRAPHQL } from '../../util/graphQL';
 import { TwitchStreamsInsertInput, TwitchStreams } from '../../util/graphQLTypes';
@@ -6,7 +6,7 @@ import { stripIndents } from 'common-tags';
 import { PrefixSupplier } from 'discord-akairo';
 const fetch = require('node-fetch');
 
-export default class TwitchAddCommand extends Command {
+export default class TwitchAddCommand extends CyborgCommand {
 	constructor() {
 		super('twitch-add', {
 			description: {

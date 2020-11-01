@@ -1,10 +1,10 @@
 import * as moment from 'moment';
 import { TextChannel, DMChannel } from 'discord.js';
 import CyborgClient from '../client/CyborgClient';
-import { PRODUCTION, COLORS } from '../util/constants';
+import { PRODUCTION, COLORS } from '../util/Constants';
 import { GRAPHQL, graphQLClient } from '../util/graphQL';
 import { Remindmes, RemindmesInsertInput } from '../util/graphQLTypes';
-import { EVENTS, TOPICS } from '../util/logger';
+import { EVENTS, TOPICS } from '../util/Logger';
 import { MessageEmbed } from 'discord.js';
 import { stripIndents } from 'common-tags';
 

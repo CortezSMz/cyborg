@@ -1,10 +1,10 @@
+import CyborgCommand from '../../structures/CyborgCommand';
 import { Command, Argument, Inhibitor, Listener } from 'discord-akairo';
 import { Message } from 'discord.js';
 
-export default class ReloadCommand extends Command {
+export default class ReloadCommand extends CyborgCommand {
 	public constructor() {
 		super('reload', {
-			aliases: ['reload'],
 			description: {
 				content: () => 'Reload commands, listeners or inhibitors.',
 				usage: () => '<handler>',

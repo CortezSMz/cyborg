@@ -1,27 +1,20 @@
 import { Command, CommandOptions } from 'discord-akairo';
-import { Guild } from 'discord.js';
-import CyborgClient from '../client/CyborgClient';
-import { Messages, SETTINGS } from '../util/constants';
-import * as locale from '../util/locale';
+import CyborgUtil from '../util/Util';
 
-const languages = ['PTBR', 'EN'];
-
-const LOCALE = (language: ('EN' | 'PTBR') | Guild): Messages => {
-	if (language instanceof Guild) {
-		let lang = (language.client as CyborgClient).settings.get(language, SETTINGS.LANGUAGE, process.env.DEFAULT_LANG);
-		return ((locale as unknown) as locale.Msgs)[lang.replace(/-/g, '')];
-	}
-	return locale[language];
-};
+const languages = ['EN', 'PTBR'];
 
 export default class CyborgCommand extends Command {
+	public uses: number;
 	constructor(id: string, { aliases, ...options }: CommandOptions = {}) {
 		if (!aliases) aliases = [];
 		for (const lang of languages) {
-			for (const alias of LOCALE(lang as any).COMMANDS.ALIASES[id.toUpperCase()]) {
-				if (!aliases.includes(alias)) aliases.push(alias);
-			}
+			const als = CyborgUtil.LOCALE(lang as any).COMMANDS.ALIASES[id.toUpperCase().replace(/-/g, '')];
+			if (als)
+				for (const alias of als) {
+					if (!aliases.includes(alias)) aliases.push(alias);
+				}
 		}
 		super(id, { aliases, ...options });
+		this.uses = 0;
 	}
 }

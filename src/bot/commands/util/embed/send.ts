@@ -1,7 +1,7 @@
-import { Command } from 'discord-akairo';
-import { Message, Util } from 'discord.js';
+import CyborgCommand from '../../../structures/CyborgCommand';
+import { Message } from 'discord.js';
 
-export default class EmbedEditCommand extends Command {
+export default class EmbedEditCommand extends CyborgCommand {
 	public constructor() {
 		super('embed-send', {
 			category: 'util',

@@ -1,7 +1,7 @@
-import { Command } from 'discord-akairo';
+import CyborgCommand from '../../../structures/CyborgCommand';
 import { Message, Permissions } from 'discord.js';
 
-export default class ClearConfigCommand extends Command {
+export default class ClearConfigCommand extends CyborgCommand {
 	public constructor() {
 		super('config-clear', {
 			description: {

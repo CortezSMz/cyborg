@@ -1,12 +1,12 @@
-import { Command } from 'discord-akairo';
+import CyborgCommand from '../../structures/CyborgCommand';
 import { Message, Permissions, MessageEmbed } from 'discord.js';
 import { stripIndents } from 'common-tags';
 import { PrefixSupplier } from 'discord-akairo';
-import { COLORS } from '../../util/constants';
+import { COLORS } from '../../util/Constants';
 import { graphQLClient, GRAPHQL } from '../../util/graphQL';
 import { ReactionRolesInsertInput } from '../../util/graphQLTypes';
 
-export default class ReactionRoleCreateCommand extends Command {
+export default class ReactionRoleCreateCommand extends CyborgCommand {
 	constructor() {
 		super('reactionrole-create', {
 			description: {

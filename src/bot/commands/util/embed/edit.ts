@@ -1,11 +1,11 @@
-import { Command } from 'discord-akairo';
+import CyborgCommand from '../../../structures/CyborgCommand';
 import { Message } from 'discord.js';
 
 import { Argument } from 'discord-akairo';
 import { Flag } from 'discord-akairo';
 import { PrefixSupplier } from 'discord-akairo';
 
-export default class EmbedEditCommand extends Command {
+export default class EmbedEditCommand extends CyborgCommand {
 	public constructor() {
 		super('embed-edit', {
 			category: 'util',

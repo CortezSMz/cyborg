@@ -1,6 +1,6 @@
 import { Listener } from 'discord-akairo';
 import { GuildMember } from 'discord.js';
-import { PRODUCTION, SETTINGS } from '../../../util/constants';
+import { PRODUCTION, SETTINGS } from '../../../util/Constants';
 import { GRAPHQL, graphQLClient } from '../../../util/graphQL';
 import { RoleStates, RoleStatesInsertInput } from '../../../util/graphQLTypes';
 

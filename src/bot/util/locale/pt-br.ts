@@ -1,5 +1,5 @@
 import { stripIndents } from 'common-tags';
-import { Messages } from '../constants';
+import { Messages } from '../Constants';
 import moment = require('moment');
 
 export default {
@@ -46,32 +46,32 @@ export default {
 
 	COMMANDS: {
 		ALIASES: {
-			'CONFIG-CHECK': ['check'],
+			CONFIGCHECK: ['checar', 'check'],
 			CONFIG: ['config'],
-			LANGUAGE: ['language', 'lang'],
-			PREFIX: ['prefix'],
+			LANGUAGE: ['idioma', 'língua', 'lingua'],
+			PREFIX: ['prefixo', 'prefix'],
 			BLACKJACK: ['blackjack'],
-			CONNECTFOUR: ['connectfour', 'cf', 'conectequatro', 'connect4'],
+			CONNECTFOUR: ['conectequatro', 'conecte4', 'cq', 'c4'],
 			JACKBLACK: ['jackblack'],
-			TICTACTOE: ['tictactoe', 'ttt', 'jogodavelha', 'velha'],
-			CHANNEL: ['channel', 'channel-info'],
+			TICTACTOE: ['jogodavelha', 'jdv', 'velha'],
+			CHANNEL: ['canal', 'canal-info'],
 			EMOJI: ['emoji', 'emoji-info'],
-			ROLE: ['role', 'role-info'],
+			ROLE: ['cargo', 'cargo-info'],
 			GUILD: ['guild', 'server', 'server-info'],
-			USER: ['user', 'member', 'user-info'],
+			USER: ['user', 'membro', 'user-info'],
 			BLACKLIST: ['blacklist', 'unblacklist'],
 			EVAL: ['eval'],
 			PURGE: ['purge', 'prune'],
-			RELOAD: ['reload'],
+			RELOAD: ['recarregar'],
 			TEST: ['test'],
-			REACTIONROLE: ['reactionrole', 'rr'],
-			'TAG-LIST': ['tags'],
+			REACTIONROLE: ['cr', 'cargosreações', 'cargosreacoes'],
+			TAGLIST: ['tags'],
 			TAG: ['tag'],
 			TWITCH: ['twitch'],
 			EMBED: ['embed'],
-			HELP: ['help', 'h', 'ajuda'],
+			HELP: ['ajuda', 'a'],
 			PING: ['ping'],
-			'REMINDME-ADD': ['reminder', 'remindme', 'remind'],
+			REMINDMEADD: ['lembrarme', 'lembrar', 'lembrança'],
 			RUNE: ['rune', 'futhark'],
 			STATS: ['stats'],
 		},
@@ -450,6 +450,7 @@ export default {
 				OWN_TAG: 'losers are only allowed to edit their own tags! Hah hah hah!',
 				TOO_LONG: 'you must still have water behind your ears to not realize that messages have a limit of 2000 characters!',
 				REPLY: (tag, hoist, template) => {
+					console.log(tag, hoist, template);
 					if (hoist && template) {
 						return `successfully edited **${tag}** to be hoisted and templated.`;
 					}

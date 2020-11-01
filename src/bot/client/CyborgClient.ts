@@ -1,16 +1,16 @@
 import { AkairoClient, CommandHandler, Flag, InhibitorHandler, ListenerHandler } from 'discord-akairo';
-import { Message, Util, Guild, Intents } from 'discord.js';
+import { Message, Util, Intents, Guild } from 'discord.js';
 import { join } from 'path';
 import { Logger } from 'winston';
 import TwitchScheduler from '../structures/TwitchScheduler';
 import RemindmeScheduler from '../structures/RemindmeScheduler';
 import HasuraProvider from '../structures/SettingsProvider';
-import { PRODUCTION, SETTINGS, CYBORG, Messages } from '../util/constants';
+import { PRODUCTION, SETTINGS, CYBORG, Messages } from '../util/Constants';
 import { GRAPHQL, graphQLClient } from '../util/graphQL';
 import { Tags, TagsInsertInput } from '../util/graphQLTypes';
-import { EVENTS, logger, TOPICS } from '../util/logger';
-import ms from '../util/timeParser';
-import * as locale from '../util/locale';
+import { EVENTS, logger, TOPICS } from '../util/Logger';
+import ms from '../util/TimeParser';
+import CyborgUtil from '../util/Util';
 
 declare module '../util/locale' {
 	interface Msgs {
@@ -26,7 +26,7 @@ declare module 'discord-akairo' {
 		config: CyborgOptions;
 		remindmeScheduler: RemindmeScheduler;
 		twitchScheduler: TwitchScheduler;
-		LOCALE: (language: ('EN' | 'PTBR') | Guild) => Messages;
+		LOCALE(language: ('EN' | 'PTBR') | Guild): Messages;
 	}
 }
 
@@ -43,7 +43,17 @@ export default class CyborgClient extends AkairoClient {
 
 	public settings = new HasuraProvider();
 
+	public config: CyborgOptions;
+
 	public LOCALE: (language: ('EN' | 'PTBR') | Guild) => Messages;
+
+	public inhibitorHandler = new InhibitorHandler(this, { directory: join(__dirname, '..', 'inhibitors') });
+
+	public listenerHandler = new ListenerHandler(this, { directory: join(__dirname, '..', 'listeners') });
+
+	public remindmeScheduler = new RemindmeScheduler(this);
+
+	public twitchScheduler = new TwitchScheduler(this);
 
 	public commandHandler: CommandHandler = new CommandHandler(this, {
 		directory: join(__dirname, '..', 'commands'),
@@ -69,16 +79,6 @@ export default class CyborgClient extends AkairoClient {
 			otherwise: (_: Message, { failure }: { failure: { value: string } }) => failure.value,
 		},
 	});
-
-	public inhibitorHandler = new InhibitorHandler(this, { directory: join(__dirname, '..', 'inhibitors') });
-
-	public listenerHandler = new ListenerHandler(this, { directory: join(__dirname, '..', 'listeners') });
-
-	public config: CyborgOptions;
-
-	public remindmeScheduler = new RemindmeScheduler(this);
-
-	public twitchScheduler = new TwitchScheduler(this);
 
 	// @ts-ignore
 	public setTimeout_(fn, delay) {
@@ -106,15 +106,9 @@ export default class CyborgClient extends AkairoClient {
 			}
 		);
 
-		this.root = config.root;
+		this.LOCALE = CyborgUtil.LOCALE;
 
-		this.LOCALE = (language): Messages => {
-			if (language instanceof Guild) {
-				let lang = this.settings.get(language, SETTINGS.LANGUAGE, process.env.DEFAULT_LANG);
-				return ((locale as unknown) as locale.Msgs)[lang.replace(/-/g, '')];
-			}
-			return locale[language];
-		};
+		this.root = config.root;
 
 		this.commandHandler.resolver.addType('duration', (_, phrase): number | null => {
 			if (!phrase) return null;

@@ -1,8 +1,8 @@
-import { Command } from 'discord-akairo';
+import CyborgCommand from '../../../structures/CyborgCommand';
 import { Message, Permissions, TextChannel } from 'discord.js';
-import { SETTINGS } from '../../../util/constants';
+import { SETTINGS } from '../../../util/Constants';
 
-export default class SetConfigMemberLogCommand extends Command {
+export default class SetConfigMemberLogCommand extends CyborgCommand {
 	public constructor() {
 		super('config-set-memberlog', {
 			description: {

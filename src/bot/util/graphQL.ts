@@ -3,7 +3,7 @@ import { ApolloClient } from 'apollo-client';
 import { HttpLink } from 'apollo-link-http';
 import gql from 'graphql-tag';
 import fetch from 'node-fetch';
-import { PRODUCTION } from './constants';
+import { PRODUCTION } from './Constants';
 
 export const graphQLClient = new ApolloClient({
 	cache: new InMemoryCache(),
@@ -454,21 +454,12 @@ export const GRAPHQL = {
 		`,
 
 		UPDATE_TWITCH_STREAMS: gql`
-		mutation($id: Int!, $guild: String!, $channel: String!, $message: String, $streamer: String!, $streamerName: String!, $categories: jsonb!, $online: Boolean!, $duration: Int, $startedAt: timestamptz) {
-			updateTwitchStreams(where: {
-				id: {_eq: $id} },
-				_set: {
-					online: $online
-					streamerName: $streamerName
-					categories: $categories
-					message: $message
-					startedAt: $startedAt
-					duration: $duration
-				}) {
+			mutation($id: Int!, $guild: String!, $channel: String!, $message: String, $streamer: String!, $streamerName: String!, $categories: jsonb!, $online: Boolean!, $duration: Int, $startedAt: timestamptz) {
+				updateTwitchStreams(where: { id: { _eq: $id } }, _set: { online: $online, streamerName: $streamerName, categories: $categories, message: $message, startedAt: $startedAt, duration: $duration }) {
 					affected_rows
 				}
-		}
-	`,
+			}
+		`,
 
 		INSERT_NEW_TWITCH_STREAMS: gql`
 			mutation($channel: String!, $guild: String!, $streamer: String!, $streamerName: String!) {

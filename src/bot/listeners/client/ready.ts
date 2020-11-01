@@ -1,6 +1,6 @@
 import { Listener } from 'discord-akairo';
-import { CYBORG } from '../../util/constants';
-import { EVENTS, TOPICS } from '../../util/logger';
+import { CYBORG } from '../../util/Constants';
+import { EVENTS, TOPICS } from '../../util/Logger';
 
 export default class ReadyListener extends Listener {
 	public constructor() {

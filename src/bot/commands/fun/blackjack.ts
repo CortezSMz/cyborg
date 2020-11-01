@@ -1,7 +1,8 @@
-import { Argument, Flag, Command, PrefixSupplier } from 'discord-akairo';
+import { Argument, Flag, PrefixSupplier } from 'discord-akairo';
 import { Permissions, User, MessageEmbed, Message, Snowflake, Collection, TextChannel, Guild } from 'discord.js';
 import { stripIndents } from 'common-tags';
-import { COLORS } from '../../util/constants';
+import { COLORS } from '../../util/Constants';
+import CyborgCommand from '../../structures/CyborgCommand';
 
 export interface Card {
 	value: string;
@@ -24,14 +25,13 @@ export interface GameInstance {
 	ended: boolean;
 }
 
-export default class BlackJackCommand extends Command {
+export default class BlackJackCommand extends CyborgCommand {
 	private readonly values: string[] = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
 	private readonly suits: string[] = ['♠️', '♦️', '♣️', '♥️'];
 	public instances: Collection<Snowflake, GameInstance> = new Collection();
 
 	public constructor() {
 		super('blackjack', {
-			aliases: ['blackjack'],
 			description: {
 				content: (msg: Message) => this.client.LOCALE(msg.guild!).COMMANDS.FUN.BLACKJACK.DESCRIPTION.CONTENT((this.handler.prefix as PrefixSupplier)(msg), msg.author.username),
 				usage: () => '',

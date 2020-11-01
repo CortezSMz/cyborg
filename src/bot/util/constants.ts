@@ -1,5 +1,4 @@
 import { User, TextChannel, GuildEmoji, MessageEmbed, Guild, Message } from 'discord.js';
-import CyborgClient from '../client/CyborgClient';
 import * as emojis from 'node-emoji';
 
 export const PRODUCTION = process.env.NODE_ENV === 'production';
@@ -101,7 +100,7 @@ export interface Messages {
 
 		ALIASES: {
 			[key: string]: string[];
-			'CONFIG-CHECK': string[];
+			CONFIGCHECK: string[];
 			CONFIG: string[];
 			LANGUAGE: string[];
 			PREFIX: string[];
@@ -120,13 +119,13 @@ export interface Messages {
 			RELOAD: string[];
 			TEST: string[];
 			REACTIONROLE: string[];
-			'TAG-LIST': string[];
+			TAGLIST: string[];
 			TAG: string[];
 			TWITCH: string[];
 			EMBED: string[];
 			HELP: string[];
 			PING: string[];
-			'REMINDME-ADD': string[];
+			REMINDMEADD: string[];
 			RUNE: string[];
 			STATS: string[];
 		};
