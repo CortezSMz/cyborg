@@ -1,13 +1,13 @@
 {
-    "name": "cyborg",
-    "version": "0.1.0",
-    "description": "",
-    "author": "Corteez#3113",
-    "license": "UNLICENSED",
-    "private": true,
-    "renovate": {
-        "extends": [
-            "teal"
-        ]
-    }
+	"name": "cyborg",
+	"version": "0.1.0",
+	"description": "",
+	"author": "Corteez#3113",
+	"license": "UNLICENSED",
+	"private": true,
+	"renovate": {
+		"extends": [
+			"teal"
+		]
+	}
 }

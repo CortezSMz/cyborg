@@ -120,22 +120,29 @@ export default class RemindmeScheduler {
 		this.checkInterval = this.client.setInterval(this.check.bind(this), this.checkRate);
 	}
 
-	public async check() {
-		const { data } = await graphQLClient.query<any, RemindmesInsertInput>({
-			query: GRAPHQL.QUERY.REMINDMES_DURATION,
-		});
-		let remindmes: Remindmes[];
-		if (PRODUCTION) remindmes = data.remindmes;
-		else remindmes = data.remindmes;
-		const now = Date.now();
+	public async check(): Promise<boolean> {
+		try {
+			const { data } = await graphQLClient.query<any, RemindmesInsertInput>({
+				query: GRAPHQL.QUERY.REMINDMES_DURATION,
+			});
+			let remindmes: Remindmes[];
+			if (PRODUCTION) remindmes = data.remindmes;
+			else remindmes = data.remindmes;
+			const now = Date.now();
 
-		for (const remindme of remindmes) {
-			if (this.queued.has(remindme.id)) continue;
-			if (new Date(remindme.duration).getTime() < now) {
-				this.end(remindme);
-			} else {
-				this.queue(remindme);
+			for (const remindme of remindmes) {
+				if (this.queued.has(remindme.id)) continue;
+				if (new Date(remindme.duration).getTime() < now) {
+					this.end(remindme);
+				} else {
+					this.queue(remindme);
+				}
 			}
+
+			return true;
+		} catch (err) {
+			this.client.logger.error(err, { TOPIC: TOPICS.HASURA });
+			return false;
 		}
 	}
 }

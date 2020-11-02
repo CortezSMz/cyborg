@@ -51,7 +51,7 @@ export default class TicTacToeCommand extends CyborgCommand {
 		});
 	}
 
-	private getInstance = (user: User): GameInstance | undefined => {
+	public getInstance = (user: User): GameInstance | undefined => {
 		return this.instances.find(i => i.players.map((p: Player) => p.user.id).includes(user.id));
 	};
 

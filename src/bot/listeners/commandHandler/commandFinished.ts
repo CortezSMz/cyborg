@@ -1,6 +1,9 @@
 import { Command, Listener } from 'discord-akairo';
 import { Message } from 'discord.js';
 import { EVENTS, TOPICS } from '../../util/Logger';
+import BlackJackCommand from '../../commands/fun/blackjack';
+import ConnectFourCommand from '../../commands/fun/connectfour';
+import TicTacToeCommand from '../../commands/fun/tictactoe';
 
 export default class CommandFinishedListener extends Listener {
 	public constructor() {
@@ -18,5 +21,11 @@ export default class CommandFinishedListener extends Listener {
 			}`,
 			{ topic: TOPICS.DISCORD_AKAIRO, event: EVENTS.COMMAND_FINISHED }
 		);
+
+		const games = ['blackjack', 'tictactoe', 'connectfour'];
+		if (games.includes(command.id)) {
+			const instance = (command as BlackJackCommand | TicTacToeCommand | ConnectFourCommand).getInstance(message.author);
+			if (instance) instance.delete();
+		}
 	}
 }

@@ -46,14 +46,13 @@ export default class ConnectFourCommand extends CyborgCommand {
 				usage: () => '',
 				examples: () => [''],
 			},
-			lock: 'user',
 			category: 'fun',
 			ratelimit: 3,
 		});
 	}
 
-	private getInstance = (user: User): GameInstance | undefined => {
-		return this.instances.find(i => i.players.map((p: Player) => p.user.id).includes(user.id));
+	public getInstance = (user: User): GameInstance | undefined => {
+		return this.instances.find(i => Boolean(i.players.find((p: Player) => p.user.id === user.id)));
 	};
 
 	private createPlayer(user: User, second: boolean = false): Player {
@@ -283,6 +282,8 @@ export default class ConnectFourCommand extends CyborgCommand {
 	}
 
 	public *args(msg: Message) {
+		if (this.getInstance(msg.author)) this.getInstance(msg.author)!.delete();
+
 		this.instances.set(msg.author.id, {
 			delete: () => this.instances.delete(msg.author.id),
 			finished: false,
@@ -293,8 +294,8 @@ export default class ConnectFourCommand extends CyborgCommand {
 			possibilities: 0,
 		});
 
-		yield {
-			type: async (msg: Message) => {
+		const ayy = yield {
+			type: async (msg: Message): Promise<true | Flag> => {
 				const instance = this.instances.get(msg.author.id)!;
 				const embed = new MessageEmbed().setColor(COLORS.EMBED).setTitle(`${Mark.YELLOW} Connect 4 ${Mark.RED}`).setDescription(stripIndents`
 					Esperando alguém se juntar...
@@ -304,18 +305,26 @@ export default class ConnectFourCommand extends CyborgCommand {
 					Ou clique no 🤖 para jogar contra o bot (${this.client.user})
 					`);
 
-				const filter = (reaction: MessageReaction, user: User) => {
-					if (reaction.emoji.name === '⚔️') return user.id !== msg.author.id && !user.bot;
-					else if (reaction.emoji.name === '🤖') return user.id === msg.author.id && !user.bot;
-					else return false;
-				};
-
 				try {
+					const filter = (reaction: MessageReaction, user: User): boolean => {
+						if (reaction.emoji.name === '⚔️') {
+							console.log(user.id !== msg.author.id && !user.bot);
+							return user.id !== msg.author.id && !user.bot;
+						} else if (reaction.emoji.name === '🤖') {
+							console.log(user.id === msg.author.id && !user.bot);
+							return user.id === msg.author.id && !user.bot;
+						}
+						console.log('after ifs', false);
+						return false;
+					};
+
 					let instanceMessage: Message = await msg.util?.send({ embed })!;
 					await instanceMessage.react('⚔️');
 					await instanceMessage.react('🤖');
 
-					const reaction = await instanceMessage?.awaitReactions(filter, { maxEmojis: 1, time: 30000, errors: ['time'] });
+					console.log('before reactions');
+					const reaction = await instanceMessage?.awaitReactions(filter, { max: 1, time: 30000, errors: ['time'] });
+					console.log('after reactions');
 
 					let user: User;
 
@@ -341,6 +350,8 @@ export default class ConnectFourCommand extends CyborgCommand {
 						${this.client.emojis.cache.get('709533456866213930')} Carregando...
 						`),
 					});
+
+					return true;
 				} catch (error) {
 					msg.util?.send({ embed: embed.setDescription(`Ninguém entrou e o jogo foi cancelado.`) }).then(msg => msg.reactions.removeAll());
 					return Flag.cancel();
@@ -349,7 +360,8 @@ export default class ConnectFourCommand extends CyborgCommand {
 			match: 'none',
 		};
 
-		return {};
+		if (ayy) return {};
+		else return Flag.cancel();
 	}
 
 	public async exec(message: Message) {

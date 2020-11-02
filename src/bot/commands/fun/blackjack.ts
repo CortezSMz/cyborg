@@ -47,7 +47,7 @@ export default class BlackJackCommand extends CyborgCommand {
 		});
 	}
 
-	private getInstance = (user: User) => this.instances.find(i => i.players.map((p: Player) => p.user.id).includes(user.id));
+	public getInstance = (user: User) => this.instances.find(i => i.players.map((p: Player) => p.user.id).includes(user.id));
 
 	private createDeck(): Array<Card> {
 		let deck: Array<Card> = [];
