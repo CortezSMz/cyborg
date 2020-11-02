@@ -17,9 +17,8 @@ export default class CommandCancelledListener extends Listener {
 	public exec(message: Message, command: Command) {
 		this.client.logger.info(`Cancelled ${command.id} on ${message.guild ? `${message.guild.name} (${message.guild.id})` : 'DM'}`, { topic: TOPICS.DISCORD_AKAIRO, event: EVENTS.COMMAND_CANCELLED });
 
-		const games = ['blackjack', 'tictactoe', 'connectfour'];
-		if (games.includes(command.id)) {
-			const instance = (command as BlackJackCommand | TicTacToeCommand | ConnectFourCommand).getInstance(message.author);
+		if (command instanceof TicTacToeCommand || command instanceof ConnectFourCommand) {
+			const instance = command.getInstance(message);
 			if (instance) instance.delete();
 		}
 	}

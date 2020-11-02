@@ -51,8 +51,8 @@ export default class ConnectFourCommand extends CyborgCommand {
 		});
 	}
 
-	public getInstance = (user: User): GameInstance | undefined => {
-		return this.instances.find(i => Boolean(i.players.find((p: Player) => p.user.id === user.id)));
+	public getInstance = (message: Message): GameInstance | null => {
+		return this.instances.get(message.id) ?? null;
 	};
 
 	private createPlayer(user: User, second: boolean = false): Player {
@@ -77,7 +77,7 @@ export default class ConnectFourCommand extends CyborgCommand {
 
 	private updateEmbed(msg: Message): Promise<void> {
 		return new Promise(resolve => {
-			const instance = this.getInstance(msg.author)!;
+			const instance = this.getInstance(msg)!;
 			instance.embed.setAuthor(`${Mark.YELLOW} Connect 4 ${Mark.RED}`).setColor(COLORS.EMBED).setDescription(stripIndents`
 			${instance.players
 				.map((p: Player) => {
@@ -118,8 +118,8 @@ export default class ConnectFourCommand extends CyborgCommand {
 		return validMoves;
 	}
 
-	bestMove(player: Player, depth: number): string {
-		const instance = this.getInstance(player.user)!;
+	bestMove(player: Player, depth: number, message: Message): string {
+		const instance = this.getInstance(message)!;
 		let board = instance.board.map(e => e);
 		let bestScore: number = -Infinity;
 		let moves: { score: number; row: number; col: number }[] = [];
@@ -130,7 +130,7 @@ export default class ConnectFourCommand extends CyborgCommand {
 		for (const { row, col } of validMoves) {
 			let oldMark: Mark = board[row][col];
 			board[row][col] = Mark.RED;
-			const score = this.minimax(board, depth, Mark.YELLOW, player);
+			const score = this.minimax(board, depth, Mark.YELLOW, message);
 
 			board[row][col] = oldMark;
 			moves.push({ score, row, col });
@@ -147,10 +147,10 @@ export default class ConnectFourCommand extends CyborgCommand {
 		return this.columns[bestMove.col];
 	}
 
-	minimax(board: Mark[][], depth: number, playing: Mark, player: Player): number {
-		if (this.check(player.user, board) != null || depth === 0) {
-			this.getInstance(player.user)!.possibilities++;
-			const mark = this.check(player.user, board)?.mark!;
+	minimax(board: Mark[][], depth: number, playing: Mark, message: Message): number {
+		if (this.check(message, board) != null || depth === 0) {
+			this.getInstance(message)!.possibilities++;
+			const mark = this.check(message, board)?.mark!;
 			if (mark === Mark.YELLOW) return Scores.YELLOW;
 			else if (mark === Mark.RED) return Scores.RED;
 			else return Scores.TIE;
@@ -162,7 +162,7 @@ export default class ConnectFourCommand extends CyborgCommand {
 			for (const { row, col } of validMoves) {
 				const oldMark: Mark = board[row][col];
 				board[row][col] = Mark.RED;
-				const score = this.minimax(board, depth - 1, Mark.YELLOW, player);
+				const score = this.minimax(board, depth - 1, Mark.YELLOW, message);
 				board[row][col] = oldMark;
 				if (score > bestScore) {
 					bestScore = score;
@@ -175,7 +175,7 @@ export default class ConnectFourCommand extends CyborgCommand {
 			for (const { row, col } of validMoves) {
 				const oldMark: Mark = board[row][col];
 				board[row][col] = Mark.YELLOW;
-				const score = this.minimax(board, depth - 1, Mark.RED, player);
+				const score = this.minimax(board, depth - 1, Mark.RED, message);
 				board[row][col] = oldMark;
 				if (score < bestScore) {
 					bestScore = score;
@@ -186,9 +186,9 @@ export default class ConnectFourCommand extends CyborgCommand {
 		return 0;
 	}
 
-	private drop(player: Player, reaction: string): Promise<void> {
+	private drop(player: Player, message: Message, reaction: string): Promise<void> {
 		return new Promise(resolve => {
-			const instance = this.getInstance(player.user)!;
+			const instance = this.getInstance(message)!;
 
 			for (let i = instance.board.length - 1; i >= 0; i--) {
 				const col = this.columns.indexOf(reaction);
@@ -207,8 +207,8 @@ export default class ConnectFourCommand extends CyborgCommand {
 		return a != Mark.EMPTY && a == b && a == c && a == d;
 	}
 
-	private check(user: User, board: Mark[][]): { user: User | null; mark: string; places: number[][] } | null {
-		const instance = this.getInstance(user)!;
+	private check(message: Message, board: Mark[][]): { user: User | null; mark: string; places: number[][] } | null {
+		const instance = this.getInstance(message)!;
 
 		const bl = board.length;
 		const bw = board[0].length;
@@ -282,10 +282,13 @@ export default class ConnectFourCommand extends CyborgCommand {
 	}
 
 	public *args(msg: Message) {
-		if (this.getInstance(msg.author)) this.getInstance(msg.author)!.delete();
+		if (this.instances.some(i => i.players.some(p => p.user.id === msg.author.id))) {
+			msg.channel.send('You are already playing a ConnecFour game.');
+			return Flag.cancel();
+		}
 
-		this.instances.set(msg.author.id, {
-			delete: () => this.instances.delete(msg.author.id),
+		this.instances.set(msg.id, {
+			delete: () => this.instances.delete(msg.id),
 			finished: false,
 			players: [this.createPlayer(msg.author)],
 			embed: new MessageEmbed(),
@@ -296,7 +299,7 @@ export default class ConnectFourCommand extends CyborgCommand {
 
 		const ayy = yield {
 			type: async (msg: Message): Promise<true | Flag> => {
-				const instance = this.instances.get(msg.author.id)!;
+				const instance = this.getInstance(msg)!;
 				const embed = new MessageEmbed().setColor(COLORS.EMBED).setTitle(`${Mark.YELLOW} Connect 4 ${Mark.RED}`).setDescription(stripIndents`
 					Esperando alguém se juntar...
 					
@@ -307,14 +310,9 @@ export default class ConnectFourCommand extends CyborgCommand {
 
 				try {
 					const filter = (reaction: MessageReaction, user: User): boolean => {
-						if (reaction.emoji.name === '⚔️') {
-							console.log(user.id !== msg.author.id && !user.bot);
-							return user.id !== msg.author.id && !user.bot;
-						} else if (reaction.emoji.name === '🤖') {
-							console.log(user.id === msg.author.id && !user.bot);
-							return user.id === msg.author.id && !user.bot;
-						}
-						console.log('after ifs', false);
+						if (this.instances.some(i => i.players.some(p => p.user.id === msg.author.id)) && user.id !== msg.author.id) return false;
+						if (reaction.emoji.name === '⚔️') return user.id !== msg.author.id && !user.bot;
+						else if (reaction.emoji.name === '🤖') return user.id === msg.author.id && !user.bot;
 						return false;
 					};
 
@@ -322,9 +320,7 @@ export default class ConnectFourCommand extends CyborgCommand {
 					await instanceMessage.react('⚔️');
 					await instanceMessage.react('🤖');
 
-					console.log('before reactions');
 					const reaction = await instanceMessage?.awaitReactions(filter, { max: 1, time: 30000, errors: ['time'] });
-					console.log('after reactions');
 
 					let user: User;
 
@@ -353,7 +349,7 @@ export default class ConnectFourCommand extends CyborgCommand {
 
 					return true;
 				} catch (error) {
-					msg.util?.send({ embed: embed.setDescription(`Ninguém entrou e o jogo foi cancelado.`) }).then(msg => msg.reactions.removeAll());
+					msg.util?.send({ embed: embed.setDescription(`Ninguém entrou e o jogo foi cancelado.`).setFooter('') }).then(msg => msg.reactions.removeAll());
 					return Flag.cancel();
 				}
 			},
@@ -364,13 +360,13 @@ export default class ConnectFourCommand extends CyborgCommand {
 		else return Flag.cancel();
 	}
 
-	public async exec(message: Message) {
+	public async exec(message: Message): Promise<boolean> {
 		for (const emoji of this.columns) await message.util?.lastResponse?.react(emoji);
 
 		await this.updateEmbed(message);
 
 		let winner: User | string;
-		const instance = this.getInstance(message.author)!;
+		const instance = this.getInstance(message)!;
 
 		let reactionMessage: Message = await message.util?.send({ embed: instance.embed })!;
 
@@ -391,16 +387,16 @@ export default class ConnectFourCommand extends CyborgCommand {
 				let reaction: string;
 				if (player.user.id === this.client.user!.id) {
 					const hrStart = process.hrtime();
-					reaction = this.bestMove(player, depth);
+					reaction = this.bestMove(player, depth, message);
 					instance.hrDiff = process.hrtime(hrStart);
 				} else {
 					const reacted = await reactionMessage?.awaitReactions(filter, { maxEmojis: 1, time: 30000, errors: ['time'] });
 					reaction = reacted.first()!.emoji.name;
 				}
 
-				await this.drop(player, reaction);
+				await this.drop(player, message, reaction);
 
-				const check = this.check(message.author, instance.board);
+				const check = this.check(message, instance.board);
 				if (check != null) {
 					instance.finished = true;
 					winner = check.user ?? 'TIE';
@@ -412,19 +408,20 @@ export default class ConnectFourCommand extends CyborgCommand {
 					instance.board[check.places[3][0]][check.places[3][1]] = winMark;
 				}
 			} catch (error) {
-				return message.util?.send({ embed: instance.embed.setDescription(`Jogadores demoraram muito para escolher...\n\nO jogo foi cancelado.`) }).then(msg => msg.reactions.removeAll());
+				message.util?.send({ embed: instance.embed.setDescription(`Jogadores demoraram muito para escolher...\n\nO jogo foi cancelado.`).setFooter('') }).then(msg => msg.reactions.removeAll());
+				return instance.delete();
 			}
 		}
 
 		await this.updateEmbed(message);
 
-		if (typeof winner! === 'string')
+		if (typeof winner! === 'string') {
 			message.util
 				?.send({
 					embed: instance.embed.setColor('#38667d').addField(`\u200b`, 'Empate!').setFooter('').setTitle(''),
 				})
 				.then(msg => msg.reactions.removeAll());
-		else
+		} else {
 			message.util
 				?.send({
 					embed: instance.embed
@@ -434,7 +431,8 @@ export default class ConnectFourCommand extends CyborgCommand {
 						.setTitle(''),
 				})
 				.then(msg => msg.reactions.removeAll());
+		}
 
-		instance.delete();
+		return instance.delete();
 	}
 }

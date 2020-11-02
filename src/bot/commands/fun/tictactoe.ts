@@ -51,8 +51,8 @@ export default class TicTacToeCommand extends CyborgCommand {
 		});
 	}
 
-	public getInstance = (user: User): GameInstance | undefined => {
-		return this.instances.find(i => i.players.map((p: Player) => p.user.id).includes(user.id));
+	public getInstance = (message: Message): GameInstance | null => {
+		return this.instances.get(message.id) ?? null;
 	};
 
 	private createPlayer(user: User, second: boolean = false): Player {
@@ -79,7 +79,7 @@ export default class TicTacToeCommand extends CyborgCommand {
 
 	private updateEmbed(msg: Message): Promise<void> {
 		return new Promise(resolve => {
-			const instance = this.getInstance(msg.author)!;
+			const instance = this.getInstance(msg)!;
 			instance.embed.setAuthor(`${Symbol.X} Jogo da Velha ${Symbol.O}`).setColor(COLORS.EMBED).setDescription(stripIndents`
 			${instance.players
 				.map((p: Player) => {
@@ -100,8 +100,8 @@ export default class TicTacToeCommand extends CyborgCommand {
 		});
 	}
 
-	bestMove(player: Player): string {
-		const instance = this.getInstance(player.user)!;
+	bestMove(message: Message): string {
+		const instance = this.getInstance(message)!;
 		let board = instance.board.map(e => e);
 		let moves: { score: number; i: number; j: number }[] = [];
 
@@ -110,7 +110,7 @@ export default class TicTacToeCommand extends CyborgCommand {
 				if (board[i][j] !== Symbol.O && board[i][j] !== Symbol.X) {
 					let oldSymbol: string = board[i][j];
 					board[i][j] = Symbol.O;
-					let score = this.minimax(board, 5, Symbol.X, player);
+					let score = this.minimax(board, 5, Symbol.X, message);
 					moves.push({ score, i, j });
 					board[i][j] = oldSymbol;
 				}
@@ -123,10 +123,10 @@ export default class TicTacToeCommand extends CyborgCommand {
 		return instance.board[bestMoves[0].i][bestMoves[0].j];
 	}
 
-	minimax(board: string[][], depth: number, playing: Symbol, player: Player): number {
-		if (this.check(player.user, board) != null || depth === 0) {
-			this.getInstance(player.user)!.possibilities++;
-			const mark = this.check(player.user, board)?.mark!;
+	minimax(board: string[][], depth: number, playing: Symbol, message: Message): number {
+		if (this.check(message, board) != null || depth === 0) {
+			this.getInstance(message)!.possibilities++;
+			const mark = this.check(message, board)?.mark!;
 			if (mark == Symbol.O) return Scores.O;
 			else if (mark == Symbol.X) return Scores.X;
 			else return Scores.TIE;
@@ -139,7 +139,7 @@ export default class TicTacToeCommand extends CyborgCommand {
 					if (board[i][j] !== Symbol.O && board[i][j] !== Symbol.X) {
 						const oldSymbol: string = board[i][j];
 						board[i][j] = Symbol.O;
-						let score = this.minimax(board, depth - 1, Symbol.X, player);
+						let score = this.minimax(board, depth - 1, Symbol.X, message);
 						board[i][j] = oldSymbol;
 						if (score > bestScore) {
 							bestScore = score;
@@ -155,7 +155,7 @@ export default class TicTacToeCommand extends CyborgCommand {
 					if (board[i][j] !== Symbol.O && board[i][j] !== Symbol.X) {
 						const oldSymbol: string = board[i][j];
 						board[i][j] = Symbol.X;
-						let score = this.minimax(board, depth - 1, Symbol.O, player);
+						let score = this.minimax(board, depth - 1, Symbol.O, message);
 						board[i][j] = oldSymbol;
 						if (score < bestScore) {
 							bestScore = score;
@@ -168,9 +168,9 @@ export default class TicTacToeCommand extends CyborgCommand {
 		return 0;
 	}
 
-	turn(player: Player, reaction: string): Promise<void> {
+	turn(player: Player, message: Message, reaction: string): Promise<void> {
 		return new Promise(resolve => {
-			const instance = this.getInstance(player.user)!;
+			const instance = this.getInstance(message)!;
 
 			instance.board = instance.board.map(square => square.map(s => (s === reaction ? player.symbol : s)));
 			instance.players.forEach((p: Player) => (p.turn = !p.turn));
@@ -179,8 +179,8 @@ export default class TicTacToeCommand extends CyborgCommand {
 		});
 	}
 
-	private check(user: User, b: string[][]): { user: User | null; mark: string } | null {
-		const instance = this.getInstance(user)!;
+	private check(message: Message, b: string[][]): { user: User | null; mark: string } | null {
+		const instance = this.getInstance(message)!;
 		const conditions = [
 			[b[0][0], b[0][1], b[0][2]],
 			[b[1][0], b[1][1], b[1][2]],
@@ -214,8 +214,13 @@ export default class TicTacToeCommand extends CyborgCommand {
 	}
 
 	public *args(msg: Message) {
-		this.instances.set(msg.author.id, {
-			delete: () => this.instances.delete(msg.author.id),
+		if (this.instances.some(i => i.players.some(p => p.user.id === msg.author.id))) {
+			msg.channel.send('You are already playing a TicTacToe game.');
+			return Flag.cancel();
+		}
+
+		this.instances.set(msg.id, {
+			delete: () => this.instances.delete(msg.id),
 			finished: false,
 			players: [this.createPlayer(msg.author)],
 			channel: msg.channel as TextChannel,
@@ -228,7 +233,7 @@ export default class TicTacToeCommand extends CyborgCommand {
 
 		yield {
 			type: async (msg: Message) => {
-				const instance = this.instances.get(msg.author.id)!;
+				const instance = this.getInstance(msg)!;
 				const embed = new MessageEmbed().setColor(COLORS.EMBED).setTitle('Jogo da Velha').setDescription(stripIndents`
 				Esperando alguém se juntar...
 				
@@ -238,6 +243,7 @@ export default class TicTacToeCommand extends CyborgCommand {
 				`);
 
 				const filter = (reaction: MessageReaction, user: User) => {
+					if (this.instances.some(i => i.players.some(p => p.user.id === msg.author.id)) && user.id !== msg.author.id) return false;
 					if (reaction.emoji.name === '⚔️') return user.id !== msg.author.id && !user.bot;
 					else if (reaction.emoji.name === '🤖') return user.id === msg.author.id && !user.bot;
 					else return false;
@@ -275,7 +281,7 @@ export default class TicTacToeCommand extends CyborgCommand {
 						`),
 					});
 				} catch (error) {
-					msg.util?.send({ embed: embed.setDescription(`Ninguém entrou e o jogo foi cancelado.`) }).then(msg => msg.reactions.removeAll());
+					msg.util?.send({ embed: embed.setDescription(`Ninguém entrou e o jogo foi cancelado.`).setFooter('') }).then(msg => msg.reactions.removeAll());
 					return Flag.cancel();
 				}
 			},
@@ -285,13 +291,13 @@ export default class TicTacToeCommand extends CyborgCommand {
 		return {};
 	}
 
-	public async exec(message: Message) {
+	public async exec(message: Message): Promise<boolean> {
 		for (const emoji of this.emojis) await message.util?.lastResponse?.react(emoji);
 
 		await this.updateEmbed(message);
 
 		let winner: User | string;
-		const instance = this.instances.get(message.author.id)!;
+		const instance = this.getInstance(message)!;
 		let reactionMessage: Message = await message.util?.send({ embed: instance.embed })!;
 
 		const filter = (reaction: MessageReaction, user: User) => {
@@ -309,33 +315,34 @@ export default class TicTacToeCommand extends CyborgCommand {
 				let reaction: string;
 				if (player.user.id === this.client.user!.id) {
 					const hrStart = process.hrtime();
-					reaction = this.bestMove(player);
+					reaction = this.bestMove(message);
 					instance.hrDiff = process.hrtime(hrStart);
 				} else {
 					const reacted = await reactionMessage?.awaitReactions(filter, { maxEmojis: 1, time: 30000, errors: ['time'] });
 					reaction = reacted.first()!.emoji.name;
 				}
 
-				await this.turn(player, reaction);
+				await this.turn(player, message, reaction);
 
-				if (this.check(message.author, instance.board) != null) {
+				if (this.check(message, instance.board) != null) {
 					instance.finished = true;
-					winner = this.check(message.author, instance.board)!.user ?? 'TIE';
+					winner = this.check(message, instance.board)!.user ?? 'TIE';
 				}
 			} catch (error) {
-				return message.util?.send({ embed: instance.embed.setDescription(`Jogadores demoraram muito para escolher...\n\nO jogo foi cancelado.`) }).then(msg => msg.reactions.removeAll());
+				message.util?.send({ embed: instance.embed.setDescription(`Jogadores demoraram muito para escolher...\n\nO jogo foi cancelado.`).setFooter('') }).then(msg => msg.reactions.removeAll());
+				return instance.delete();
 			}
 		}
 
 		await this.updateEmbed(message);
 
-		if (typeof winner! === 'string')
+		if (typeof winner! === 'string') {
 			message.util
 				?.send({
 					embed: instance.embed.setColor('#38667d').addField(`\u200b`, 'Velha!').setFooter(''),
 				})
 				.then(msg => msg.reactions.removeAll());
-		else
+		} else {
 			message.util
 				?.send({
 					embed: instance.embed
@@ -344,7 +351,8 @@ export default class TicTacToeCommand extends CyborgCommand {
 						.setFooter(''),
 				})
 				.then(msg => msg.reactions.removeAll());
+		}
 
-		instance.delete();
+		return instance.delete();
 	}
 }

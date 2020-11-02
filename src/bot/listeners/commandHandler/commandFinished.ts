@@ -22,9 +22,8 @@ export default class CommandFinishedListener extends Listener {
 			{ topic: TOPICS.DISCORD_AKAIRO, event: EVENTS.COMMAND_FINISHED }
 		);
 
-		const games = ['blackjack', 'tictactoe', 'connectfour'];
-		if (games.includes(command.id)) {
-			const instance = (command as BlackJackCommand | TicTacToeCommand | ConnectFourCommand).getInstance(message.author);
+		if (command instanceof TicTacToeCommand || command instanceof ConnectFourCommand) {
+			const instance = command.getInstance(message);
 			if (instance) instance.delete();
 		}
 	}
