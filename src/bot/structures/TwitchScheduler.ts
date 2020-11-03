@@ -140,8 +140,9 @@ export default class TwitchScheduler {
 		let newCat: string[] = storedData.categories;
 		if (!newCat.includes(game.data.length === 0 ? '\u200b' : game.data[0].name)) newCat.push(game.data.length === 0 ? '\u200b' : game.data[0].name);
 
-		const guild = this.client.guilds.cache.get(storedData.guild)!;
-		const channel = guild.channels.cache.get(storedData.channel) as TextChannel;
+		const guild = this.client.guilds.cache.get(storedData.guild);
+		const channel = guild?.channels.cache.get(storedData.channel) as TextChannel;
+		if (!channel) return;
 		let message: Message;
 		try {
 			message = await channel.messages.fetch(storedData.message);

@@ -2,8 +2,6 @@ import CyborgCommand from '../../structures/CyborgCommand';
 import { Message, Permissions, TextChannel } from 'discord.js';
 import { graphQLClient, GRAPHQL } from '../../util/graphQL';
 import { TwitchStreamsInsertInput } from '../../util/graphQLTypes';
-import { stream } from 'winston';
-import guildMemberAddReactionRole from '../../listeners/client/roleReaction/guildMemberAdd';
 const fetch = require('node-fetch');
 
 export default class TwitchAddCommand extends CyborgCommand {
