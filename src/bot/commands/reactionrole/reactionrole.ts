@@ -6,8 +6,8 @@ export default class ReactionRoleCommand extends CyborgCommand {
 	public constructor() {
 		super('reactionrole', {
 			description: {
-				content: (message: Message) => 'Manages roles by reactions.',
-				usage: (message: Message) => '<method> <...arguments>',
+				content: () => 'Manages roles by reactions.',
+				usage: () => '<method> <...arguments>',
 				examples: () => ['create', 'add', 'remove'],
 			},
 			channel: 'guild',

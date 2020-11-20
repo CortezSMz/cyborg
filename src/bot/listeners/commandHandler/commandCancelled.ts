@@ -1,7 +1,6 @@
 import { Command, Listener } from 'discord-akairo';
 import { Message } from 'discord.js';
 import { EVENTS, TOPICS } from '../../util/Logger';
-import BlackJackCommand from '../../commands/fun/blackjack';
 import ConnectFourCommand from '../../commands/fun/connectfour';
 import TicTacToeCommand from '../../commands/fun/tictactoe';
 

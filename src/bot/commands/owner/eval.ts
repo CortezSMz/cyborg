@@ -39,9 +39,9 @@ export default class EvalCommand extends CyborgCommand {
 	}
 
 	public async exec(message: Message, { code }: { code: string }) {
-		/* eslint-disable */
-		const msg = message;
+		// @ts-expect-error
 		const { client, lastResult } = this;
+		// @ts-expect-error
 		const doReply = async (val: string | Error) => {
 			if (val instanceof Error) {
 				message.util?.send(`Callback error: \`${val}\``);

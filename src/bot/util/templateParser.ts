@@ -205,11 +205,7 @@ function pString(s: State, x: string) {
 	if (testString(s, x)) {
 		s.position += x.length;
 	} else {
-		throw new ParseError(
-			`Expected token ${x} but got ${s.input[s.position] || 'unexpected end of input'}`,
-			s.input,
-			s.position,
-		);
+		throw new ParseError(`Expected token ${x} but got ${s.input[s.position] || 'unexpected end of input'}`, s.input, s.position);
 	}
 }
 

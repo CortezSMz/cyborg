@@ -242,11 +242,11 @@ export default class TicTacToeCommand extends CyborgCommand {
 				Ou clique no 🤖 para jogar contra o bot (${this.client.user})
 				`);
 
-				const filter = (reaction: MessageReaction, user: User) => {
-					if (this.instances.some(i => i.players.some(p => p.user.id === msg.author.id)) && user.id !== msg.author.id) return false;
-					if (reaction.emoji.name === '⚔️') return user.id !== msg.author.id && !user.bot;
-					else if (reaction.emoji.name === '🤖') return user.id === msg.author.id && !user.bot;
-					else return false;
+				const filter = (reaction: MessageReaction, user: User): boolean => {
+					if (this.instances.some(i => i.players.some(p => p.user.id === user.id && user.id !== msg.author.id)) || user.bot) return false;
+					if (reaction.emoji.name === '⚔️') return user.id !== msg.author.id;
+					else if (reaction.emoji.name === '🤖') return user.id === msg.author.id;
+					return false;
 				};
 
 				try {

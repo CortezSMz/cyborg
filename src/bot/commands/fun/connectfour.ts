@@ -118,7 +118,7 @@ export default class ConnectFourCommand extends CyborgCommand {
 		return validMoves;
 	}
 
-	bestMove(player: Player, depth: number, message: Message): string {
+	bestMove(depth: number, message: Message): string {
 		const instance = this.getInstance(message)!;
 		let board = instance.board.map(e => e);
 		let bestScore: number = -Infinity;
@@ -310,9 +310,9 @@ export default class ConnectFourCommand extends CyborgCommand {
 
 				try {
 					const filter = (reaction: MessageReaction, user: User): boolean => {
-						if (this.instances.some(i => i.players.some(p => p.user.id === msg.author.id)) && user.id !== msg.author.id) return false;
-						if (reaction.emoji.name === '⚔️') return user.id !== msg.author.id && !user.bot;
-						else if (reaction.emoji.name === '🤖') return user.id === msg.author.id && !user.bot;
+						if (this.instances.some(i => i.players.some(p => p.user.id === user.id && user.id !== msg.author.id)) || user.bot) return false;
+						if (reaction.emoji.name === '⚔️') return user.id !== msg.author.id;
+						else if (reaction.emoji.name === '🤖') return user.id === msg.author.id;
 						return false;
 					};
 
@@ -324,7 +324,9 @@ export default class ConnectFourCommand extends CyborgCommand {
 
 					let user: User;
 
+					console.log(reaction);
 					if (reaction.first()?.emoji.name === '🤖') {
+						console.log('🤖');
 						user = this.client.user!;
 					} else if (reaction.first()?.emoji.name === '⚔️') {
 						user = reaction.first()?.users.cache.find((u: User) => !u.bot && u.id !== msg.author.id)!;
@@ -387,7 +389,7 @@ export default class ConnectFourCommand extends CyborgCommand {
 				let reaction: string;
 				if (player.user.id === this.client.user!.id) {
 					const hrStart = process.hrtime();
-					reaction = this.bestMove(player, depth, message);
+					reaction = this.bestMove(depth, message);
 					instance.hrDiff = process.hrtime(hrStart);
 				} else {
 					const reacted = await reactionMessage?.awaitReactions(filter, { maxEmojis: 1, time: 30000, errors: ['time'] });

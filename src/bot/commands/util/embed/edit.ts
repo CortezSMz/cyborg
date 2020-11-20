@@ -44,7 +44,7 @@ export default class EmbedEditCommand extends CyborgCommand {
 		const option = yield {
 			type: Argument.validate(
 				[['author'], ['author:icon'], ['author:url'], ['color'], ['field'], ['description'], ['footer'], ['footer:icon'], ['image'], ['thumbnail'], ['timestamp'], ['title'], ['url']],
-				(msg, phrase, value) => {
+				(_msg, _phrase, value) => {
 					let athr = true;
 					let fter = true;
 					if (['author:icon', 'author:url'].includes(value)) athr = Boolean(embedMsg.embeds[0].author.name);
@@ -77,7 +77,7 @@ export default class EmbedEditCommand extends CyborgCommand {
 		return { embedMsg, option, action };
 	}
 
-	public async exec(message: Message, { embedMsg, option, action }: { embedMsg: Message; option: string; action: string | boolean }) {
+	public async exec(_m: Message, { embedMsg, option, action }: { embedMsg: Message; option: string; action: string | boolean }) {
 		const embed = this.client.util.embed(embedMsg.embeds[0]);
 
 		try {

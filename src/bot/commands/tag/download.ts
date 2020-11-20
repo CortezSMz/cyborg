@@ -1,6 +1,6 @@
 import CyborgCommand from '../../structures/CyborgCommand';
 import { GuildMember, Message } from 'discord.js';
-import { PRODUCTION, SETTINGS } from '../../util/Constants';
+import { PRODUCTION } from '../../util/Constants';
 import { GRAPHQL, graphQLClient } from '../../util/graphQL';
 import { Tags, TagsInsertInput } from '../../util/graphQLTypes';
 import { safeDump } from 'js-yaml';

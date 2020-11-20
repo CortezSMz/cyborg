@@ -1,5 +1,5 @@
 import CyborgCommand from '../../structures/CyborgCommand';
-import { Message, Permissions, TextChannel, MessageEmbed } from 'discord.js';
+import { Message, Permissions, MessageEmbed } from 'discord.js';
 import { graphQLClient, GRAPHQL } from '../../util/graphQL';
 import { TwitchStreamsInsertInput, TwitchStreams } from '../../util/graphQLTypes';
 import { COLORS } from '../../util/Constants';

@@ -1,4 +1,3 @@
-require('dotenv').config();
 import 'reflect-metadata';
 import CyborgClient from './client/CyborgClient';
 import { __rootdir__ } from './root';

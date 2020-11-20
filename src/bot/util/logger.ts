@@ -1,5 +1,5 @@
 import { createLogger, format, transports } from 'winston';
-import * as DailyRotateFile from 'winston-daily-rotate-file';
+import DailyRotateFile from 'winston-daily-rotate-file';
 
 export enum TOPICS {
 	UNHANDLED_REJECTION = 'UNHANDLED_REJECTION',

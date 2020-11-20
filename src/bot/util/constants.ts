@@ -1,4 +1,4 @@
-import { User, TextChannel, GuildEmoji, MessageEmbed, Guild, Message } from 'discord.js';
+import { User, TextChannel, GuildEmoji, MessageEmbed, Message } from 'discord.js';
 import * as emojis from 'node-emoji';
 
 export const PRODUCTION = process.env.NODE_ENV === 'production';

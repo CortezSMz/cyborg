@@ -36,7 +36,7 @@ export default class TwitchAddCommand extends CyborgCommand {
 		});
 		const twitchStream = await body.json();
 
-		const removed = await graphQLClient.mutate<any, TwitchStreamsInsertInput>({
+		await graphQLClient.mutate<any, TwitchStreamsInsertInput>({
 			mutation: GRAPHQL.MUTATION.TWITCH_STREAMS_BY_STREAMER_GUILD,
 			variables: {
 				guild: message.guild!.id,

@@ -31,7 +31,7 @@ export default class TestCommand extends CyborgCommand {
 		});
 	}
 
-	public exec(msg: Message /* , { topic, description }: { topic: string; description: string } */) {
+	public exec(_msg: Message /* , { topic, description }: { topic: string; description: string } */) {
 		// console.log('topic', topic);
 		// console.log('description', description);
 
